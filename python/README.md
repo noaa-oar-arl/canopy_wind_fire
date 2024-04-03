@@ -104,7 +104,7 @@ You can also generate and run global gridded canopy-app inputs using Python.  No
    For example:
    ```
    file_vars    = 'input/gfs.t12z.20220630.sfcf023.canopy.nc' 'input/gfs.t12z.20220701.sfcf000.canopy.nc' 'input/gfs.t12z.20220701.sfcf001.canopy.nc'
-   file_out     = 'output/2022-07-01-11-0000_global'
+   file_out     = 'output/global'
    ```
 
 3. Edit namelist (`namelist.canopy`) for correct time start/end and interval
