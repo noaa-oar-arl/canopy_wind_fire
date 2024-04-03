@@ -33,10 +33,9 @@ frp_src  = 0      # frp data source (0: local fire product; 1: 12 month climatol
 
 
 ############################## ATTENTION ######################################
-## [4/2/2024 UPDATE]                                                         ##
-## All data must come from local files. Climatological canopy and FRP are    ##
-## not avilable for downloading due to the limit access of AWS.              ##
-## Climatological data could be generated per request.                       ##
+## UPDATE - April 2 2024                                                     ##
+## All data must come from local files. GFS and climatological canopy data   ##
+## may be provided per request (see README for details).                     ##
 ##                                                                           ##
 ## ------------------------------------------------------------------------  ##
 ## If local FRP is used (frp_src=0,1), archived GBBEPx files since 2020 are  ##
