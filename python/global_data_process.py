@@ -177,7 +177,7 @@ for inputtime in timelist:
         else:                             # version 4
             f_frp = '/groups/ESS/yli74/data/GBBEPx/ORI/GBBEPx-all01GRID_v4r0_blend_'+YY+MM+DD+'.nc '
     elif frp_src == 1:                    # climatological frp
-        f_frp = path+'/gfs.canopy.t'+HH+'z.'+'2022'+MM+DD+'.sfcf000.nc'
+        f_frp = path+'/gfs.canopy.t'+HH+'z.'+'2022'+MM+DD+'.sfcf000.global.nc'
     
     
     
