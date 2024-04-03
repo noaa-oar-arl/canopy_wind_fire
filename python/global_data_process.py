@@ -78,7 +78,7 @@ canlist = ["lai", "clu", "canfrac", "ch", "pavd", "mol", "csz", "frp", "href"]
 
 
 # constants
-fill_value = 9.99e+20  # fill value
+fill_value = 9.99e20  # fill value
 den = 1.18  # air density (kg/m3)
 Cp = 1004  # specific heat capacity of Air at 25C (J/kg/K)
 K = 0.4  # Von Karman constant
@@ -130,7 +130,7 @@ def read_gfs_climatology(filename, lat, lon, varname):
                 yt.flatten(),
                 xt.flatten(),
                 "linear",
-                np.nan
+                np.nan,
             )
 
     else:
@@ -162,9 +162,7 @@ def read_frp_local(filename, lat, lon, fill_value):
     xt[xt < 0] = xt[xt < 0] + 360
     data = np.squeeze(readin["MeanFRP"][:])
 
-    DATA = mapping(
-        lat, lon, data.flatten(), yt.flatten(), xt.flatten(), "linear", np.nan
-    )
+    DATA = mapping(lat, lon, data.flatten(), yt.flatten(), xt.flatten(), "linear", np.nan)
     return DATA
 
 
@@ -199,13 +197,13 @@ for inputtime in timelist:
 
     # input/output files
     f_met = (
-        path+"/gfs.t" + HH + "z." + YY + MM + DD + ".sfcf" + FH + ".nc"
+        path + "/gfs.t" + HH + "z." + YY + MM + DD + ".sfcf" + FH + ".nc"
     )  # gfs met file
     f_can = (
-        path+"/gfs.canopy.t" + HH + "z." + "2022" + MM + DD + ".sfcf000.global.nc"
+        path + "/gfs.canopy.t" + HH + "z." + "2022" + MM + DD + ".sfcf000.global.nc"
     )  # canopy file
     f_output = (
-        path+"/gfs.t" + HH + "z." + YY + MM + DD + ".sfcf" + FH + ".canopy.nc"
+        path + "/gfs.t" + HH + "z." + YY + MM + DD + ".sfcf" + FH + ".canopy.nc"
     )  # output file
 
     if frp_src == 0:  # local frp file
@@ -269,13 +267,11 @@ for inputtime in timelist:
         else:
             print("---- No available FRP data. Terminated!")
             exit()
-    
+
         print("-----------!!!WARNING!!!-------------")
         print("---!!!Climatological FRP is used!!!--")
 
-
     os.system("cp " + f_met + " " + f_output)  # copy gfs met file for appending 
-
 
     """Reading dimensions"""
     print("------------------------------------")
