@@ -181,18 +181,27 @@ Hourly gridded GFSv16 data is available from March 23, 2021 - Current Day and is
 
 **For GMU Hopper users, daily global canopy files for 2022 at 12 UTC are available at**
 
-`/groups/ESS/whung/canopy_wind/gfsv16_test_data/test_2022`
+```
+/groups/ESS/whung/canopy_wind/gfsv16_test_data/test_2022
+```
 
 **For NOAA Hera users, daily global canopy files for 2022 at 12 UTC are available at** 
 
-`/scratch1/RDARCH/rda-arl-gpu/Wei-ting.Hung/Global_canopy/canopy_app_2022`
+```
+/scratch1/RDARCH/rda-arl-gpu/Wei-ting.Hung/Global_canopy/canopy_app_2022
+```
 
 **For NOAA HPSS users (e.g., Hera or WCOSS2), hourly operational GFSv16 meteorology files are archived at**
 
-`/5year/NCEPDEV/emc-naqfc/Ho-Chun.Huang/yyyy_GFSv16_prod/`
+```
+/5year/NCEPDEV/emc-naqfc/Ho-Chun.Huang/yyyy_GFSv16_prod/
+```
 
 **Near-real-time hourly GFSv16 outputs are on WCOSS2 at**
-` /lfs/h1/ops/prod/com/gfs/v16.3/gfs.yyyymmdd/12/atmos/`
+
+```
+/lfs/h1/ops/prod/com/gfs/v16.3/gfs.yyyymmdd/12/atmos/
+```
 
 ### Table 3. Current User Namelist Options
 
