@@ -187,7 +187,7 @@ Hourly gridded GFSv16 data is available from March 23, 2021 - Current Day and is
 
 `/5year/NCEPDEV/emc-naqfc/Ho-Chun.Huang/yyyy_GFSv16_prod/`
 
-Near-real-time hourly GFSv16 outputs are on WCOSS2 at:  
+**Near-real-time hourly GFSv16 outputs are on WCOSS2 at**
 ` /lfs/h1/ops/prod/com/gfs/v16.3/gfs.yyyymmdd/12/atmos/`
 
 **For GMU Hopper users, daily global canopy files for 2022 at 12 UTC are available at**
