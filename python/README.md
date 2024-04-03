@@ -55,7 +55,7 @@ ds = run_config_sens(cases)
 
 ### Generating global data
 
-You can also generate and run global gridded canopy-app inputs using Python.  Note:  The python script here assumes that the user already has the global canopy data files (available by request or as staged on NOAA Hera or GMU Hopper) and GFS meteorological files (available by request or on NOAA Hera/HPSS) locally available (under the 'path' working directory set in the python script).  The user may generate their own gridded, meteorological NetCDF files conforming to the format provided here in the GFS examples and README. 
+You can also generate and run global gridded canopy-app inputs using Python.  Note:  The python script here assumes that the user already has the global canopy data files (available by request or as staged on NOAA Hera or GMU Hopper) and GFS meteorological files (available by request or on NOAA Hera/HPSS) locally available (under the 'path' working directory set in the python script).  The user may generate their own gridded, meteorological NetCDF files conforming to the format provided here in the GFS examples and README.
 
 1. Edit python script (`global_data_process.py`)
 
