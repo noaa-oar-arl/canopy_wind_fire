@@ -173,7 +173,10 @@ The Canopy-App input data in [Table 2](#table-2-canopy-app-required-input-variab
 
 **More Information on Data Sources from [Table 2](#table-2-canopy-app-required-input-variables):**
 
-**Global GFS meteorological and canopy files may be provided by request: `Patrick.C.Campbell@noaa.gov`**
+**Global GFS meteorological and canopy files may be provided by request:**
+```
+Patrick.C.Campbell@noaa.gov
+```
 
 Hourly gridded GFSv16 data is available from March 23, 2021 - Current Day and is supplemented by calculated and canopy parameters shown in Table 2.
 
@@ -185,7 +188,7 @@ Hourly gridded GFSv16 data is available from March 23, 2021 - Current Day and is
 /groups/ESS/whung/canopy_wind/gfsv16_test_data/test_2022
 ```
 
-**For NOAA Hera users, daily global canopy files for 2022 at 12 UTC are available at** 
+**For NOAA Hera users, daily global canopy files for 2022 at 12 UTC are available at**
 
 ```
 /scratch1/RDARCH/rda-arl-gpu/Wei-ting.Hung/Global_canopy/canopy_app_2022
