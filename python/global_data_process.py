@@ -10,17 +10,16 @@ Author: Wei-Ting Hung
 import os
 import sys
 from datetime import datetime, timedelta, timezone
+
 import numpy as np
 from netCDF4 import Dataset
 from pysolar.solar import get_altitude
 from scipy.interpolate import griddata
 
-
 """User Arguments"""
 # Time: yyyymmddhhfff
 timelist = sys.argv[1]
 timelist = np.array(timelist.split(",")).astype(str)
-
 
 """User Options"""
 path = "/groups/ESS/whung/canopy_wind/gfsv16_test_data"  # work directory
@@ -194,7 +193,6 @@ for inputtime in timelist:
     HH = inputtime[8:10]  # hour in UTC
     FH = inputtime[10:]  # forecast hour, for met file only
 
-
     # input/output files
     f_met = (
         path + "/gfs.t" + HH + "z." + YY + MM + DD + ".sfcf" + FH + ".nc"
@@ -271,7 +269,7 @@ for inputtime in timelist:
         print("-----------!!!WARNING!!!-------------")
         print("---!!!Climatological FRP is used!!!--")
 
-    os.system("cp " + f_met + " " + f_output)  # copy gfs met file for appending 
+    os.system("cp " + f_met + " " + f_output)  # copy gfs met file for appending
 
     """Reading dimensions"""
     print("------------------------------------")
@@ -295,7 +293,6 @@ for inputtime in timelist:
     print("grid_xt", grid_xt.shape)
     print("lat", lat.shape)
     print("lon", lon.shape)
-
 
     """Adding canvar"""
     print("------------------------------------")
@@ -347,7 +344,7 @@ for inputtime in timelist:
             DATA = (-1 * den * Cp * t2m * (fricv**3)) / (K * g * shtfl)
             DATA[DATA > 500] = 500
             DATA[DATA < -500] = -500
-    
+
             del [readin, t2m, fricv, shtfl]
 
         elif varname == "csz":
