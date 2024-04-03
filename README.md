@@ -175,12 +175,12 @@ The Canopy-App input data in [Table 2](#table-2-canopy-app-required-input-variab
 
 **Global GFS meteorological and canopy files may be provided by request: `Patrick.C.Campbell@noaa.gov`**
 
-**For NOAA Hera users, daily global canopy files for 2022 at 12 UTC are available at `/scratch1/RDARCH/rda-arl-gpu/Wei-ting.Hung/Global_canopy/canopy_app_2022`**
-**For GMU Hopper users, daily global canopy files for 2022 at 12 UTC are available at `/groups/ESS/whung/canopy_wind/gfsv16_test_data/test_2022`**
-
 Hourly gridded GFSv16 data is available from March 23, 2021 - Current Day and is supplemented by calculated and canopy parameters shown in Table 2.
 
 **GriddingMachine:** GriddingMachine is open source database and software for Earth system modeling at global and regional scales.  Data is easily accessible in consistent formats for ease of downloading/processing.  All available datasets may be found at:  https://github.com/CliMA/GriddingMachine.jl. ([Wang et al., 2022](https://doi.org/10.1038/s41597-022-01346-x)).
+
+**For NOAA Hera users, daily global canopy files for 2022 at 12 UTC are available at `/scratch1/RDARCH/rda-arl-gpu/Wei-ting.Hung/Global_canopy/canopy_app_2022`**
+**For GMU Hopper users, daily global canopy files for 2022 at 12 UTC are available at `/groups/ESS/whung/canopy_wind/gfsv16_test_data/test_2022`**
 
 ### Table 3. Current User Namelist Options
 
