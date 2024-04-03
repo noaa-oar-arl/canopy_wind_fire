@@ -173,11 +173,38 @@ The Canopy-App input data in [Table 2](#table-2-canopy-app-required-input-variab
 
 **More Information on Data Sources from [Table 2](#table-2-canopy-app-required-input-variables):**
 
-**Global GFS meteorological and canopy files may be provided by request: `Patrick.C.Campbell@noaa.gov`**
+**Global GFS meteorological and canopy files may be provided by request:**
+```
+Patrick.C.Campbell@noaa.gov
+```
 
 Hourly gridded GFSv16 data is available from March 23, 2021 - Current Day and is supplemented by calculated and canopy parameters shown in Table 2.
 
 **GriddingMachine:** GriddingMachine is open source database and software for Earth system modeling at global and regional scales.  Data is easily accessible in consistent formats for ease of downloading/processing.  All available datasets may be found at:  https://github.com/CliMA/GriddingMachine.jl. ([Wang et al., 2022](https://doi.org/10.1038/s41597-022-01346-x)).
+
+**For GMU Hopper users, daily global canopy files for 2022 at 12 UTC are available at**
+
+```
+/groups/ESS/whung/canopy_wind/gfsv16_test_data/test_2022
+```
+
+**For NOAA Hera users, daily global canopy files for 2022 at 12 UTC are available at**
+
+```
+/scratch1/RDARCH/rda-arl-gpu/Wei-ting.Hung/Global_canopy/canopy_app_2022
+```
+
+**For NOAA HPSS users (e.g., Hera or WCOSS2), hourly operational GFSv16 meteorology files are archived at**
+
+```
+/5year/NCEPDEV/emc-naqfc/Ho-Chun.Huang/yyyy_GFSv16_prod/
+```
+
+**Near-real-time hourly GFSv16 outputs are on WCOSS2 at**
+
+```
+/lfs/h1/ops/prod/com/gfs/v16.3/gfs.yyyymmdd/12/atmos/
+```
 
 ### Table 3. Current User Namelist Options
 
