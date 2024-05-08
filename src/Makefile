@@ -23,7 +23,7 @@ ifeq ($(DEBUG), 0)
 else ifeq ($(DEBUG), 1)
   ifeq ($(findstring gfortran,$(notdir $(FC))),gfortran)
     FCFLAGS := -g -Og -Wall -Wextra -Wconversion -pedantic \
-      -fcheck=bounds -fall-intrinsics -fmax-errors=5 \
+      -frecursive -fcheck=bounds -fall-intrinsics -fmax-errors=5 \
       -std=f2003
   else ifeq ($(FC),ifort)
     FCFLAGS := -g -O0 -warn all -check bounds -implicitnone -error-limit 5
@@ -31,7 +31,7 @@ else ifeq ($(DEBUG), 1)
 else ifeq ($(DEBUG), 2)
   ifeq ($(findstring gfortran,$(notdir $(FC))),gfortran)
     FCFLAGS := -g -Og -Wall -Wextra -Wconversion -pedantic \
-      -fcheck=all -fall-intrinsics -fmax-errors=0 \
+      -frecursive -fcheck=all -fall-intrinsics -fmax-errors=0 \
       -fbacktrace -ffpe-trap=invalid,zero,overflow -finit-real=snan -finit-integer=-99999999 \
       -std=f2003
   else ifeq ($(FC),ifort)
