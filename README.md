@@ -196,7 +196,6 @@ May 28, 2024 Update: Daily global canopy files on Hopper still use MODIS annual 
 /scratch1/RDARCH/rda-arl-gpu/Wei-ting.Hung/Global_canopy/canopy_app_2022
 ```
 
-May 28, 2024 Update: Daily global canopy files on Hera still use MODIS annual TVF, not VIIRS monthly GVF. Updated files will be available soon.
 
 **For NOAA HPSS users (e.g., Hera or WCOSS2), hourly operational GFSv16 meteorology files are archived at**
 
