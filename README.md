@@ -188,7 +188,6 @@ Hourly gridded GFSv16 data is available from March 23, 2021 - Current Day and is
 /groups/ESS/whung/canopy_wind/gfsv16_test_data/test_2022
 ```
 
-May 28, 2024 Update: Daily global canopy files on Hopper still use MODIS annual TVF, not VIIRS monthly GVF. Updated files will be available soon.
 
 **For NOAA Hera users, daily global canopy files for 2022 at 12 UTC are available at**
 
