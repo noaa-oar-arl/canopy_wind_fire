@@ -162,7 +162,7 @@ The Canopy-App input data in [Table 2](#table-2-canopy-app-required-input-variab
 | `ch`                             | Canopy height (m)                    | Globally extended GEDI data. Data Period=2020. Data frequency=Annual. ([Lang et al., 2023](https://doi.org/10.1038/s41559-023-02206-6)) |
 | `clu`                            | Canopy clumping index (dimensionless)       | GriddingMachine/MODIS. Data Period=2001-2017 Climatology. Data frequency=Monthly. ([Wei et al., 2019](https://doi.org/10.1016/j.rse.2019.111296)). Extended globally for high latitudes using methods described [here](https://gmuedu-my.sharepoint.com/:w:/g/personal/whung_gmu_edu/EdglXmW2kzBDtDj1xV0alGcB1Yo2I8hzdyWGVGB2YOTfgw). |
 | `lai`                            | Leaf area index (m2/m2)                     | VIIRS-NPP. Data Period=2020. Data frequency=Daily, interpolated from original 8-day product. ([Myneni 2018](https://doi.org/10.5067/VIIRS/VNP15A2H.001)). Extended globally for high latitudes using methods described [here](https://gmuedu-my.sharepoint.com/:w:/g/personal/whung_gmu_edu/EdglXmW2kzBDtDj1xV0alGcB1Yo2I8hzdyWGVGB2YOTfgw). |
-| `canfrac`                          | Canopy fraction (dimensionless)             | Based on [MODIS VCF](https://doi.org/10.5067/MODIS/MOD44B.061). Data Period=2020. Data frequency=Annual. Extended globally for high latitudes using methods described [here](https://gmuedu-my.sharepoint.com/:w:/g/personal/whung_gmu_edu/EdglXmW2kzBDtDj1xV0alGcB1Yo2I8hzdyWGVGB2YOTfgw). |
+| `canfrac`                          | Canopy green vegetation fraction (dimensionless)             | Based on [VIIRS GVF]([https://doi.org/10.5067/MODIS/MOD44B.061](https://www.star.nesdis.noaa.gov/jpss/gvf.php)). Data Period=2020. Data frequency=Monthly. Extended globally for high latitudes using methods described [here](https://gmuedu-my.sharepoint.com/:w:/g/personal/whung_gmu_edu/EdglXmW2kzBDtDj1xV0alGcB1Yo2I8hzdyWGVGB2YOTfgw). |
 | `pavd`                           | Plant area volume density (m2/m3)           | [GEDI product from North Arizona University](https://goetzlab.rc.nau.edu/index.php/gedi/). Data Period=201904-202212 Climatology. Data frequency=Annual. Three dimensional structure of plant area volume density with 14 vertical layers from the surface (0 m) to 70 m above ground level. Data at each layer represents the average pavd within certain height range (e.g. 0 - 5 m for first layer). |
 | `lev`                            | Height AGL for levels associated with optional pavd (or other canopy profile) inputs (m)                                  | Same as for GEDI PAVD (or other canopy profile inputs) above                                    |
 | **Other External Variables**     | **Variable Description and Units**          | **Data Source/Reference (if necessary)**           |
@@ -188,11 +188,15 @@ Hourly gridded GFSv16 data is available from March 23, 2021 - Current Day and is
 /groups/ESS/whung/canopy_wind/gfsv16_test_data/test_2022
 ```
 
+May 28, 2024 Update: Daily global canopy files on Hopper still use MODIS annual TVF, not VIIRS monthly GVF. Updated files will be available soon.
+
 **For NOAA Hera users, daily global canopy files for 2022 at 12 UTC are available at**
 
 ```
 /scratch1/RDARCH/rda-arl-gpu/Wei-ting.Hung/Global_canopy/canopy_app_2022
 ```
+
+May 28, 2024 Update: Daily global canopy files on Hera still use MODIS annual TVF, not VIIRS monthly GVF. Updated files will be available soon.
 
 **For NOAA HPSS users (e.g., Hera or WCOSS2), hourly operational GFSv16 meteorology files are archived at**
 
