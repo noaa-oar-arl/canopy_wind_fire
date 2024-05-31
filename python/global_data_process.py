@@ -3,18 +3,20 @@ Created on Sun Jun 4  2023
 Updated on Mon Oct 16 2023: Use daily gfs.canopy files
 Updated on Tue Nov 7  2023: Enable multiple times as user argument
 Updated on Tue Apr 2  2024: Remove wget functions, all data must be from local files
+Updated on Fri May 31 2024: Replace scipy griddata with monet (pyresample)
 
 Author: Wei-Ting Hung
 """
 
 import os
 import sys
+import monet
 from datetime import datetime, timedelta, timezone
 
 import numpy as np
+import xarray as xr
 from netCDF4 import Dataset
 from pysolar.solar import get_altitude
-from scipy.interpolate import griddata
 
 """User Arguments"""
 # Time: yyyymmddhhfff
@@ -103,65 +105,40 @@ def write_varatt(var, attname, att):
             var.setncattr(attname[X], att[X])
 
 
-def mapping(xgrid, ygrid, data, xdata, ydata, map_method, fvalue):
-    output = griddata(
-        (xdata, ydata), data, (xgrid, ygrid), method=map_method, fill_value=fvalue
-    )
-    return output
+def read_gfs_climatology(filename, basefile, varname):
+    readin = xr.open_dataset(filename)
+    readin = readin.set_coords(["lat", "lon"]).rename({"grid_xt":"x", "grid_yt":"y", "lat":"latitude", "lon":"longitude"})
 
-
-def read_gfs_climatology(filename, lat, lon, varname):
-    readin = Dataset(filename)
-
+    nlev = len(readin.lev.data)
+    
     if varname == "pavd":
-        # map to met grids
-        yt = readin["lat"][:]
-        xt = readin["lon"][:]
-        data = np.squeeze(readin[varname][:])
-
-        DATA = np.empty([data.shape[0], lat.shape[0], lat.shape[1]])
-
-        for ll in np.arange(data.shape[0]):
-            DATA[ll, :, :] = mapping(
-                lat,
-                lon,
-                data[ll, :, :].flatten(),
-                yt.flatten(),
-                xt.flatten(),
-                "linear",
-                np.nan,
-            )
-
+        DATA = np.empty([nlev, basefile.zc.data.shape[1], basefile.zc.data.shape[2]])
+        for ll in np.arange(nlev):
+            DATA[ll, :, :] = basefile["zc"].monet.remap_nearest(readin[varname][0, ll, :, :]).data
     else:
-        # map to met grids
-        yt = readin["lat"][:]
-        xt = readin["lon"][:]
-        data = np.squeeze(readin[varname][0, :, :])
-
-        DATA = mapping(
-            lat,
-            lon,
-            data.flatten(),
-            yt.flatten(),
-            xt.flatten(),
-            "linear",
-            np.nan,
-        )
-
+        DATA = basefile["zc"].monet.remap_nearest(readin[varname][0, :, :]).data
+        
+    readin.close()
     DATA[np.isnan(DATA)] = 0
     DATA[DATA < 0] = 0
     return DATA
 
 
-def read_frp_local(filename, lat, lon, fill_value):
-    readin = Dataset(filename)
+def read_frp_local(filename, basefile):
+    readin = xr.open_dataset(filename)
+    readin = readin.rename({"Latitude":"y", "Longitude":"x"})
+    readin["x"] = readin["x"].where(readin["x"]>0, readin["x"]+360)
 
-    # map to met grids
-    xt, yt = np.meshgrid(readin["Longitude"][:], readin["Latitude"][:])
-    xt[xt < 0] = xt[xt < 0] + 360
-    data = np.squeeze(readin["MeanFRP"][:])
+    grid_xt, grid_yt = np.meshgrid(readin["x"].data, readin["y"].data)
+    yt = xr.DataArray(grid_yt, dims=["y", "x"], name="latitude")
+    xt = xr.DataArray(grid_xt, dims=["y", "x"], name="longitude")
+    readin["latitude"] = yt
+    readin["longitude"] = xt
+    readin = readin.set_coords(["latitude", "longitude"])
 
-    DATA = mapping(lat, lon, data.flatten(), yt.flatten(), xt.flatten(), "linear", np.nan)
+    DATA = basefile["zc"].monet.remap_nearest(readin["MeanFRP"][0, :, :]).data
+
+    readin.close()
     return DATA
 
 
@@ -275,24 +252,20 @@ for inputtime in timelist:
     print("------------------------------------")
     print("---- Checking variable dimensions...")
     print("------------------------------------")
-    readin = Dataset(f_met)
-    grid_yt = readin["grid_yt"][:]
-    grid_xt = readin["grid_xt"][:]
-    lat = readin["lat"][:]
-    lon = readin["lon"][:]
-    time = readin["time"][:]
+    basefile = xr.open_dataset(f_met)
+    basefile = basefile.set_coords(["lat", "lon"]).rename({"grid_xt":"x", "grid_yt":"y", "lat":"latitude", "lon":"longitude"})
 
     # dimension sizes
-    ntime = len(time)
-    nlat = len(grid_yt)
-    nlon = len(grid_xt)
+    ntime = len(basefile["time"].data)
+    nlat = len(basefile["y"].data)
+    nlon = len(basefile["x"].data)
 
     # var check
-    print("time", time.shape)
-    print("grid_yt", grid_yt.shape)
-    print("grid_xt", grid_xt.shape)
-    print("lat", lat.shape)
-    print("lon", lon.shape)
+    print("time", basefile["time"].data.shape)
+    print("grid_yt", basefile["y"].data.shape)
+    print("grid_xt", basefile["x"].data.shape)
+    print("lat", basefile["latitude"].data.shape)
+    print("lon", basefile["longitude"].data.shape)
 
     """Adding canvar"""
     print("------------------------------------")
@@ -312,22 +285,22 @@ for inputtime in timelist:
         elif varname == "clu":
             ATTNAME = ["long_name", "units", "missing_value"]
             ATT = ["Canopy clumping index", "none", fill_value]
-            DATA = read_gfs_climatology(f_can, lat, lon, "clu")
+            DATA = read_gfs_climatology(f_can, basefile, "clu")
 
         elif varname == "canfrac":
             ATTNAME = ["long_name", "units", "missing_value"]
             ATT = ["Forest fraction of grid cell", "none", fill_value]
-            DATA = read_gfs_climatology(f_can, lat, lon, "canfrac")
+            DATA = read_gfs_climatology(f_can, basefile, "canfrac")
 
         elif varname == "ch":
             ATTNAME = ["long_name", "units", "missing_value"]
             ATT = ["Canopy height above the surface", "m", fill_value]
-            DATA = read_gfs_climatology(f_can, lat, lon, "ch")
+            DATA = read_gfs_climatology(f_can, basefile, "ch")
 
         elif varname == "pavd":
             ATTNAME = ["long_name", "units", "missing_value"]
             ATT = ["Plant area volume density profile", "m2/m3", fill_value]
-            DATA = read_gfs_climatology(f_can, lat, lon, "pavd")
+            DATA = read_gfs_climatology(f_can, basefile, "pavd")
 
         elif varname == "mol":
             # Reference:
@@ -351,25 +324,28 @@ for inputtime in timelist:
             ATTNAME = ["long_name", "units", "missing_value"]
             ATT = ["Cosine of solar zenith angle", "none", fill_value]
 
+            lat = basefile.latitude.data
+            lon = basefile.longitude.data
+            
             time_conv = datetime(
                 int(YY), int(MM), int(DD), int(HH), 0, 0, 0, tzinfo=timezone.utc
             ) + timedelta(hours=int(FH))
             sza = 90 - get_altitude(lat, lon, time_conv)
             DATA = np.cos(sza * 0.0174532925)  # degree to radian
 
-            del [time_conv, sza]
+            del [lat, lon, time_conv, sza]
 
         elif varname == "frp":
             ATTNAME = ["long_name", "units", "missing_value"]
             ATT = ["Mean fire radiative power", "MW", fill_value]
 
             if frp_src == 1:  # 12 month climatology
-                DATA = read_gfs_climatology(f_can, lat, lon, "frp")
+                DATA = read_gfs_climatology(f_can, basefile, "frp")
             elif frp_src == 2:  # ifcanwaf=.FALSE.
                 DATA = np.empty(lat.shape)
                 DATA[:] = 1
             else:
-                DATA = read_frp_local(f_frp, lat, lon, fill_value)
+                DATA = read_frp_local(f_frp, basefile)
 
         elif varname == "href":
             ATTNAME = ["long_name", "units", "missing_value"]
