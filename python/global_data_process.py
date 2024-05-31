@@ -10,9 +10,9 @@ Author: Wei-Ting Hung
 
 import os
 import sys
-import monet
 from datetime import datetime, timedelta, timezone
 
+import monet
 import numpy as np
 import xarray as xr
 from netCDF4 import Dataset
@@ -107,14 +107,18 @@ def write_varatt(var, attname, att):
 
 def read_gfs_climatology(filename, basefile, varname):
     readin = xr.open_dataset(filename)
-    readin = readin.set_coords(["lat", "lon"]).rename({"grid_xt":"x", "grid_yt":"y", "lat":"latitude", "lon":"longitude"})
+    readin = readin.set_coords(["lat", "lon"]).rename(
+        {"grid_xt":"x", "grid_yt":"y", "lat":"latitude", "lon":"longitude"}
+    )
 
     nlev = len(readin.lev.data)
     
     if varname == "pavd":
         DATA = np.empty([nlev, basefile.zc.data.shape[1], basefile.zc.data.shape[2]])
         for ll in np.arange(nlev):
-            DATA[ll, :, :] = basefile["zc"].monet.remap_nearest(readin[varname][0, ll, :, :]).data
+            DATA[ll, :, :] = (
+                basefile["zc"].monet.remap_nearest(readin[varname][0, ll, :, :]).data
+            )
     else:
         DATA = basefile["zc"].monet.remap_nearest(readin[varname][0, :, :]).data
         
@@ -126,8 +130,8 @@ def read_gfs_climatology(filename, basefile, varname):
 
 def read_frp_local(filename, basefile):
     readin = xr.open_dataset(filename)
-    readin = readin.rename({"Latitude":"y", "Longitude":"x"})
-    readin["x"] = readin["x"].where(readin["x"]>0, readin["x"]+360)
+    readin = readin.rename({"Latitude": "y", "Longitude": "x"})
+    readin["x"] = readin["x"].where(readin["x"] > 0, readin["x"] + 360)
 
     grid_xt, grid_yt = np.meshgrid(readin["x"].data, readin["y"].data)
     yt = xr.DataArray(grid_yt, dims=["y", "x"], name="latitude")
@@ -253,7 +257,9 @@ for inputtime in timelist:
     print("---- Checking variable dimensions...")
     print("------------------------------------")
     basefile = xr.open_dataset(f_met)
-    basefile = basefile.set_coords(["lat", "lon"]).rename({"grid_xt":"x", "grid_yt":"y", "lat":"latitude", "lon":"longitude"})
+    basefile = basefile.set_coords(["lat", "lon"]).rename(
+        {"grid_xt":"x", "grid_yt":"y", "lat":"latitude", "lon":"longitude"}
+    )
 
     # dimension sizes
     ntime = len(basefile["time"].data)
