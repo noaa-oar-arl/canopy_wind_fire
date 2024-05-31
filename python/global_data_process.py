@@ -286,7 +286,7 @@ for inputtime in timelist:
         if varname == "lai":
             ATTNAME = ["long_name", "units", "missing_value"]
             ATT = ["Leaf area index", "m^2/m^2", fill_value]
-            DATA = read_gfs_climatology(f_can, lat, lon, "lai")
+            DATA = read_gfs_climatology(f_can, basefile, "lai")
 
         elif varname == "clu":
             ATTNAME = ["long_name", "units", "missing_value"]
