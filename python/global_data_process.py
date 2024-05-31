@@ -112,7 +112,7 @@ def read_gfs_climatology(filename, basefile, varname):
     )
 
     nlev = len(readin.lev.data)
-    
+
     if varname == "pavd":
         DATA = np.empty([nlev, basefile.zc.data.shape[1], basefile.zc.data.shape[2]])
         for ll in np.arange(nlev):
@@ -121,7 +121,7 @@ def read_gfs_climatology(filename, basefile, varname):
             )
     else:
         DATA = basefile["zc"].monet.remap_nearest(readin[varname][0, :, :]).data
-        
+
     readin.close()
     DATA[np.isnan(DATA)] = 0
     DATA[DATA < 0] = 0
@@ -332,7 +332,7 @@ for inputtime in timelist:
 
             lat = basefile.latitude.data
             lon = basefile.longitude.data
-            
+
             time_conv = datetime(
                 int(YY), int(MM), int(DD), int(HH), 0, 0, 0, tzinfo=timezone.utc
             ) + timedelta(hours=int(FH))
