@@ -108,7 +108,7 @@ def write_varatt(var, attname, att):
 def read_gfs_climatology(filename, basefile, varname):
     readin = xr.open_dataset(filename)
     readin = readin.set_coords(["lat", "lon"]).rename(
-        {"grid_xt":"x", "grid_yt":"y", "lat":"latitude", "lon":"longitude"}
+        {"grid_xt": "x", "grid_yt": "y", "lat": "latitude", "lon": "longitude"}
     )
 
     nlev = len(readin.lev.data)
@@ -258,7 +258,7 @@ for inputtime in timelist:
     print("------------------------------------")
     basefile = xr.open_dataset(f_met)
     basefile = basefile.set_coords(["lat", "lon"]).rename(
-        {"grid_xt":"x", "grid_yt":"y", "lat":"latitude", "lon":"longitude"}
+        {"grid_xt": "x", "grid_yt": "y", "lat": "latitude", "lon": "longitude"}
     )
 
     # dimension sizes
