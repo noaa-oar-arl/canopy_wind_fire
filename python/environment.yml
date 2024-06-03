@@ -22,4 +22,4 @@ dependencies:
   # Extra
   - ipython
   - pysolar
-  - scipy
+  - monet
