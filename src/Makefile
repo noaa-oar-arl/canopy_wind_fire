@@ -16,6 +16,9 @@ DEBUG ?= 0
 # Default to NetCDF build
 NC ?= 1
 
+# Default to first `nf-config` on PATH
+NF_CONFIG ?= nf-config
+
 # Compile flags
 $(info DEBUG setting: '$(DEBUG)')
 ifeq ($(DEBUG), 0)
@@ -47,9 +50,10 @@ $(info FCFLAGS: '$(FCFLAGS)')
 LIBS :=
 INC :=
 $(info NC setting: '$(NC)')
+$(info NF_CONFIG setting: '$(NF_CONFIG)')
 ifeq ($(NC), 1)
-  NETCDF_FLIBS := $(shell nf-config --flibs)
-  NETCDF_INC := -I$(shell nf-config --includedir)
+  NETCDF_FLIBS := $(shell $(NF_CONFIG) --flibs)
+  NETCDF_INC := -I$(shell $(NF_CONFIG) --includedir)
   #
   LIBS += $(NETCDF_FLIBS)
   INC += $(NETCDF_INC)
