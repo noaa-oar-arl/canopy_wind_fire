@@ -70,7 +70,7 @@ jobs:
         run: |
           cd python
           for f in *.ipynb; do
-            jupyter nbconvert --to notebook --execute $f
+            jupyter nbconvert --to notebook --execute $f || exit 1
           done
           cd -
 
