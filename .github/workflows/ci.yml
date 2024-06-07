@@ -59,6 +59,7 @@ jobs:
         env:
           DEBUG: 1
           FC: ${{ matrix.compiler }}
+          NF_CONFIG: /usr/bin/nf-config
 
       - name: Run Python module as script
         run: |
@@ -82,6 +83,7 @@ jobs:
         env:
           DEBUG: 0
           FC: ${{ matrix.compiler }}
+          NF_CONFIG: /usr/bin/nf-config
 
       - name: Non-NetCDF compile and run
         run: |
