@@ -90,7 +90,7 @@ CONTAINS
                 write(10, '(a15, a24)') 'time stamp: ', TIMENOW
                 write(10, '(a30, f6.1, a2)') 'reference height, h: ', href_set, 'm'
                 write(10, '(a30, i6)') 'number of model layers: ', modlays
-                write(10, '(a8, a9, a12, a13, a17)') 'lat', 'lon', 'height (m)', 'LAD (m2 m-3)', 'ws (m s-1)'
+                write(10, '(a8, a9, a12, a14, a17)') 'lat', 'lon', 'height (m)', 'LAD (m2 m-3)', 'ws (m s-1)'
                 do loc=1, nlat*nlon
                     do k=1, modlays
                         write(10, '(f8.2, f9.2, f10.2, f12.2, es15.7)')  variables(loc)%lat, variables(loc)%lon, &
@@ -122,7 +122,7 @@ CONTAINS
                 write(12, '(a15, a24)') 'time stamp: ', TIMENOW
                 write(12, '(a30, f6.1, a2)') 'reference height, h: ', href_set, 'm'
                 write(12, '(a30, i6)') 'number of model layers: ', modlays
-                write(12, '(a8, a9, a12, a13, a15)') 'lat', 'lon', 'height (m)', 'LAD (m2 m-3)', 'kz (m2 s-1)'
+                write(12, '(a8, a9, a12, a14, a15)') 'lat', 'lon', 'height (m)', 'LAD (m2 m-3)', 'kz (m2 s-1)'
                 do loc=1, nlat*nlon
                     do k=1, modlays
                         write(12, '(f8.2, f9.2, f12.2, f12.2, es15.7)')  variables(loc)%lat, variables(loc)%lon, &
@@ -139,7 +139,7 @@ CONTAINS
                 write(13, '(a15, a24)') 'time stamp: ', TIMENOW
                 write(13, '(a30, f6.1, a2)') 'reference height, h: ', href_set, 'm'
                 write(13, '(a30, i6)') 'number of model layers: ', modlays
-                write(13, '(a8, a9, a12, a13, a15)') 'lat', 'lon', 'height (m)', 'LAD (m2 m-3)', 'rjcf (1)'
+                write(13, '(a8, a9, a12, a14, a15)') 'lat', 'lon', 'height (m)', 'LAD (m2 m-3)', 'rjcf (1)'
                 do loc=1, nlat*nlon
                     do k=1, modlays
                         write(13, '(f8.2, f9.2, f12.2, f12.2, es15.7)')  variables(loc)%lat, variables(loc)%lon, &
@@ -155,7 +155,7 @@ CONTAINS
                 write(14, '(a15, a24)') 'time stamp: ', TIMENOW
                 write(14, '(a30, f6.1, a2)') 'reference height, h: ', href_set, 'm'
                 write(14, '(a30, i6)') 'number of model layers: ', modlays
-                write(14, '(a8, a9, a12, a13, a28, a28, a28, a28, a28, a28, a28, a28, a28, a28, &
+                write(14, '(a8, a9, a12, a14, a28, a28, a28, a28, a28, a28, a28, a28, a28, a28, &
                 & a28, a28, a28, a28, a28, a28, a28, a28, a28)') 'lat', 'lon', 'height (m)', 'LAD (m2 m-3)', &
                     'emi_isop (kg m-3 s-1)', 'emi_myrc (kg m-3 s-1)', 'emi_sabi (kg m-3 s-1)', &
                     'emi_limo (kg m-3 s-1)', 'emi_care (kg m-3 s-1)', 'emi_ocim (kg m-3 s-1)', &
