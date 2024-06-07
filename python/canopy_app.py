@@ -1,5 +1,5 @@
 """
-Run canopy-app using the namelist and load nc data.
+Run canopy-app using the namelist and load the outputs.
 """
 from __future__ import annotations
 
@@ -262,7 +262,8 @@ def run(
             for vn in ds_.data_vars:
                 assert isinstance(vn, str)
                 ds_[vn].attrs["units"] = units[vn]
-                ds_[vn].attrs["group"] = df.attrs["which"]
+                if vn != "lad":  # in multiple groups
+                    ds_[vn].attrs["group"] = df.attrs["which"]
             ds_.attrs.update(
                 {k: v for k, v in df.attrs.items() if k not in {"which", "units"}}
             )
@@ -272,6 +273,9 @@ def run(
         if {"lat", "lon"}.issubset(ds.dims):
             ds = ds.rename_dims(lat="y", lon="x")
         # NOTE: lat/lon are 1-D in our examples, though 2-D in the example nc output
+
+    if "lad" in ds.data_vars:
+        ds = ds.set_coords("lad")
 
     # Store namelist settings
     ds.attrs["nml"] = str(full_config)
