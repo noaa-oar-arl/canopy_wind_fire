@@ -1,5 +1,5 @@
 """
-Run canopy-app using the namelist and load nc data.
+Run canopy-app using the namelist and load the outputs.
 """
 from __future__ import annotations
 
