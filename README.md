@@ -195,12 +195,13 @@ Hourly gridded GFSv16 data is available from March 23, 2021 - Current Day and is
 /scratch1/RDARCH/rda-arl-gpu/Wei-ting.Hung/Global_canopy/canopy_app_2022
 ```
 
-
-**For NOAA HPSS users (e.g., Hera or WCOSS2), hourly operational GFSv16 meteorology files are archived at**
+**For NOAA HPSS users (e.g., Hera or WCOSS2), hourly operational GFSv16 meteorology files are archived at (following 07/01/2024)**
 
 ```
-/5year/NCEPDEV/emc-naqfc/Ho-Chun.Huang/yyyy_GFSv16_prod/
+ /NAGAPE/arl/5year/Patrick.C.Campbell//yyyy_GFSv16_prod/
 ```
+Otherwise, please contact Patrick.C.Campbell@noaa.gov for other GFSv16 data periods.
+
 
 **Near-real-time hourly GFSv16 outputs are on WCOSS2 at**
 
