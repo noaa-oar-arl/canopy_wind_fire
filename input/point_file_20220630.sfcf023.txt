@@ -1,2 +1,2 @@
-lat,lon,ch,ugrd10m,vgrd10m,clu,lai,vtype,canfrac,fricv,csz,sfcr,mol,frp,href,sotyp,pressfc,dswrf,shtfl,tmpsfc,tmp2m,spfh2m,hpbl,prate_ave,soilw1,soilw2,soilw3,soilw4,wilt
-34.03,272.11,20.8692,-0.7485,0.3286,0.5214,3.7059,4,0.2966,0.1107,0.0416,0.8260,12.2366,0.0000,10.00,3,99731.6094,10.1607,-9.8159,292.9766,293.2202,0.0146,14.0288,0.0001,0.2591,0.2053,0.2134,0.2132,0.0470
+lat,lon,ch,ugrd10m,vgrd10m,clu,lai,vtype,canfrac,fricv,csz,sfcr,mol,frp,href,sotyp,pressfc,dswrf,shtfl,tmpsfc,tmp2m,spfh2m,hpbl,prate_ave,soilw1,soilw2,soilw3,soilw4,wilt,ozone_w126
+34.03,272.11,20.8692,-0.7485,0.3286,0.5214,3.7059,4,0.2966,0.1107,0.0416,0.8260,12.2366,0.0000,10.00,3,99731.6094,10.1607,-9.8159,292.9766,293.2202,0.0146,14.0288,0.0001,0.2591,0.2053,0.2134,0.2132,0.0470,85
