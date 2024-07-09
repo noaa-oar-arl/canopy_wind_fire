@@ -7,7 +7,7 @@ module canopy_utils_mod
     private
     public IntegrateTrapezoid,interp_linear1_internal,CalcPAI, &
         CalcDX,CalcFlameH,GET_GAMMA_CO2,GET_GAMMA_LEAFAGE, &
-        GET_GAMMA_SOIM,GET_CANLOSS_BIO
+        GET_GAMMA_SOIM,GET_GAMMA_AQ,GET_CANLOSS_BIO
 
 contains
 
@@ -873,4 +873,63 @@ contains
 
     end function GET_GAMMA_SOIM
 
+!----------------------------------------------------------------
+!
+!   Function GAMMA_AQ
+!   EA response to air quality
+!
+!----------------------------------------------------------------
+
+    real(rk) function GET_GAMMA_AQ(aq_opt, w126_ozone, w126_set, caq, taq, dtaq)  result( GAMMA_AQ )
+
+        ! !IROUTINE: get_gamma_aq
+        !
+        ! !DESCRIPTION: Function GET\_GAMMA\_AQ computes the  activity factor
+        !  associated with air qualtity (ozone W126 stress of biogenic emission. Called from
+        !  GET\_MEGAN\_EMISSIONS only.
+        !\\
+        !\\
+        ! !INTERFACE:
+
+        ! !INPUT PARAMETERS:
+        integer,  INTENT(IN) :: aq_opt       ! Option for aq stress calculation
+        ! 0=MEGANv3.2 implementation with climatological, spatially dependent GFSv16-based W126;
+        ! 1=MEGANv3.2 implementation with user-set, spatially constant value of ozone W126
+        ! >1=off (gamma_aq=1)
+        real(rk), INTENT(IN) :: w126_ozone     ! spatially dependent GFS w126 ozone [ppm-hours]
+        real(rk), INTENT(IN) :: w126_set       ! user set spatially constant w126 ozone [ppm-hours]
+        real(rk), INTENT(IN) :: taq            ! threshold for poor Air Quality stress (ppm-hours)
+        real(rk), INTENT(IN) :: dtaq           ! delta threshold for poor Air Quality stress (ppm-hours)
+        real(rk), INTENT(IN) :: caq            ! coefficient for poor Air Quality stress
+        !
+        ! !RETURN VALUE:
+        !REAL(rk)             :: GAMMA_AQ  ! AQ activity factor [unitless]
+        !
+        ! !LOCAL VARIABLES:
+        REAL(rk)             :: w126       ! local w126 value (ppm-hours)
+        REAL(rk)             :: t1         ! combined threshold AQ value
+
+        if (aq_opt .eq. 0) then !Use spatial GFS W126 ozone
+            w126 = w126_ozone
+        else                    !Use user set value of W126 ozone
+            w126 = w126_set
+        end if
+
+
+        if (aq_opt .le. 1) then !Calculate GAMMA_AQ
+            t1 = taq + dtaq
+            if (w126 <= taq) then
+                GAMMA_AQ = 1.0_rk
+            else if ( w126 > taq .and. w126 < t1) then
+                GAMMA_AQ = 1.0_rk + (caq - 1.0_rk)* (w126 - &
+                    taq)/dtaq
+            else
+                GAMMA_AQ = caq
+            end if
+        else                    ! GAMMA_AQ = 1
+            GAMMA_AQ = 1.0_rk
+        end if
+
+    end function GET_GAMMA_AQ
+!-----------------------------------------------------------------------
 end module canopy_utils_mod

@@ -27,8 +27,8 @@ SUBROUTINE canopy_readnml
         ifcanwaf, ifcaneddy, ifcanphot, ifcanbio, pai_opt, pai_set, lu_opt, z0_opt, &
         dx_opt, dx_set, lai_thresh, cf_thresh, ch_thresh, rsl_opt, bio_cce, &
         biospec_opt, biovert_opt, ssg_opt, ssg_set, crop_opt, crop_set, co2_opt, co2_set, &
-        leafage_opt, lai_tstep, soim_opt, soild1, soild2, soild3, soild4, hist_opt, &
-        loss_opt, loss_set, loss_ind, lifetime
+        leafage_opt, lai_tstep, soim_opt, soild1, soild2, soild3, soild4, aq_opt, w126_set, &
+        hist_opt, loss_opt, loss_set, loss_ind, lifetime
 
 
 !-------------------------------------------------------------------------------
@@ -341,6 +341,15 @@ SUBROUTINE canopy_readnml
 !-------------------------------------------------------------------------------
 ! Set default value for depth of soil layer 4 (Default = 150.0 cm)
     soild4 = 150.0_rk
+!-------------------------------------------------------------------------------
+
+! Set default integer for using air quality stress gamma for biogenic emissions (default=0; On)
+    aq_opt = 0
+!-------------------------------------------------------------------------------
+
+!-------------------------------------------------------------------------------
+! Set default value for spatially constant w126 value (ppm-hours)
+    w126_set = 20.0_rk
 !-------------------------------------------------------------------------------
 
 !-------------------------------------------------------------------------------

@@ -58,4 +58,6 @@ MODULE canopy_canopts_mod
     real(rk)            ::    soild2      !User set real value of depth of soil layer 2 (default = 25 cm @ centerpoint, based on Noah/Noah-MP)
     real(rk)            ::    soild3      !User set real value of depth of soil layer 3 (default = 70 cm @ centerpoint, based on Noah/Noah-MP)
     real(rk)            ::    soild4      !User set real value of depth of soil layer 4 (default = 150 cm @ centerpoint, based on Noah/Noah-MP)
+    integer             ::    aq_opt      !Set default integer for air quality stress index for gamma_aq in biogenic emissions
+    real(rk)            ::    w126_set    !Set default value for constant ozone W126 value (ppm-hours)
 END MODULE canopy_canopts_mod

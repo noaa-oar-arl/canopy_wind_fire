@@ -14,7 +14,7 @@ contains
         LEAFAGEOPT, PASTLAI, CURRENTLAI, TSTEPLAI, &
         LOSSOPT, LOSSSET, LOSSIND, LIFETIME, USTAR, &
         SOIMOPT, SOIM1, SOIM2, SOIM3, SOIM4, SOID1, SOID2, SOID3, &
-        SOID4, WILT, &
+        SOID4, WILT, AQOPT, W126_SET, W126_REF,  &
         MODLAYS, EMI_IND, EMI_OUT)
 
 !-----------------------------------------------------------------------
@@ -47,7 +47,7 @@ contains
         use canopy_const_mod,  ONLY: rk,rgasuniv   !constants for canopy models
         use canopy_utils_mod,  ONLY: interp_linear1_internal, &
             GET_GAMMA_CO2,GET_GAMMA_LEAFAGE, &
-            GET_GAMMA_SOIM, GET_CANLOSS_BIO
+            GET_GAMMA_SOIM, GET_GAMMA_AQ, GET_CANLOSS_BIO
         use canopy_bioparm_mod
         use canopy_tleaf_mod
 
@@ -88,6 +88,9 @@ contains
         REAL(RK),    INTENT( IN )       :: SOID3           ! Soil depth layer 3 [cm]
         REAL(RK),    INTENT( IN )       :: SOID4           ! Soil depth layer 4 [cm]
         REAL(RK),    INTENT( IN )       :: WILT            ! Wilting point [proportion]
+        INTEGER,     INTENT( IN )       :: AQOPT           ! Option for aq stress calculation
+        REAL(RK),    INTENT( IN )       :: W126_SET        ! User set ozone W126 [ppm-hours]
+        REAL(RK),    INTENT( IN )       :: W126_REF        ! GFS calculated, ozone W126 [ppm-hours]
 
         INTEGER,    INTENT( IN )        :: LEAFAGEOPT     ! leafage_opt (0= ON, 1= off i.e. GAMMALEAFAGE =1, in canopy_readnml.F90)
         REAL(RK),    INTENT( IN )       :: PASTLAI        ! Past LAI [cm2/cm2]
@@ -137,15 +140,24 @@ contains
         REAL(RK) :: AMAT
         REAL(RK) :: AOLD
 
+        !Coeff.'s and threshold/delta threshold for air quality stress factors from canopy_biop
+        REAL(RK) :: CAQ
+        REAL(RK) :: TAQ  ![ppm-hours]
+        REAL(RK) :: DTAQ ![ppm-hours]
+
         ! Coefficients A and B used for PFT dependent cumulative root depth fraction
         REAL(RK) :: ROOTA ! [m-1]
         REAL(RK) :: ROOTB ! [m-1]
         REAL(RK) :: GAMMASOIM ! Soil moisture factor
 
+        REAL(RK) :: GAMMAAQ                        !Air quality stress factor
+
         REAL(RK) :: GAMMACO2                       ! CO2 inhibition factor (isoprene only)
 
         REAL(RK) :: GAMMALEAFAGE !(SIZE(ZK))                 ! LEAF AGE factor
+
         REAL(RK) :: CANLOSS_FAC                    !Canopy loss factor for summing option
+
         integer i, LAYERS
 
 ! Constant Canopy Parameters
@@ -157,7 +169,7 @@ contains
         TLEAF_OPT = 313.0_rk + (0.6_rk * (TLEAF240_AVE-297.0_rk)) !Guenther et al. (2012)
 
 ! Calculate emission species/plant-dependent mapped emission factors and other important coefficients for gamma terms
-        call canopy_biop(EMI_IND, LU_OPT, VTYPE, EF, CT1, CEO, ANEW, AGRO, AMAT, AOLD, ROOTA, ROOTB)
+        call canopy_biop(EMI_IND, LU_OPT, VTYPE, EF, CT1, CEO, ANEW, AGRO, AMAT, AOLD, ROOTA, ROOTB, CAQ, TAQ, DTAQ)
 
         E_OPT = CEO * EXP(0.05_rk * (TLEAF24_AVE-297.0_rk)) * EXP(0.05_rk * (TLEAF240_AVE-297.0_rk))
 
@@ -204,6 +216,12 @@ contains
         !do i=1, SIZE(ZK)
         GAMMALEAFAGE = GET_GAMMA_LEAFAGE(LEAFAGEOPT, PASTLAI, CURRENTLAI, TSTEPLAI, TABOVECANOPY, ANEW, AGRO, AMAT, AOLD)
         !end do
+
+! Get AQ Stress Factor
+!        print*, 'AQOPT=',AQOPT,'W126_REF=',W126_REF,'W126_SET=',W126_SET
+!        print*, 'CAQ=',CAQ,'TAQ=',TAQ,'DTAQ=',DTAQ
+        GAMMAAQ = GET_GAMMA_AQ(AQOPT, W126_REF, W126_SET, CAQ, TAQ, DTAQ)
+!        print*,'GAMMAAQ=',GAMMAAQ
 
 ! Get canopy loss factor (only used in vertical summing options and empirical formulation and parameters based on isoprene)
 ! Note:  Allowed for other BVOCs but use caution when applying to compare with above canopy flux observations

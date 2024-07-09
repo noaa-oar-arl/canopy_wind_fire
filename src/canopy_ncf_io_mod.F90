@@ -2603,8 +2603,21 @@ CONTAINS
                 CALL exit(2)
             ENDIF
             variables_2d%wilt=variables_2d_real
+
             !Also reshape to 1D array for 1D calculation and output
 !            variables%wilt=reshape(variables_2d%wilt,[size(variables_2d%wilt)])
+            !Ozone W126
+            CALL get_var_2d_real_cdf (cdfid, 'ozone_w126', variables_2d_real, it, rcode)
+            IF ( rcode /= nf90_noerr ) THEN
+                WRITE (*,f9410) TRIM(pname), 'ozone_w126',  &
+                    TRIM(nf90_strerror(rcode))
+                CALL exit(2)
+            ENDIF
+            variables_2d%ozone_w126=variables_2d_real
+
+            !Also reshape to 1D array for 1D calculation and output
+!            variables%ozone_w126=reshape(variables_2d%ozone_w126,[size(variables_2d%ozone_w126)])
+
             !3D Input Level Profile
             if (var3d_opt .eq. 1) then
                 CALL get_var_1d_real_cdf (cdfid, 'lev', variables_1d_lev_real, it, rcode)
