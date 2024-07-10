@@ -60,4 +60,7 @@ MODULE canopy_canopts_mod
     real(rk)            ::    soild4      !User set real value of depth of soil layer 4 (default = 150 cm @ centerpoint, based on Noah/Noah-MP)
     integer             ::    aq_opt      !Set default integer for air quality stress index for gamma_aq in biogenic emissions
     real(rk)            ::    w126_set    !Set default value for constant ozone W126 value (ppm-hours)
+    integer             ::    ht_opt      !Set default integer for high temperature stress index for gamma_ht in biogenic emissions
+    integer             ::    lt_opt      !Set default integer for low temperature stress index for gamma_lt in biogenic emissions
+    integer             ::    hw_opt      !Set default integer for high wind stress index for gamma_hw in biogenic emissions
 END MODULE canopy_canopts_mod

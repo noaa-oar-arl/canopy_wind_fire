@@ -50,6 +50,8 @@ MODULE canopy_canvars_mod
     real(rk), allocatable :: tleaf_ave240_tmp    ( : , :, : )          ! Average Leaf temp for sunlit and shaded leaves (K)
     real(rk), allocatable :: ppfd_sun240_tmp     ( : , :, : )          ! PPFD for sunlit leaves (umol phot/m2 s)
     real(rk), allocatable :: ppfd_shade240_tmp   ( : , :, : )          ! PPFD for shaded leaves (umol phot/m2 s)
+    real(rk), allocatable :: tmp2mref_tmp        ( : , : )          ! 2-meter (AGL) input reference air temperature (K)
+    real(rk), allocatable :: ubzref_tmp          ( : , : )          ! 10-meter (AGL) input reference wind speed (m/s)
     real(rk), allocatable :: tleaf_sun24         ( : , : )          ! Leaf temp for sunlit leaves (K)
     real(rk), allocatable :: tleaf_shade24       ( : , : )          ! Leaf temp for shaded leaves (K)
     real(rk), allocatable :: tleaf_ave24         ( : , : )          ! Average Leaf temp for sunlit and shaded leaves (K)
@@ -60,6 +62,9 @@ MODULE canopy_canvars_mod
     real(rk), allocatable :: tleaf_ave240        ( : , : )          ! Average Leaf temp for sunlit and shaded leaves (K)
     real(rk), allocatable :: ppfd_sun240         ( : , : )          ! PPFD for sunlit leaves (umol phot/m2 s)
     real(rk), allocatable :: ppfd_shade240       ( : , : )          ! PPFD for shaded leaves (umol phot/m2 s)
+    real(rk), allocatable :: daily_maxt2m        ( : )              ! Daily maximum 2-meter (AGL) input reference air temperature (K)
+    real(rk), allocatable :: daily_mint2m        ( : )              ! Daily minimum 2-meter (AGL) input reference air temperature (K)
+    real(rk), allocatable :: daily_maxws10m        ( : )            ! Daily maximum 10-meter (AGL) input wind speed (m/s)
     real(rk), allocatable :: tleaf_sun24_tmp_3d     ( : , : , : , : )          ! Leaf temp for sunlit leaves (K)
     real(rk), allocatable :: tleaf_shade24_tmp_3d   ( : , : , : , : )          ! Leaf temp for shaded leaves (K)
     real(rk), allocatable :: tleaf_ave24_tmp_3d     ( : , : , : , : )          ! Average Leaf temp for sunlit and shaded leaves (K)
@@ -70,6 +75,8 @@ MODULE canopy_canvars_mod
     real(rk), allocatable :: tleaf_ave240_tmp_3d    ( : , : , : , : )          ! Average Leaf temp for sunlit and shaded leaves (K)
     real(rk), allocatable :: ppfd_sun240_tmp_3d     ( : , : , : , : )          ! PPFD for sunlit leaves (umol phot/m2 s)
     real(rk), allocatable :: ppfd_shade240_tmp_3d   ( : , : , : , : )          ! PPFD for shaded leaves (umol phot/m2 s)
+    real(rk), allocatable :: tmp2mref_tmp_3d        ( : , : , : )              ! 2-meter (AGL) input reference air temperature (K)
+    real(rk), allocatable :: ubzref_tmp_3d          ( : , : , : )              ! 10-meter (AGL) input reference wind speed (m/s)
     real(rk), allocatable :: tleaf_sun24_3d         ( : , : , : )          ! Leaf temp for sunlit leaves (K)
     real(rk), allocatable :: tleaf_shade24_3d       ( : , : , : )          ! Leaf temp for shaded leaves (K)
     real(rk), allocatable :: tleaf_ave24_3d         ( : , : , : )          ! Average Leaf temp for sunlit and shaded leaves (K)
@@ -80,6 +87,10 @@ MODULE canopy_canvars_mod
     real(rk), allocatable :: tleaf_ave240_3d        ( : , : , : )          ! Average Leaf temp for sunlit and shaded leaves (K)
     real(rk), allocatable :: ppfd_sun240_3d         ( : , : , : )          ! PPFD for sunlit leaves (umol phot/m2 s)
     real(rk), allocatable :: ppfd_shade240_3d       ( : , : , : )          ! PPFD for shaded leaves (umol phot/m2 s)
+    real(rk), allocatable :: daily_maxt2m_2d        ( : , : )                  ! Daily maximum 2-meter (AGL) input reference air temperature (K)
+    real(rk), allocatable :: daily_mint2m_2d        ( : , : )                  ! Daily minimum 2-meter (AGL) input reference air temperature (K)
+    real(rk), allocatable :: daily_maxws10m_2d      ( : , : )                  ! Daily maximum 10-meter (AGL) input wind speed (m/s)
+
     real(rk), allocatable :: canBOT                 ( : )                  ! Canopy bottom wind reduction factors
     real(rk), allocatable :: canTOP                 ( : )                  ! Canopy top wind reduction factors
     real(rk), allocatable :: canWIND                ( : , : )              ! canopy wind speeds (m/s)

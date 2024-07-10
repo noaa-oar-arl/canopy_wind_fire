@@ -311,6 +311,10 @@ SUBROUTINE canopy_calcs(nn)
                                 tleaf_sun240_3d(i,j,:)   = tleaf_sun
                                 tleaf_shade240_3d(i,j,:) = tleaf_shade
                                 tleaf_ave240_3d(i,j,:)   = tleaf_ave
+                                !for AQ, temp, and wind stress factors in biogenics, use instantaneous only (caution!)
+                                daily_maxt2m_2d(i,j)     = tmp2mref
+                                daily_mint2m_2d(i,j)     = tmp2mref
+                                daily_maxws10m_2d(i,j)   = ubzref
                             else if (hist_opt .eq. 1) then  !Try for historical average values
                                 ! Calculate weights for running means of historic variables
                                 ! DNEWFRAC and DOLDFRAC are the weights given to the current
@@ -332,6 +336,9 @@ SUBROUTINE canopy_calcs(nn)
                                 tleaf_sun240_tmp_3d(nn,i,j,:)   = tleaf_sun
                                 tleaf_shade240_tmp_3d(nn,i,j,:) = tleaf_shade
                                 tleaf_ave240_tmp_3d(nn,i,j,:)   = tleaf_ave
+                                !Track times for daily maximum/minimum temperature and maximum wind speed calculation below
+                                tmp2mref_tmp_3d(nn,i,j)         = tmp2mref
+                                ubzref_tmp_3d(nn,i,j)           = ubzref
                                 if (nn .le. 24) then !TODO:  Restart capability needed to get past leaf temp and PAR if avaialble
                                     !For now, if <= 24 hours then only option is to use current instantaneous values
                                     ppfd_sun24_3d(i,j,:)     = ppfd_sun
@@ -344,6 +351,10 @@ SUBROUTINE canopy_calcs(nn)
                                     tleaf_sun240_3d(i,j,:)   = tleaf_sun
                                     tleaf_shade240_3d(i,j,:) = tleaf_shade
                                     tleaf_ave240_3d(i,j,:)   = tleaf_ave
+                                    !for AQ, temp, and wind stress factors in biogenics, still use instantaneous only (caution!)
+                                    daily_maxt2m_2d(i,j)        = tmp2mref
+                                    daily_mint2m_2d(i,j)        = tmp2mref
+                                    daily_maxws10m_2d(i,j)      = ubzref
                                 else  !Updated running 24 hour (hourly, short term) and 240 hour (daily, long-term) averages
                                     ppfd_sun24_3d(i,j,:)     = 0.0_rk
                                     ppfd_shade24_3d(i,j,:)   = 0.0_rk
@@ -389,6 +400,10 @@ SUBROUTINE canopy_calcs(nn)
                                     tleaf_sun240_3d(i,j,:)   = ( doldfrac * tleaf_sun240_3d(i,j,:) ) + ( dnewfrac * tleaf_sun )
                                     tleaf_shade240_3d(i,j,:) = ( doldfrac * tleaf_shade240_3d(i,j,:) ) + ( dnewfrac * tleaf_shade )
                                     tleaf_ave240_3d(i,j,:)   = ( doldfrac * tleaf_ave240_3d(i,j,:) ) + ( dnewfrac * tleaf_ave )
+                                    !Take daily max/min for temperature and daily max for wind speed
+                                    daily_maxt2m_2d(i,j)        = maxval(tmp2mref_tmp_3d(nn-24:nn-1,i,j))
+                                    daily_mint2m_2d(i,j)        = minval(tmp2mref_tmp_3d(nn-24:nn-1,i,j))
+                                    daily_maxws10m_2d(i,j)      = maxval(ubzref_tmp_3d(nn-24:nn-1,i,j))
                                 end if
                             else
                                 write(*,*) 'wrong HIST_OPT namelist option = ', hist_opt, 'only option = 0 or 1'
@@ -409,6 +424,8 @@ SUBROUTINE canopy_calcs(nn)
                                         loss_opt, loss_set, loss_ind, lifetime, ustref, &
                                         soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
                                         soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                        ht_opt, lt_opt, hw_opt, daily_maxt2m_2d(i,j), daily_mint2m_2d(i,j), &
+                                        daily_maxws10m_2d(i,j), &
                                         modlays, 1, emi_isop_3d(i,j,:))
                                     !MYRC
                                     call canopy_bio(zk, fafraczInt, hcmref, &
@@ -421,6 +438,8 @@ SUBROUTINE canopy_calcs(nn)
                                         loss_opt, loss_set, loss_ind, lifetime, ustref, &
                                         soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
                                         soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                        ht_opt, lt_opt, hw_opt, daily_maxt2m_2d(i,j), daily_mint2m_2d(i,j), &
+                                        daily_maxws10m_2d(i,j), &
                                         modlays, 2, emi_myrc_3d(i,j,:))
                                     !SABI
                                     call canopy_bio(zk, fafraczInt, hcmref, &
@@ -433,6 +452,8 @@ SUBROUTINE canopy_calcs(nn)
                                         loss_opt, loss_set, loss_ind, lifetime, ustref, &
                                         soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
                                         soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                        ht_opt, lt_opt, hw_opt, daily_maxt2m_2d(i,j), daily_mint2m_2d(i,j), &
+                                        daily_maxws10m_2d(i,j), &
                                         modlays, 3, emi_sabi_3d(i,j,:))
                                     !LIMO
                                     call canopy_bio(zk, fafraczInt, hcmref, &
@@ -445,6 +466,8 @@ SUBROUTINE canopy_calcs(nn)
                                         loss_opt, loss_set, loss_ind, lifetime, ustref, &
                                         soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
                                         soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                        ht_opt, lt_opt, hw_opt, daily_maxt2m_2d(i,j), daily_mint2m_2d(i,j), &
+                                        daily_maxws10m_2d(i,j), &
                                         modlays, 4, emi_limo_3d(i,j,:))
                                     !CARE
                                     call canopy_bio(zk, fafraczInt, hcmref, &
@@ -457,6 +480,8 @@ SUBROUTINE canopy_calcs(nn)
                                         loss_opt, loss_set, loss_ind, lifetime, ustref, &
                                         soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
                                         soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                        ht_opt, lt_opt, hw_opt, daily_maxt2m_2d(i,j), daily_mint2m_2d(i,j), &
+                                        daily_maxws10m_2d(i,j), &
                                         modlays, 5, emi_care_3d(i,j,:))
                                     !OCIM
                                     call canopy_bio(zk, fafraczInt, hcmref, &
@@ -469,6 +494,8 @@ SUBROUTINE canopy_calcs(nn)
                                         loss_opt, loss_set, loss_ind, lifetime, ustref, &
                                         soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
                                         soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                        ht_opt, lt_opt, hw_opt, daily_maxt2m_2d(i,j), daily_mint2m_2d(i,j), &
+                                        daily_maxws10m_2d(i,j), &
                                         modlays, 6, emi_ocim_3d(i,j,:))
                                     !BPIN
                                     call canopy_bio(zk, fafraczInt, hcmref, &
@@ -481,6 +508,8 @@ SUBROUTINE canopy_calcs(nn)
                                         loss_opt, loss_set, loss_ind, lifetime, ustref, &
                                         soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
                                         soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                        ht_opt, lt_opt, hw_opt, daily_maxt2m_2d(i,j), daily_mint2m_2d(i,j), &
+                                        daily_maxws10m_2d(i,j), &
                                         modlays, 7, emi_bpin_3d(i,j,:))
                                     !APIN
                                     call canopy_bio(zk, fafraczInt, hcmref, &
@@ -493,6 +522,8 @@ SUBROUTINE canopy_calcs(nn)
                                         loss_opt, loss_set, loss_ind, lifetime, ustref, &
                                         soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
                                         soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                        ht_opt, lt_opt, hw_opt, daily_maxt2m_2d(i,j), daily_mint2m_2d(i,j), &
+                                        daily_maxws10m_2d(i,j), &
                                         modlays, 8, emi_apin_3d(i,j,:))
                                     !MONO
                                     call canopy_bio(zk, fafraczInt, hcmref, &
@@ -505,6 +536,8 @@ SUBROUTINE canopy_calcs(nn)
                                         loss_opt, loss_set, loss_ind, lifetime, ustref, &
                                         soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
                                         soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                        ht_opt, lt_opt, hw_opt, daily_maxt2m_2d(i,j), daily_mint2m_2d(i,j), &
+                                        daily_maxws10m_2d(i,j), &
                                         modlays, 9, emi_mono_3d(i,j,:))
                                     !FARN
                                     call canopy_bio(zk, fafraczInt, hcmref, &
@@ -517,6 +550,8 @@ SUBROUTINE canopy_calcs(nn)
                                         loss_opt, loss_set, loss_ind, lifetime, ustref, &
                                         soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
                                         soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                        ht_opt, lt_opt, hw_opt, daily_maxt2m_2d(i,j), daily_mint2m_2d(i,j), &
+                                        daily_maxws10m_2d(i,j), &
                                         modlays, 10, emi_farn_3d(i,j,:))
                                     !CARY
                                     call canopy_bio(zk, fafraczInt, hcmref, &
@@ -529,6 +564,8 @@ SUBROUTINE canopy_calcs(nn)
                                         loss_opt, loss_set, loss_ind, lifetime, ustref, &
                                         soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
                                         soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                        ht_opt, lt_opt, hw_opt, daily_maxt2m_2d(i,j), daily_mint2m_2d(i,j), &
+                                        daily_maxws10m_2d(i,j), &
                                         modlays, 11, emi_cary_3d(i,j,:))
                                     !SESQ
                                     call canopy_bio(zk, fafraczInt, hcmref, &
@@ -541,6 +578,8 @@ SUBROUTINE canopy_calcs(nn)
                                         loss_opt, loss_set, loss_ind, lifetime, ustref, &
                                         soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
                                         soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                        ht_opt, lt_opt, hw_opt, daily_maxt2m_2d(i,j), daily_mint2m_2d(i,j), &
+                                        daily_maxws10m_2d(i,j), &
                                         modlays, 12, emi_sesq_3d(i,j,:))
                                     !MBOL
                                     call canopy_bio(zk, fafraczInt, hcmref, &
@@ -553,6 +592,8 @@ SUBROUTINE canopy_calcs(nn)
                                         loss_opt, loss_set, loss_ind, lifetime, ustref, &
                                         soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
                                         soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                        ht_opt, lt_opt, hw_opt, daily_maxt2m_2d(i,j), daily_mint2m_2d(i,j), &
+                                        daily_maxws10m_2d(i,j), &
                                         modlays, 13, emi_mbol_3d(i,j,:))
                                     !METH
                                     call canopy_bio(zk, fafraczInt, hcmref, &
@@ -565,6 +606,8 @@ SUBROUTINE canopy_calcs(nn)
                                         loss_opt, loss_set, loss_ind, lifetime, ustref, &
                                         soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
                                         soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                        ht_opt, lt_opt, hw_opt, daily_maxt2m_2d(i,j), daily_mint2m_2d(i,j), &
+                                        daily_maxws10m_2d(i,j), &
                                         modlays, 14, emi_meth_3d(i,j,:))
                                     !ACET
                                     call canopy_bio(zk, fafraczInt, hcmref, &
@@ -577,6 +620,8 @@ SUBROUTINE canopy_calcs(nn)
                                         loss_opt, loss_set, loss_ind, lifetime, ustref, &
                                         soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
                                         soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                        ht_opt, lt_opt, hw_opt, daily_maxt2m_2d(i,j), daily_mint2m_2d(i,j), &
+                                        daily_maxws10m_2d(i,j), &
                                         modlays, 15, emi_acet_3d(i,j,:))
                                     !CO
                                     call canopy_bio(zk, fafraczInt, hcmref, &
@@ -589,6 +634,8 @@ SUBROUTINE canopy_calcs(nn)
                                         loss_opt, loss_set, loss_ind, lifetime, ustref, &
                                         soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
                                         soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                        ht_opt, lt_opt, hw_opt, daily_maxt2m_2d(i,j), daily_mint2m_2d(i,j), &
+                                        daily_maxws10m_2d(i,j), &
                                         modlays, 16, emi_co_3d(i,j,:))
                                     !BIDI VOC
                                     call canopy_bio(zk, fafraczInt, hcmref, &
@@ -601,6 +648,8 @@ SUBROUTINE canopy_calcs(nn)
                                         loss_opt, loss_set, loss_ind, lifetime, ustref, &
                                         soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
                                         soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                        ht_opt, lt_opt, hw_opt, daily_maxt2m_2d(i,j), daily_mint2m_2d(i,j), &
+                                        daily_maxws10m_2d(i,j), &
                                         modlays, 17, emi_bvoc_3d(i,j,:))
                                     !Stress VOC
                                     call canopy_bio(zk, fafraczInt, hcmref, &
@@ -613,6 +662,8 @@ SUBROUTINE canopy_calcs(nn)
                                         loss_opt, loss_set, loss_ind, lifetime, ustref, &
                                         soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
                                         soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                        ht_opt, lt_opt, hw_opt, daily_maxt2m_2d(i,j), daily_mint2m_2d(i,j), &
+                                        daily_maxws10m_2d(i,j), &
                                         modlays, 18, emi_svoc_3d(i,j,:))
                                     !Other VOC
                                     call canopy_bio(zk, fafraczInt, hcmref, &
@@ -625,6 +676,8 @@ SUBROUTINE canopy_calcs(nn)
                                         loss_opt, loss_set, loss_ind, lifetime, ustref, &
                                         soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
                                         soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                        ht_opt, lt_opt, hw_opt, daily_maxt2m_2d(i,j), daily_mint2m_2d(i,j), &
+                                        daily_maxws10m_2d(i,j), &
                                         modlays, 19, emi_ovoc_3d(i,j,:))
                                 end if
                             end if
@@ -940,6 +993,10 @@ SUBROUTINE canopy_calcs(nn)
                             tleaf_sun240(loc,:)   = tleaf_sun
                             tleaf_shade240(loc,:) = tleaf_shade
                             tleaf_ave240(loc,:)   = tleaf_ave
+                            !for AQ, temp, and wind stress factors in biogenics, use instantaneous only (caution!)
+                            daily_maxt2m(loc)     = tmp2mref
+                            daily_mint2m(loc)     = tmp2mref
+                            daily_maxws10m(loc)   = ubzref
                         else if (hist_opt .eq. 1) then  !Try for historical average values
                             ! Calculate weights for running means of historic variables
                             ! DNEWFRAC and DOLDFRAC are the weights given to the current
@@ -961,6 +1018,9 @@ SUBROUTINE canopy_calcs(nn)
                             tleaf_sun240_tmp(nn,loc,:)   = tleaf_sun
                             tleaf_shade240_tmp(nn,loc,:) = tleaf_shade
                             tleaf_ave240_tmp(nn,loc,:)   = tleaf_ave
+                            !Track times for daily maximum/minimum temperature and maximum wind speed calculation below
+                            tmp2mref_tmp(nn,loc)         = tmp2mref
+                            ubzref_tmp(nn,loc)           = ubzref
                             if (nn .le. 24) then !TODO:  Restart capability needed to get past leaf temp and PAR if avaialble
                                 !For now, if <= 24 hours then use current instantaneous
                                 ppfd_sun24(loc,:)     = ppfd_sun
@@ -973,6 +1033,10 @@ SUBROUTINE canopy_calcs(nn)
                                 tleaf_sun240(loc,:)   = tleaf_sun
                                 tleaf_shade240(loc,:) = tleaf_shade
                                 tleaf_ave240(loc,:)   = tleaf_ave
+                                !for AQ, temp, and wind stress factors in biogenics, still use instantaneous only (caution!)
+                                daily_maxt2m(loc)     = tmp2mref
+                                daily_mint2m(loc)     = tmp2mref
+                                daily_maxws10m(loc)   = ubzref
                             else
                                 ppfd_sun24(loc,:)     = 0.0_rk
                                 ppfd_shade24(loc,:)   = 0.0_rk
@@ -1018,6 +1082,10 @@ SUBROUTINE canopy_calcs(nn)
                                 tleaf_sun240(loc,:)   = ( doldfrac * tleaf_sun240(loc,:) )   + ( dnewfrac * tleaf_sun )
                                 tleaf_shade240(loc,:) = ( doldfrac * tleaf_shade240(loc,:) ) + ( dnewfrac * tleaf_shade )
                                 tleaf_ave240(loc,:)   = ( doldfrac * tleaf_ave240(loc,:) )   + ( dnewfrac * tleaf_ave )
+                                !Take daily max/min for temperature and daily max for wind speed
+                                daily_maxt2m(loc)        = maxval(tmp2mref_tmp(nn-24:nn-1,loc))
+                                daily_mint2m(loc)        = minval(tmp2mref_tmp(nn-24:nn-1,loc))
+                                daily_maxws10m(loc)      = maxval(ubzref_tmp(nn-24:nn-1,loc))
                             end if
                         else
                             write(*,*) 'wrong HIST_OPT namelist option = ', hist_opt, 'only option = 0 or 1'
@@ -1038,6 +1106,8 @@ SUBROUTINE canopy_calcs(nn)
                                     loss_opt, loss_set, loss_ind, lifetime, ustref, &
                                     soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
                                     soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                    ht_opt, lt_opt, hw_opt, daily_maxt2m(loc), daily_mint2m(loc), &
+                                    daily_maxws10m(loc), &
                                     modlays, 1, emi_isop(loc,:))
                                 !MYRC
                                 call canopy_bio(zk, fafraczInt, hcmref, &
@@ -1050,6 +1120,8 @@ SUBROUTINE canopy_calcs(nn)
                                     loss_opt, loss_set, loss_ind, lifetime, ustref, &
                                     soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
                                     soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                    ht_opt, lt_opt, hw_opt, daily_maxt2m(loc), daily_mint2m(loc), &
+                                    daily_maxws10m(loc), &
                                     modlays, 2, emi_myrc(loc,:))
                                 !SABI
                                 call canopy_bio(zk, fafraczInt, hcmref, &
@@ -1062,6 +1134,8 @@ SUBROUTINE canopy_calcs(nn)
                                     loss_opt, loss_set, loss_ind, lifetime, ustref, &
                                     soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
                                     soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                    ht_opt, lt_opt, hw_opt, daily_maxt2m(loc), daily_mint2m(loc), &
+                                    daily_maxws10m(loc), &
                                     modlays, 3, emi_sabi(loc,:))
                                 !LIMO
                                 call canopy_bio(zk, fafraczInt, hcmref, &
@@ -1074,6 +1148,8 @@ SUBROUTINE canopy_calcs(nn)
                                     loss_opt, loss_set, loss_ind, lifetime, ustref, &
                                     soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
                                     soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                    ht_opt, lt_opt, hw_opt, daily_maxt2m(loc), daily_mint2m(loc), &
+                                    daily_maxws10m(loc), &
                                     modlays, 4, emi_limo(loc,:))
                                 !CARE
                                 call canopy_bio(zk, fafraczInt, hcmref, &
@@ -1086,6 +1162,8 @@ SUBROUTINE canopy_calcs(nn)
                                     loss_opt, loss_set, loss_ind, lifetime, ustref, &
                                     soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
                                     soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                    ht_opt, lt_opt, hw_opt, daily_maxt2m(loc), daily_mint2m(loc), &
+                                    daily_maxws10m(loc), &
                                     modlays, 5, emi_care(loc,:))
                                 !OCIM
                                 call canopy_bio(zk, fafraczInt, hcmref, &
@@ -1098,6 +1176,8 @@ SUBROUTINE canopy_calcs(nn)
                                     loss_opt, loss_set, loss_ind, lifetime, ustref, &
                                     soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
                                     soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                    ht_opt, lt_opt, hw_opt, daily_maxt2m(loc), daily_mint2m(loc), &
+                                    daily_maxws10m(loc), &
                                     modlays, 6, emi_ocim(loc,:))
                                 !BPIN
                                 call canopy_bio(zk, fafraczInt, hcmref, &
@@ -1110,6 +1190,8 @@ SUBROUTINE canopy_calcs(nn)
                                     loss_opt, loss_set, loss_ind, lifetime, ustref, &
                                     soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
                                     soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                    ht_opt, lt_opt, hw_opt, daily_maxt2m(loc), daily_mint2m(loc), &
+                                    daily_maxws10m(loc), &
                                     modlays, 7, emi_bpin(loc,:))
                                 !APIN
                                 call canopy_bio(zk, fafraczInt, hcmref, &
@@ -1122,6 +1204,8 @@ SUBROUTINE canopy_calcs(nn)
                                     loss_opt, loss_set, loss_ind, lifetime, ustref, &
                                     soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
                                     soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                    ht_opt, lt_opt, hw_opt, daily_maxt2m(loc), daily_mint2m(loc), &
+                                    daily_maxws10m(loc), &
                                     modlays, 8, emi_apin(loc,:))
                                 !MONO
                                 call canopy_bio(zk, fafraczInt, hcmref, &
@@ -1134,6 +1218,8 @@ SUBROUTINE canopy_calcs(nn)
                                     loss_opt, loss_set, loss_ind, lifetime, ustref, &
                                     soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
                                     soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                    ht_opt, lt_opt, hw_opt, daily_maxt2m(loc), daily_mint2m(loc), &
+                                    daily_maxws10m(loc), &
                                     modlays, 9, emi_mono(loc,:))
                                 !FARN
                                 call canopy_bio(zk, fafraczInt, hcmref, &
@@ -1146,6 +1232,8 @@ SUBROUTINE canopy_calcs(nn)
                                     loss_opt, loss_set, loss_ind, lifetime, ustref, &
                                     soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
                                     soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                    ht_opt, lt_opt, hw_opt, daily_maxt2m(loc), daily_mint2m(loc), &
+                                    daily_maxws10m(loc), &
                                     modlays, 10, emi_farn(loc,:))
                                 !CARY
                                 call canopy_bio(zk, fafraczInt, hcmref, &
@@ -1158,6 +1246,8 @@ SUBROUTINE canopy_calcs(nn)
                                     loss_opt, loss_set, loss_ind, lifetime, ustref, &
                                     soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
                                     soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                    ht_opt, lt_opt, hw_opt, daily_maxt2m(loc), daily_mint2m(loc), &
+                                    daily_maxws10m(loc), &
                                     modlays, 11, emi_cary(loc,:))
                                 !SESQ
                                 call canopy_bio(zk, fafraczInt, hcmref, &
@@ -1170,6 +1260,8 @@ SUBROUTINE canopy_calcs(nn)
                                     loss_opt, loss_set, loss_ind, lifetime, ustref, &
                                     soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
                                     soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                    ht_opt, lt_opt, hw_opt, daily_maxt2m(loc), daily_mint2m(loc), &
+                                    daily_maxws10m(loc), &
                                     modlays, 12, emi_sesq(loc,:))
                                 !MBOL
                                 call canopy_bio(zk, fafraczInt, hcmref, &
@@ -1182,6 +1274,8 @@ SUBROUTINE canopy_calcs(nn)
                                     loss_opt, loss_set, loss_ind, lifetime, ustref, &
                                     soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
                                     soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                    ht_opt, lt_opt, hw_opt, daily_maxt2m(loc), daily_mint2m(loc), &
+                                    daily_maxws10m(loc), &
                                     modlays, 13, emi_mbol(loc,:))
                                 !METH
                                 call canopy_bio(zk, fafraczInt, hcmref, &
@@ -1194,6 +1288,8 @@ SUBROUTINE canopy_calcs(nn)
                                     loss_opt, loss_set, loss_ind, lifetime, ustref, &
                                     soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
                                     soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                    ht_opt, lt_opt, hw_opt, daily_maxt2m(loc), daily_mint2m(loc), &
+                                    daily_maxws10m(loc), &
                                     modlays, 14, emi_meth(loc,:))
                                 !ACET
                                 call canopy_bio(zk, fafraczInt, hcmref, &
@@ -1206,6 +1302,8 @@ SUBROUTINE canopy_calcs(nn)
                                     loss_opt, loss_set, loss_ind, lifetime, ustref, &
                                     soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
                                     soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                    ht_opt, lt_opt, hw_opt, daily_maxt2m(loc), daily_mint2m(loc), &
+                                    daily_maxws10m(loc), &
                                     modlays, 15, emi_acet(loc,:))
                                 !CO
                                 call canopy_bio(zk, fafraczInt, hcmref, &
@@ -1218,6 +1316,8 @@ SUBROUTINE canopy_calcs(nn)
                                     loss_opt, loss_set, loss_ind, lifetime, ustref, &
                                     soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
                                     soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                    ht_opt, lt_opt, hw_opt, daily_maxt2m(loc), daily_mint2m(loc), &
+                                    daily_maxws10m(loc), &
                                     modlays, 16, emi_co(loc,:))
                                 !BIDI VOC
                                 call canopy_bio(zk, fafraczInt, hcmref, &
@@ -1230,6 +1330,8 @@ SUBROUTINE canopy_calcs(nn)
                                     loss_opt, loss_set, loss_ind, lifetime, ustref, &
                                     soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
                                     soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                    ht_opt, lt_opt, hw_opt, daily_maxt2m(loc), daily_mint2m(loc), &
+                                    daily_maxws10m(loc), &
                                     modlays, 17, emi_bvoc(loc,:))
                                 !Stress VOC
                                 call canopy_bio(zk, fafraczInt, hcmref, &
@@ -1242,6 +1344,8 @@ SUBROUTINE canopy_calcs(nn)
                                     loss_opt, loss_set, loss_ind, lifetime, ustref, &
                                     soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
                                     soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                    ht_opt, lt_opt, hw_opt, daily_maxt2m(loc), daily_mint2m(loc), &
+                                    daily_maxws10m(loc), &
                                     modlays, 18, emi_svoc(loc,:))
                                 !Other VOC
                                 call canopy_bio(zk, fafraczInt, hcmref, &
@@ -1254,6 +1358,8 @@ SUBROUTINE canopy_calcs(nn)
                                     loss_opt, loss_set, loss_ind, lifetime, ustref, &
                                     soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
                                     soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                    ht_opt, lt_opt, hw_opt, daily_maxt2m(loc), daily_mint2m(loc), &
+                                    daily_maxws10m(loc), &
                                     modlays, 19, emi_ovoc(loc,:))
                             end if
                         end if

@@ -67,6 +67,12 @@ SUBROUTINE canopy_alloc
     if(.not.allocated(ppfd_sun240))        allocate(ppfd_sun240(nlat*nlon,modlays))
     if(.not.allocated(ppfd_shade240))      allocate(ppfd_shade240(nlat*nlon,modlays))
 
+    if(.not.allocated(tmp2mref_tmp))       allocate(tmp2mref_tmp(ntime,nlat*nlon))
+    if(.not.allocated(ubzref_tmp))         allocate(ubzref_tmp(ntime,nlat*nlon))
+    if(.not.allocated(daily_maxt2m))       allocate(daily_maxt2m(nlat*nlon))
+    if(.not.allocated(daily_mint2m))       allocate(daily_mint2m(nlat*nlon))
+    if(.not.allocated(daily_maxws10m))     allocate(daily_maxws10m(nlat*nlon))
+
     if(.not.allocated(tleaf_sun24_tmp_3d))    allocate(tleaf_sun24_tmp_3d(ntime,nlon,nlat,modlays))
     if(.not.allocated(tleaf_shade24_tmp_3d))  allocate(tleaf_shade24_tmp_3d(ntime,nlon,nlat,modlays))
     if(.not.allocated(tleaf_ave24_tmp_3d))    allocate(tleaf_ave24_tmp_3d(ntime,nlon,nlat,modlays))
@@ -87,6 +93,12 @@ SUBROUTINE canopy_alloc
     if(.not.allocated(tleaf_ave240_3d))       allocate(tleaf_ave240_3d(nlon,nlat,modlays))
     if(.not.allocated(ppfd_sun240_3d))        allocate(ppfd_sun240_3d(nlon,nlat,modlays))
     if(.not.allocated(ppfd_shade240_3d))      allocate(ppfd_shade240_3d(nlon,nlat,modlays))
+
+    if(.not.allocated(tmp2mref_tmp_3d))       allocate(tmp2mref_tmp_3d(ntime,nlon,nlat))
+    if(.not.allocated(ubzref_tmp_3d))         allocate(ubzref_tmp_3d(ntime,nlon,nlat))
+    if(.not.allocated(daily_maxt2m_2d))       allocate(daily_maxt2m_2d(nlon,nlat))
+    if(.not.allocated(daily_mint2m_2d))       allocate(daily_mint2m_2d(nlon,nlat))
+    if(.not.allocated(daily_maxws10m_2d))     allocate(daily_maxws10m_2d(nlon,nlat))
 
 !-------------------------------------------------------------------------------
 ! Allocate arrays for Canopy Wind Outputs

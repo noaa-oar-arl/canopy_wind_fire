@@ -28,7 +28,7 @@ SUBROUTINE canopy_readnml
         dx_opt, dx_set, lai_thresh, cf_thresh, ch_thresh, rsl_opt, bio_cce, &
         biospec_opt, biovert_opt, ssg_opt, ssg_set, crop_opt, crop_set, co2_opt, co2_set, &
         leafage_opt, lai_tstep, soim_opt, soild1, soild2, soild3, soild4, aq_opt, w126_set, &
-        hist_opt, loss_opt, loss_set, loss_ind, lifetime
+        ht_opt, lt_opt, hw_opt, hist_opt, loss_opt, loss_set, loss_ind, lifetime
 
 
 !-------------------------------------------------------------------------------
@@ -343,6 +343,7 @@ SUBROUTINE canopy_readnml
     soild4 = 150.0_rk
 !-------------------------------------------------------------------------------
 
+!------------------------------------------------------------------------------
 ! Set default integer for using air quality stress gamma for biogenic emissions (default=0; On)
     aq_opt = 0
 !-------------------------------------------------------------------------------
@@ -350,6 +351,21 @@ SUBROUTINE canopy_readnml
 !-------------------------------------------------------------------------------
 ! Set default value for spatially constant w126 value (ppm-hours)
     w126_set = 20.0_rk
+!-------------------------------------------------------------------------------
+
+!------------------------------------------------------------------------------
+! Set default integer for using high temperature stress gamma for biogenic emissions (default=0; On)
+    ht_opt = 0
+!-------------------------------------------------------------------------------
+
+!------------------------------------------------------------------------------
+! Set default integer for using low temperature stress gamma for biogenic emissions (default=0; On)
+    lt_opt = 0
+!-------------------------------------------------------------------------------
+
+!------------------------------------------------------------------------------
+! Set default integer for using high wind stress gamma for biogenic emissions (default=0; On)
+    hw_opt = 0
 !-------------------------------------------------------------------------------
 
 !-------------------------------------------------------------------------------
