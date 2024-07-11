@@ -172,7 +172,7 @@ The Canopy-App input data in [Table 2](#table-2-canopy-app-required-input-variab
 | `csz`                            | Cosine of the solar zenith angle (dimensionless) | [Based on Python Pysolar](https://pysolar.readthedocs.io/en/latest/) |
 | `mol`                            | Monin-Obukhov Length (m)                    | Externally calculated using GFS `tmp2m`, `fricv`, and `shtfl`.  ([Essa, 1999](https://inis.iaea.org/collection/NCLCollectionStore/_Public/37/118/37118528.pdf)) |
 | `href`                           | Reference height above canopy (m) - 10 m    | Assumed constant (i.e., 10 m).  Can be taken from NL. |
-| `ozone_w126`                     | Ozone W126 index (ppm-hours)                | Climatological value during 04/2021-04/2024 based on GFSv16 lowest model layer ozone mixing ratios.  The W126 calculation is based on the [EPA definition](https://www.epa.gov/sites/default/files/2015-09/documents/w126_steps_to_calculate_revised_feb19.pdf). |
+| `ozone_w126`                     | Ozone W126 index (ppm-hours)                | A three year climatological calculation between 04/2021-04/2024, based on GFSv16 lowest model layer ozone mixing ratios.  The W126 calculation is based on the [EPA definition](https://www.epa.gov/sites/default/files/2015-09/documents/w126_steps_to_calculate_revised_feb19.pdf). |
 
 **More Information on Data Sources from [Table 2](#table-2-canopy-app-required-input-variables):**
 
