@@ -251,35 +251,16 @@ contains
 
 ! Get AQ Stress Factor
         GAMMAAQ = GET_GAMMA_AQ(AQOPT, W126_REF, W126_SET, CAQ, TAQ, DTAQ)
-        if (GAMMAAQ > 1) then
-            print*, 'AQOPT=',AQOPT,'W126_REF=',W126_REF,'W126_SET=',W126_SET
-            print*, 'CAQ=',CAQ,'TAQ=',TAQ,'DTAQ=',DTAQ
-            print*,'GAMMAAQ=',GAMMAAQ
-        end if
 
 ! Get HT Stress Factor
         GAMMAHT = GET_GAMMA_HT(HTOPT, DAILY_MAXT2, CHT, THT, DTHT)
-        if (GAMMAHT > 1) then
-            print*, 'HTOPT=',HTOPT,'DAILY_MAXT2=',DAILY_MAXT2
-            print*, 'CHT=',CHT,'THT=',THT,'DTHT=',DTHT
-            print*,'GAMMAHT=',GAMMAHT
-        end if
 
 ! Get LT Stress Factor
         GAMMALT = GET_GAMMA_LT(LTOPT, DAILY_MINT2, CLT, TLT, DTLT)
-        if (GAMMALT > 1) then
-            print*, 'LTOPT=',LTOPT,'DAILY_MINT2=',DAILY_MINT2
-            print*, 'CLT=',CLT,'TLT=',TLT,'DTLT=',DTLT
-            print*,'GAMMALT=',GAMMALT
-        end if
 
 ! Get HW Stress Factor
         GAMMAHW = GET_GAMMA_HW(HWOPT, DAILY_MAXWS10, CHW, THW, DTHW)
-        if (GAMMAHW > 1) then
-            print*, 'HWOPT=',HWOPT,'DAILY_MAXWS10=',DAILY_MAXWS10
-            print*, 'CHW=',CHW,'THW=',THW,'DTHW=',DTHW
-            print*,'GAMMAHW=',GAMMAHW
-        end if
+
 ! Get canopy loss factor (only used in vertical summing options and empirical formulation and parameters based on isoprene)
 ! Note:  Allowed for other BVOCs but use caution when applying to compare with above canopy flux observations
 
@@ -315,7 +296,7 @@ contains
                         FLAI(i) = FLAI(MODLAYS-1)
                     end if
                     EMI_OUT(i) = FLAI(i) * EF * GammaTLEAF_AVE(i) * GammaPPFD_AVE(i) * GAMMACO2 * CCE * &
-                        GAMMALEAFAGE * GAMMASOIM  ! (ug m-3 hr-1)
+                        GAMMALEAFAGE * GAMMASOIM * GAMMAAQ * GAMMAHT * GAMMALT * GAMMAHW ! (ug m-3 hr-1)
                     EMI_OUT(i) = EMI_OUT(i) * 2.7777777777778E-13_rk    !convert emissions output to (kg m-3 s-1)
                 end if
             end do
@@ -339,7 +320,8 @@ contains
                 end if
             end do
             EMI_OUT(SIZE(ZK)) = LAI * EF * SUM(GammaTLEAF_AVE(1:LAYERS) * GammaPPFD_AVE(1:LAYERS) * &
-                VPGWT(1:LAYERS)) * GAMMACO2 * CCE * GAMMALEAFAGE * GAMMASOIM * CANLOSS_FAC !put into top model layer (ug m-2 hr-1)
+                VPGWT(1:LAYERS)) * GAMMACO2 * CCE * GAMMALEAFAGE * GAMMASOIM * &
+                GAMMAAQ * GAMMAHT * GAMMALT * GAMMAHW * CANLOSS_FAC !put into top model layer (ug m-2 hr-1)
             EMI_OUT = EMI_OUT * 2.7777777777778E-13_rk    !convert emissions output to    (kg m-2 s-1)
         else if (VERT .eq. 2) then       !"MEGANv3-like": Add weighted sum of activity coefficients using normal distribution
             !across canopy layers using 5 layer numbers directly from MEGANv3
@@ -371,7 +353,8 @@ contains
                 VPGWT(i) = GAUSS(i)/sum(GAUSS(1:LAYERS))
             end do
             EMI_OUT(SIZE(ZK)) = LAI * EF * SUM(GammaTLEAF_AVE(1:LAYERS) * GammaPPFD_AVE(1:LAYERS) * &
-                VPGWT(1:LAYERS)) * GAMMACO2 * CCE * GAMMALEAFAGE * GAMMASOIM * CANLOSS_FAC    !put into top model layer (ug m-2 hr-1)
+                VPGWT(1:LAYERS)) * GAMMACO2 * CCE * GAMMALEAFAGE * GAMMASOIM * &
+                GAMMAAQ * GAMMAHT * GAMMALT * GAMMAHW * CANLOSS_FAC    !put into top model layer (ug m-2 hr-1)
             EMI_OUT = EMI_OUT * 2.7777777777778E-13_rk    !convert emissions output to    (kg m-2 s-1)
         else if (VERT .eq. 3) then       !"MEGANv3-like": Add weighted sum of activity coefficients equally
             !across canopy layers
@@ -382,7 +365,8 @@ contains
                 VPGWT(i) = 1.0_rk/LAYERS
             end do
             EMI_OUT(SIZE(ZK)) = LAI * EF * SUM(GammaTLEAF_AVE(1:LAYERS) * GammaPPFD_AVE(1:LAYERS) * &
-                VPGWT(1:LAYERS)) * GAMMACO2 * CCE * GAMMALEAFAGE * GAMMASOIM * CANLOSS_FAC    !put into top model layer (ug m-2 hr-1)
+                VPGWT(1:LAYERS)) * GAMMACO2 * CCE * GAMMALEAFAGE * GAMMASOIM * &
+                GAMMAAQ * GAMMAHT * GAMMALT * GAMMAHW  * CANLOSS_FAC    !put into top model layer (ug m-2 hr-1)
             EMI_OUT = EMI_OUT * 2.7777777777778E-13_rk    !convert emissions output to    (kg m-2 s-1)
         else
             write(*,*)  'Wrong BIOVERT_OPT choice of ', VERT, ' in namelist...exiting'
