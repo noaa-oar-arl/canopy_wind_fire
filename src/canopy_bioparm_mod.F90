@@ -666,7 +666,7 @@ contains
         REAL(RK),          PARAMETER     :: CHT_CARY         =  5.0_rk     !coefficient for high temperature stress
         REAL(RK),          PARAMETER     :: THT_CARY         =  313.15_rk  !threshold for high temperature stress (K)
         REAL(RK),          PARAMETER     :: DTHT_CARY        =  8.0_rk     !delta threshold for high temperature stress (K)
-        REAL(RK),          PARAMETER     :: CLT_CARY         =  1.0_rk     !coefficient for low temperature stress
+        REAL(RK),          PARAMETER     :: CLT_CARY         =  5.0_rk     !coefficient for low temperature stress
         REAL(RK),          PARAMETER     :: TLT_CARY         =  283.15_rk  !threshold for low temperature stress (K)
         REAL(RK),          PARAMETER     :: DTLT_CARY        =  8.0_rk     !delta threshold for low temperature stress (K)
         REAL(RK),          PARAMETER     :: CHW_CARY         =  5.0_rk     !coefficient for high wind stress
