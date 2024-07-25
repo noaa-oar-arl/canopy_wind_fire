@@ -663,7 +663,7 @@ contains
         REAL(RK),          PARAMETER     :: CAQ_CARY         =  5.0_rk     !coefficient for poor Air Quality stress
         REAL(RK),          PARAMETER     :: TAQ_CARY         =  20.0_rk    !threshold for poor Air Quality stress (ppm-hours)
         REAL(RK),          PARAMETER     :: DTAQ_CARY        =  30.0_rk    !delta threshold for poor Air Quality stress (ppm-hours)
-        REAL(RK),          PARAMETER     :: CHT_CARY         =  1.0_rk     !coefficient for high temperature stress
+        REAL(RK),          PARAMETER     :: CHT_CARY         =  5.0_rk     !coefficient for high temperature stress
         REAL(RK),          PARAMETER     :: THT_CARY         =  313.15_rk  !threshold for high temperature stress (K)
         REAL(RK),          PARAMETER     :: DTHT_CARY        =  8.0_rk     !delta threshold for high temperature stress (K)
         REAL(RK),          PARAMETER     :: CLT_CARY         =  1.0_rk     !coefficient for low temperature stress
