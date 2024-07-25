@@ -609,7 +609,7 @@ contains
         REAL(RK),          PARAMETER     :: CLT_BPIN         =  1.0_rk     !coefficient for low temperature stress
         REAL(RK),          PARAMETER     :: TLT_BPIN         =  283.15_rk  !threshold for low temperature stress (K)
         REAL(RK),          PARAMETER     :: DTLT_BPIN        =  8.0_rk     !delta threshold for low temperature stress (K)
-        REAL(RK),          PARAMETER     :: CHW_BPIN         =  1.0_rk     !coefficient for high wind stress
+        REAL(RK),          PARAMETER     :: CHW_BPIN         =  5.0_rk     !coefficient for high wind stress
         REAL(RK),          PARAMETER     :: THW_BPIN         =  12.0_rk    !threshold for high wind stress (m/s)
         REAL(RK),          PARAMETER     :: DTHW_BPIN        =  8.0_rk     !delta threshold for high wind stress (m/s)
 
