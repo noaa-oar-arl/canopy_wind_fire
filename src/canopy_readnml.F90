@@ -344,8 +344,8 @@ SUBROUTINE canopy_readnml
 !-------------------------------------------------------------------------------
 
 !------------------------------------------------------------------------------
-! Set default integer for using air quality stress gamma for biogenic emissions (default=0; On)
-    aq_opt = 0
+! Set default integer for using air quality stress gamma for biogenic emissions (default=1; Off)
+    aq_opt = 1
 !-------------------------------------------------------------------------------
 
 !-------------------------------------------------------------------------------
@@ -354,18 +354,18 @@ SUBROUTINE canopy_readnml
 !-------------------------------------------------------------------------------
 
 !------------------------------------------------------------------------------
-! Set default integer for using high temperature stress gamma for biogenic emissions (default=0; On)
-    ht_opt = 0
+! Set default integer for using high temperature stress gamma for biogenic emissions (default=1; Off)
+    ht_opt = 1
 !-------------------------------------------------------------------------------
 
 !------------------------------------------------------------------------------
-! Set default integer for using low temperature stress gamma for biogenic emissions (default=0; On)
-    lt_opt = 0
+! Set default integer for using low temperature stress gamma for biogenic emissions (default=1; Off)
+    lt_opt = 1
 !-------------------------------------------------------------------------------
 
 !------------------------------------------------------------------------------
-! Set default integer for using high wind stress gamma for biogenic emissions (default=0; On)
-    hw_opt = 0
+! Set default integer for using high wind stress gamma for biogenic emissions (default=1; Off)
+    hw_opt = 1
 !-------------------------------------------------------------------------------
 
 !-------------------------------------------------------------------------------
