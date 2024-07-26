@@ -83,10 +83,10 @@
   soild2      =  25.0
   soild3      =  70.0
   soild4      =  150.0
-  aq_opt      =  0
+  aq_opt      =  1
   w126_set    =  30.0
   hist_opt    =  1
-  ht_opt      =  0
-  lt_opt      =  0
-  hw_opt      =  0
+  ht_opt      =  1
+  lt_opt      =  1
+  hw_opt      =  1
 /
