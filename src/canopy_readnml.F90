@@ -344,7 +344,7 @@ SUBROUTINE canopy_readnml
 !-------------------------------------------------------------------------------
 
 !------------------------------------------------------------------------------
-! Set default integer for using air quality stress gamma for biogenic emissions (default=1; Off)
+! Set default integer for using air quality stress gamma for biogenic emissions (default=2; Off)
     aq_opt = 2
 !-------------------------------------------------------------------------------
 
