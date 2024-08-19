@@ -14,7 +14,9 @@ contains
         LEAFAGEOPT, PASTLAI, CURRENTLAI, TSTEPLAI, &
         LOSSOPT, LOSSSET, LOSSIND, LIFETIME, USTAR, &
         SOIMOPT, SOIM1, SOIM2, SOIM3, SOIM4, SOID1, SOID2, SOID3, &
-        SOID4, WILT, &
+        SOID4, WILT, AQOPT, W126_SET, W126_REF,  &
+        HTOPT, LTOPT, HWOPT, DAILY_MAXT2, DAILY_MINT2, &
+        DAILY_MAXWS10, &
         MODLAYS, EMI_IND, EMI_OUT)
 
 !-----------------------------------------------------------------------
@@ -47,7 +49,8 @@ contains
         use canopy_const_mod,  ONLY: rk,rgasuniv   !constants for canopy models
         use canopy_utils_mod,  ONLY: interp_linear1_internal, &
             GET_GAMMA_CO2,GET_GAMMA_LEAFAGE, &
-            GET_GAMMA_SOIM, GET_CANLOSS_BIO
+            GET_GAMMA_SOIM, GET_GAMMA_AQ, GET_GAMMA_HT, &
+            GET_GAMMA_LT, GET_GAMMA_HW, GET_CANLOSS_BIO
         use canopy_bioparm_mod
         use canopy_tleaf_mod
 
@@ -88,6 +91,15 @@ contains
         REAL(RK),    INTENT( IN )       :: SOID3           ! Soil depth layer 3 [cm]
         REAL(RK),    INTENT( IN )       :: SOID4           ! Soil depth layer 4 [cm]
         REAL(RK),    INTENT( IN )       :: WILT            ! Wilting point [proportion]
+        INTEGER,     INTENT( IN )       :: AQOPT           ! Option for aq stress calculation
+        REAL(RK),    INTENT( IN )       :: W126_SET        ! User set ozone W126 [ppm-hours]
+        REAL(RK),    INTENT( IN )       :: W126_REF        ! GFS calculated, ozone W126 [ppm-hours]
+        INTEGER,     INTENT( IN )       :: HTOPT           ! Option for high temperature stress calculation
+        INTEGER,     INTENT( IN )       :: LTOPT           ! Option for low temperature stress calculation
+        INTEGER,     INTENT( IN )       :: HWOPT           ! Option for high wind speed stress calculation
+        REAL(RK),    INTENT( IN )       :: DAILY_MAXT2     ! Daily maximum model input 2-m temperature (K)
+        REAL(RK),    INTENT( IN )       :: DAILY_MINT2     ! Daily minimum model input 2-m temperature (K)
+        REAL(RK),    INTENT( IN )       :: DAILY_MAXWS10   ! Daily maximum model input 10-m wind speed temperature (m/s)
 
         INTEGER,    INTENT( IN )        :: LEAFAGEOPT     ! leafage_opt (0= ON, 1= off i.e. GAMMALEAFAGE =1, in canopy_readnml.F90)
         REAL(RK),    INTENT( IN )       :: PASTLAI        ! Past LAI [cm2/cm2]
@@ -137,15 +149,43 @@ contains
         REAL(RK) :: AMAT
         REAL(RK) :: AOLD
 
+        !Coeff.'s and threshold/delta threshold for air quality stress factors from canopy_biop
+        REAL(RK) :: CAQ
+        REAL(RK) :: TAQ  ![ppm-hours]
+        REAL(RK) :: DTAQ ![ppm-hours]
+
+        !Coeff.'s and threshold/delta threshold for high temperature stress factors from canopy_biop
+        REAL(RK) :: CHT
+        REAL(RK) :: THT  ![K]
+        REAL(RK) :: DTHT ![K]
+
+        !Coeff.'s and threshold/delta threshold for low temperature stress factors from canopy_biop
+        REAL(RK) :: CLT
+        REAL(RK) :: TLT  ![K]
+        REAL(RK) :: DTLT ![K]
+
+        !Coeff.'s and threshold/delta threshold for high wind stress factors from canopy_biop
+        REAL(RK) :: CHW
+        REAL(RK) :: THW  ![m/s]
+        REAL(RK) :: DTHW ![m/s]
+
+
         ! Coefficients A and B used for PFT dependent cumulative root depth fraction
         REAL(RK) :: ROOTA ! [m-1]
         REAL(RK) :: ROOTB ! [m-1]
         REAL(RK) :: GAMMASOIM ! Soil moisture factor
 
+        REAL(RK) :: GAMMAAQ                        !Air quality stress factor
+        REAL(RK) :: GAMMAHT                        !High temperature stress factor
+        REAL(RK) :: GAMMALT                        !Low temperature stress factor
+        REAL(RK) :: GAMMAHW                        !High wind speed stress factor
+
         REAL(RK) :: GAMMACO2                       ! CO2 inhibition factor (isoprene only)
 
         REAL(RK) :: GAMMALEAFAGE !(SIZE(ZK))                 ! LEAF AGE factor
+
         REAL(RK) :: CANLOSS_FAC                    !Canopy loss factor for summing option
+
         integer i, LAYERS
 
 ! Constant Canopy Parameters
@@ -157,8 +197,12 @@ contains
         TLEAF_OPT = 313.0_rk + (0.6_rk * (TLEAF240_AVE-297.0_rk)) !Guenther et al. (2012)
 
 ! Calculate emission species/plant-dependent mapped emission factors and other important coefficients for gamma terms
-        call canopy_biop(EMI_IND, LU_OPT, VTYPE, EF, CT1, CEO, ANEW, AGRO, AMAT, AOLD, ROOTA, ROOTB)
+        call canopy_biop(EMI_IND, LU_OPT, VTYPE, EF, CT1, CEO, ANEW, AGRO, AMAT, AOLD, ROOTA, ROOTB, CAQ, TAQ, DTAQ, &
+            CHT, THT, DTHT, CLT, TLT, DTLT, CHW, THW, DTHW)
 
+!        print*,'CHT=',CHT,'THT=',THT,'DTHT=',DTHT
+!        print*,'CLT=',CLT,'TLT=',TLT,'DTLT=',DTLT
+!        print*,'CHW=',CHW,'THW=',THW,'DTHW=',DTHW
         E_OPT = CEO * EXP(0.05_rk * (TLEAF24_AVE-297.0_rk)) * EXP(0.05_rk * (TLEAF240_AVE-297.0_rk))
 
 ! Calculate gamma (activity) values for average Tleaf (Clifton et al., 2022; based on Guenther et al. 2012)
@@ -205,6 +249,18 @@ contains
         GAMMALEAFAGE = GET_GAMMA_LEAFAGE(LEAFAGEOPT, PASTLAI, CURRENTLAI, TSTEPLAI, TABOVECANOPY, ANEW, AGRO, AMAT, AOLD)
         !end do
 
+! Get AQ Stress Factor
+        GAMMAAQ = GET_GAMMA_AQ(AQOPT, W126_REF, W126_SET, CAQ, TAQ, DTAQ)
+
+! Get HT Stress Factor
+        GAMMAHT = GET_GAMMA_HT(HTOPT, DAILY_MAXT2, CHT, THT, DTHT)
+
+! Get LT Stress Factor
+        GAMMALT = GET_GAMMA_LT(LTOPT, DAILY_MINT2, CLT, TLT, DTLT)
+
+! Get HW Stress Factor
+        GAMMAHW = GET_GAMMA_HW(HWOPT, DAILY_MAXWS10, CHW, THW, DTHW)
+
 ! Get canopy loss factor (only used in vertical summing options and empirical formulation and parameters based on isoprene)
 ! Note:  Allowed for other BVOCs but use caution when applying to compare with above canopy flux observations
 
@@ -240,7 +296,7 @@ contains
                         FLAI(i) = FLAI(MODLAYS-1)
                     end if
                     EMI_OUT(i) = FLAI(i) * EF * GammaTLEAF_AVE(i) * GammaPPFD_AVE(i) * GAMMACO2 * CCE * &
-                        GAMMALEAFAGE * GAMMASOIM  ! (ug m-3 hr-1)
+                        GAMMALEAFAGE * GAMMASOIM * GAMMAAQ * GAMMAHT * GAMMALT * GAMMAHW ! (ug m-3 hr-1)
                     EMI_OUT(i) = EMI_OUT(i) * 2.7777777777778E-13_rk    !convert emissions output to (kg m-3 s-1)
                 end if
             end do
@@ -264,7 +320,8 @@ contains
                 end if
             end do
             EMI_OUT(SIZE(ZK)) = LAI * EF * SUM(GammaTLEAF_AVE(1:LAYERS) * GammaPPFD_AVE(1:LAYERS) * &
-                VPGWT(1:LAYERS)) * GAMMACO2 * CCE * GAMMALEAFAGE * GAMMASOIM * CANLOSS_FAC !put into top model layer (ug m-2 hr-1)
+                VPGWT(1:LAYERS)) * GAMMACO2 * CCE * GAMMALEAFAGE * GAMMASOIM * &
+                GAMMAAQ * GAMMAHT * GAMMALT * GAMMAHW * CANLOSS_FAC !put into top model layer (ug m-2 hr-1)
             EMI_OUT = EMI_OUT * 2.7777777777778E-13_rk    !convert emissions output to    (kg m-2 s-1)
         else if (VERT .eq. 2) then       !"MEGANv3-like": Add weighted sum of activity coefficients using normal distribution
             !across canopy layers using 5 layer numbers directly from MEGANv3
@@ -296,7 +353,8 @@ contains
                 VPGWT(i) = GAUSS(i)/sum(GAUSS(1:LAYERS))
             end do
             EMI_OUT(SIZE(ZK)) = LAI * EF * SUM(GammaTLEAF_AVE(1:LAYERS) * GammaPPFD_AVE(1:LAYERS) * &
-                VPGWT(1:LAYERS)) * GAMMACO2 * CCE * GAMMALEAFAGE * GAMMASOIM * CANLOSS_FAC    !put into top model layer (ug m-2 hr-1)
+                VPGWT(1:LAYERS)) * GAMMACO2 * CCE * GAMMALEAFAGE * GAMMASOIM * &
+                GAMMAAQ * GAMMAHT * GAMMALT * GAMMAHW * CANLOSS_FAC    !put into top model layer (ug m-2 hr-1)
             EMI_OUT = EMI_OUT * 2.7777777777778E-13_rk    !convert emissions output to    (kg m-2 s-1)
         else if (VERT .eq. 3) then       !"MEGANv3-like": Add weighted sum of activity coefficients equally
             !across canopy layers
@@ -307,7 +365,8 @@ contains
                 VPGWT(i) = 1.0_rk/LAYERS
             end do
             EMI_OUT(SIZE(ZK)) = LAI * EF * SUM(GammaTLEAF_AVE(1:LAYERS) * GammaPPFD_AVE(1:LAYERS) * &
-                VPGWT(1:LAYERS)) * GAMMACO2 * CCE * GAMMALEAFAGE * GAMMASOIM * CANLOSS_FAC    !put into top model layer (ug m-2 hr-1)
+                VPGWT(1:LAYERS)) * GAMMACO2 * CCE * GAMMALEAFAGE * GAMMASOIM * &
+                GAMMAAQ * GAMMAHT * GAMMALT * GAMMAHW  * CANLOSS_FAC    !put into top model layer (ug m-2 hr-1)
             EMI_OUT = EMI_OUT * 2.7777777777778E-13_rk    !convert emissions output to    (kg m-2 s-1)
         else
             write(*,*)  'Wrong BIOVERT_OPT choice of ', VERT, ' in namelist...exiting'

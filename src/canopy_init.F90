@@ -41,6 +41,8 @@ SUBROUTINE canopy_init
     if(allocated(tleaf_ave240_tmp))   tleaf_ave240_tmp(:,:,:)    = 0.0_rk
     if(allocated(ppfd_sun240_tmp))    ppfd_sun240_tmp(:,:,:)     = 0.0_rk
     if(allocated(ppfd_shade240_tmp))  ppfd_shade240_tmp(:,:,:)   = 0.0_rk
+    if(allocated(tmp2mref_tmp))       tmp2mref_tmp(:,:)          = 0.0_rk
+    if(allocated(ubzref_tmp))         ubzref_tmp(:,:)            = 0.0_rk
     if(allocated(tleaf_sun24))        tleaf_sun24(:,:)         = fillreal
     if(allocated(tleaf_shade24))      tleaf_shade24(:,:)       = fillreal
     if(allocated(tleaf_ave24))        tleaf_ave24(:,:)         = fillreal
@@ -51,6 +53,9 @@ SUBROUTINE canopy_init
     if(allocated(tleaf_ave240))       tleaf_ave240(:,:)        = fillreal
     if(allocated(ppfd_sun240))        ppfd_sun240(:,:)         = fillreal
     if(allocated(ppfd_shade240))      ppfd_shade240(:,:)       = fillreal
+    if(allocated(daily_maxt2m))       daily_maxt2m(:)          = fillreal
+    if(allocated(daily_mint2m))       daily_mint2m(:)          = fillreal
+    if(allocated(daily_maxws10m))     daily_maxws10m(:)          = fillreal
 
     if(allocated(tleaf_sun24_tmp_3d))    tleaf_sun24_tmp_3d(:,:,:,:)     = 0.0_rk
     if(allocated(tleaf_shade24_tmp_3d))  tleaf_shade24_tmp_3d(:,:,:,:)   =  0.0_rk
@@ -62,6 +67,8 @@ SUBROUTINE canopy_init
     if(allocated(tleaf_ave240_tmp_3d))   tleaf_ave240_tmp_3d(:,:,:,:)    = 0.0_rk
     if(allocated(ppfd_sun240_tmp_3d))    ppfd_sun240_tmp_3d(:,:,:,:)     = 0.0_rk
     if(allocated(ppfd_shade240_tmp_3d))  ppfd_shade240_tmp_3d(:,:,:,:)   = 0.0_rk
+    if(allocated(tmp2mref_tmp_3d))       tmp2mref_tmp_3d(:,:,:)          = 0.0_rk
+    if(allocated(ubzref_tmp_3d))         ubzref_tmp_3d(:,:,:)            = 0.0_rk
     if(allocated(tleaf_sun24_3d))        tleaf_sun24_3d(:,:,:)         = fillreal
     if(allocated(tleaf_shade24_3d))      tleaf_shade24_3d(:,:,:)       = fillreal
     if(allocated(tleaf_ave24_3d))        tleaf_ave24_3d(:,:,:)         = fillreal
@@ -72,7 +79,9 @@ SUBROUTINE canopy_init
     if(allocated(tleaf_ave240_3d))       tleaf_ave240_3d(:,:,:)        = fillreal
     if(allocated(ppfd_sun240_3d))        ppfd_sun240_3d(:,:,:)         = fillreal
     if(allocated(ppfd_shade240_3d))      ppfd_shade240_3d(:,:,:)       = fillreal
-
+    if(allocated(daily_maxt2m_2d))       daily_maxt2m_2d(:,:)          = fillreal
+    if(allocated(daily_mint2m_2d))       daily_mint2m_2d(:,:)          = fillreal
+    if(allocated(daily_maxws10m_2d))     daily_maxws10m_2d(:,:)        = fillreal
 !-------------------------------------------------------------------------------
 ! Initialize arrays for Canopy Wind
 !-------------------------------------------------------------------------------

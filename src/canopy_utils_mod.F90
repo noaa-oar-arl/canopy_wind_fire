@@ -7,7 +7,8 @@ module canopy_utils_mod
     private
     public IntegrateTrapezoid,interp_linear1_internal,CalcPAI, &
         CalcDX,CalcFlameH,GET_GAMMA_CO2,GET_GAMMA_LEAFAGE, &
-        GET_GAMMA_SOIM,GET_CANLOSS_BIO
+        GET_GAMMA_SOIM,GET_GAMMA_AQ,GET_GAMMA_HT,GET_GAMMA_LT, &
+        GET_GAMMA_HW,GET_CANLOSS_BIO
 
 contains
 
@@ -872,5 +873,198 @@ contains
         END IF
 
     end function GET_GAMMA_SOIM
+
+!----------------------------------------------------------------
+!
+!   Function GAMMA_AQ
+!   EA response to air quality
+!
+!----------------------------------------------------------------
+
+    real(rk) function GET_GAMMA_AQ(aq_opt, w126_ozone, w126_set, caq, taq, dtaq)  result( GAMMA_AQ )
+
+        ! !IROUTINE: get_gamma_aq
+        !
+        ! !DESCRIPTION: Function GET\_GAMMA\_AQ computes the  activity factor
+        !  associated with air qualtity (ozone W126 stress of biogenic emission. Called from
+        !  GET\_MEGAN\_EMISSIONS only.
+        !\\
+        !\\
+        ! !INTERFACE:
+
+        ! !INPUT PARAMETERS:
+        integer,  INTENT(IN) :: aq_opt       ! Option for aq stress calculation
+        ! 0=MEGANv3.2 implementation with climatological, spatially dependent GFSv16-based W126;
+        ! 1=MEGANv3.2 implementation with user-set, spatially constant value of ozone W126
+        ! >1=off (gamma_aq=1)
+        real(rk), INTENT(IN) :: w126_ozone     ! spatially dependent GFS w126 ozone [ppm-hours]
+        real(rk), INTENT(IN) :: w126_set       ! user set spatially constant w126 ozone [ppm-hours]
+        real(rk), INTENT(IN) :: taq            ! threshold for poor Air Quality stress (ppm-hours)
+        real(rk), INTENT(IN) :: dtaq           ! delta threshold for poor Air Quality stress (ppm-hours)
+        real(rk), INTENT(IN) :: caq            ! coefficient for poor Air Quality stress
+        !
+        ! !RETURN VALUE:
+        !REAL(rk)             :: GAMMA_AQ  ! AQ activity factor [unitless]
+        !
+        ! !LOCAL VARIABLES:
+        REAL(rk)             :: w126       ! local w126 value (ppm-hours)
+        REAL(rk)             :: t1         ! combined threshold + delta threshold AQ value
+
+        if (aq_opt .eq. 0) then !Use spatial GFS W126 ozone
+            w126 = w126_ozone
+        else                    !Use user set value of W126 ozone
+            w126 = w126_set
+        end if
+
+
+        if (aq_opt .le. 1) then !Calculate GAMMA_AQ
+            t1 = taq + dtaq
+            if (w126 <= taq) then
+                GAMMA_AQ = 1.0_rk
+            else if ( w126 > taq .and. w126 < t1) then
+                GAMMA_AQ = 1.0_rk + (caq - 1.0_rk)* (w126 - &
+                    taq)/dtaq
+            else
+                GAMMA_AQ = caq
+            end if
+        else                    ! GAMMA_AQ = 1
+            GAMMA_AQ = 1.0_rk
+        end if
+
+    end function GET_GAMMA_AQ
+!-----------------------------------------------------------------------
+
+    real(rk) function GET_GAMMA_HT(ht_opt, maxt2m, cht, tht, dtht)  result( GAMMA_HT )
+
+        ! !IROUTINE: get_gamma_ht
+        !
+        ! !DESCRIPTION: Function GET\_GAMMA\_HT computes the  activity factor
+        !  associated with high temperature stress of biogenic emission. Called from
+        !  GET\_MEGAN\_EMISSIONS only.
+        !\\
+        !\\
+        ! !INTERFACE:
+
+        ! !INPUT PARAMETERS:
+        integer,  INTENT(IN) :: ht_opt       ! Option for ht stress calculation
+        ! 0=MEGANv3.2 On;
+        ! 1=MEGANv3.2 Off
+        real(rk), INTENT(IN) :: maxt2m         ! maximum input 2-m temperature [K]
+        real(rk), INTENT(IN) :: tht            ! threshold for high temperature [K]
+        real(rk), INTENT(IN) :: dtht           ! delta threshold for high temperature [K]
+        real(rk), INTENT(IN) :: cht            ! coefficient for high temperature stress
+        !
+        ! !RETURN VALUE:
+        !REAL(rk)             :: GAMMA_HT  ! HT activity factor [unitless]
+        !
+        ! !LOCAL VARIABLES:
+        REAL(rk)             :: t1         ! combined threshold + delta threshold HT value
+
+        if (ht_opt .eq. 0) then !Calculate GAMMA_HT
+            t1 = tht + dtht
+            if (maxt2m <= tht) then
+                GAMMA_HT = 1.0_rk
+            else if ( maxt2m > tht .and. maxt2m < t1) then
+                GAMMA_HT = 1.0_rk + (cht - 1.0_rk)* (maxt2m - &
+                    tht)/dtht
+            else
+                GAMMA_HT = cht
+            end if
+        else                    ! GAMMA_HT = 1
+            GAMMA_HT = 1.0_rk
+        end if
+
+    end function GET_GAMMA_HT
+!-----------------------------------------------------------------------
+
+!-----------------------------------------------------------------------
+
+    real(rk) function GET_GAMMA_LT(lt_opt, mint2m, clt, tlt, dtlt)  result( GAMMA_LT )
+
+        ! !IROUTINE: get_gamma_lt
+        !
+        ! !DESCRIPTION: Function GET\_GAMMA\_LT computes the  activity factor
+        !  associated with low temperature stress of biogenic emission. Called from
+        !  GET\_MEGAN\_EMISSIONS only.
+        !\\
+        !\\
+        ! !INTERFACE:
+
+        ! !INPUT PARAMETERS:
+        integer,  INTENT(IN) :: lt_opt       ! Option for lt stress calculation
+        ! 0=MEGANv3.2 On;
+        ! 1=MEGANv3.2 Off
+        real(rk), INTENT(IN) :: mint2m         ! minimum input 2-m temperature [K]
+        real(rk), INTENT(IN) :: tlt            ! threshold for low temperature [K]
+        real(rk), INTENT(IN) :: dtlt           ! delta threshold for low temperature [K]
+        real(rk), INTENT(IN) :: clt            ! coefficient for low temperature stress
+        !
+        ! !RETURN VALUE:
+        !REAL(rk)             :: GAMMA_LT  ! LT activity factor [unitless]
+        !
+        ! !LOCAL VARIABLES:
+        REAL(rk)             :: t1         ! combined threshold + delta threshold LT value
+
+        if (lt_opt .eq. 0) then !Calculate GAMMA_LT
+            t1 = tlt - dtlt
+            if (mint2m >= tlt) then
+                GAMMA_LT = 1.0_rk
+            else if ( mint2m < tlt .and. mint2m > t1) then
+                GAMMA_LT = 1.0_rk + (clt - 1.0_rk)* (tlt - &
+                    mint2m)/dtlt
+            else
+                GAMMA_LT = clt
+            end if
+        else                    ! GAMMA_LT = 1
+            GAMMA_LT = 1.0_rk
+        end if
+
+    end function GET_GAMMA_LT
+!-----------------------------------------------------------------------
+
+!-----------------------------------------------------------------------
+
+    real(rk) function GET_GAMMA_HW(hw_opt, maxws10m, chw, thw, dthw)  result( GAMMA_HW )
+
+        ! !IROUTINE: get_gamma_hw
+        !
+        ! !DESCRIPTION: Function GET\_GAMMA\_HW computes the  activity factor
+        !  associated with high wind stress of biogenic emission. Called from
+        !  GET\_MEGAN\_EMISSIONS only.
+        !\\
+        !\\
+        ! !INTERFACE:
+
+        ! !INPUT PARAMETERS:
+        integer,  INTENT(IN) :: hw_opt       ! Option for hw stress calculation
+        ! 0=MEGANv3.2 On;
+        ! 1=MEGANv3.2 Off
+        real(rk), INTENT(IN) :: maxws10m       ! maximum input 10-m wind speed [m/s]
+        real(rk), INTENT(IN) :: thw            ! threshold for high wind speed [m/s]
+        real(rk), INTENT(IN) :: dthw           ! delta threshold for high wind speed [m/s]
+        real(rk), INTENT(IN) :: chw            ! coefficient for high wind speed stress
+        !
+        ! !RETURN VALUE:
+        !REAL(rk)             :: GAMMA_HW  ! HT activity factor [unitless]
+        !
+        ! !LOCAL VARIABLES:
+        REAL(rk)             :: t1         ! combined threshold + delta threshold HW value
+
+        if (hw_opt .eq. 0) then !Calculate GAMMA_HW
+            t1 = thw + dthw
+            if (maxws10m <= thw) then
+                GAMMA_HW = 1.0_rk
+            else if ( maxws10m > thw .and. maxws10m < t1) then
+                GAMMA_HW = 1.0_rk + (chw - 1.0_rk)* (maxws10m - &
+                    thw)/dthw
+            else
+                GAMMA_HW = chw
+            end if
+        else                    ! GAMMA_HW = 1
+            GAMMA_HW = 1.0_rk
+        end if
+
+    end function GET_GAMMA_HW
+!-----------------------------------------------------------------------
 
 end module canopy_utils_mod

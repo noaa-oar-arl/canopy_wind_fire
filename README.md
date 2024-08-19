@@ -85,6 +85,13 @@ Current Canopy-App components:
 
 ## Outputs
 
+Namelist Option : `file_out`  Prefix string (e.g., `'test'`) used to name output file (Output is 1D txt when using input 1D data (i.e., `infmt_opt=1`), or is 2D NetCDF output when 2D NetCDF input is used (i.e., `infmt_opt=0`)).
+
+Current 3D fields include canopy winds (`canwind`), canopy vertical/eddy diffusivity values `kz`), biogenic emissions (see Table 1 below),
+canopy photolysis attenuation correction factors (`rjcf`), and derived Leaf Area Density (`lad`) from the foliage shape function.  
+
+Current 2D fields includes the Wind Adjustment Factor (`waf`), flame heights (`flameh`), and canopy heights (`canheight`). Current 1D fields include the canopy model interface levels (`z`).
+
 **Note for Biogenic emissions:** When `ifcanbio=.TRUE.`, output will include 3D canopy resolved biogenic emissions for the following species (based on Guenther et al., 2012), which have been mapped from Guenther et al. PFTs to input LU_OPT.
 
 ### Table 1. Canopy-App Biogenic Emissions Output Variables
@@ -110,11 +117,6 @@ Current Canopy-App components:
 | `emi_bvoc`    | Bi-Directional VOC emissions (5 compounds, Table 1 Guenther et al. (2012) | 17        |
 | `emi_svoc`    | Stress VOC emissions (15 compounds, Table 1 Guenther et al. (2012) | 18        |
 | `emi_ovoc`    | Other VOC emissions (49 compounds, Table 1 Guenther et al. (2012) | 19        |
-
-**Current Canopy-App Output:** As discussed above, the current Canopy-App optional outputs includes 3D canopy winds (`canwind`), canopy vertical/eddy diffusivity values `kz`), biogenic emissions (see Table 1), and
-canopy photolysis attenuation correction factors (`rjcf`), and derived Leaf Area Density (`lad`) from the foliage shape function.  Current 2D fields includes the Wind Adjustment Factor (`waf`), flame heights (`flameh`), and canopy heights (`canheight`). Current 1D fields include the canopy model interface levels (`z`).
-
-Namelist Option : `file_out`  Prefix string (e.g., `'test'`) used to name output file (Output is 1D txt when using input 1D data (i.e., `infmt_opt=1`), or is 2D NetCDF output when 2D NetCDF input is used (i.e., `infmt_opt=0`)).
 
 ## Inputs and Settings
 
@@ -170,7 +172,7 @@ The Canopy-App input data in [Table 2](#table-2-canopy-app-required-input-variab
 | `csz`                            | Cosine of the solar zenith angle (dimensionless) | [Based on Python Pysolar](https://pysolar.readthedocs.io/en/latest/) |
 | `mol`                            | Monin-Obukhov Length (m)                    | Externally calculated using GFS `tmp2m`, `fricv`, and `shtfl`.  ([Essa, 1999](https://inis.iaea.org/collection/NCLCollectionStore/_Public/37/118/37118528.pdf)) |
 | `href`                           | Reference height above canopy (m) - 10 m    | Assumed constant (i.e., 10 m).  Can be taken from NL. |
-| `ozone_w126`                     | Ozone W126 index (ppm-hours)                | Climatological value during 04/2021-04/2024 based on GFSv16 lowest model layer ozone mixing ratios. |
+| `ozone_w126`                     | Ozone W126 index (ppm-hours)                | A three year climatological calculation between 04/2021-04/2024, based on GFSv16 lowest model layer ozone mixing ratios.  The W126 calculation is based on the [EPA definition](https://www.epa.gov/sites/default/files/2015-09/documents/w126_steps_to_calculate_revised_feb19.pdf). |
 
 **More Information on Data Sources from [Table 2](#table-2-canopy-app-required-input-variables):**
 
@@ -282,6 +284,12 @@ Otherwise, please contact Patrick.C.Campbell@noaa.gov for other GFSv16 data peri
 | `hist_opt`      | user-set option to use historically averaged short-term (24-hr) and long-term (240-hr) rolling averages for leaf temperature and PAR for biogenic emissions  (default is off i.e., `hist_opt=0`)  Note: If simulation is </= 24 hours, instantaneous values for leaf temperature and PAR will be used even if historical averaging is turned on (i.e., `hist_opt=1`).  Recommend turning on `hist_opt=1` and running at least for 25 hours to create a model spin-up, and use subsequent simulation hours for analysis. Overall a 10-day (240 hr) spinup is optimal for best analysis of biogenic emissions. |
 | `soim_opt`   | user-set options for applying soil moisture response to biogenic VOC emissions based on [Guenther et al. 2006](https://doi.org/10.5194/acp-6-3181-2006), which depends on input soil moisture at depth and the wilting point.  This includes additional PFT dependent approach for cumulative root fraction within each soil layer from [Zeng (2001)](https://doi.org/10.1175/1525-7541(2001)002<0525:GVRDFL>2.0.CO;2). (default is off i.e., `soim_opt=1`, the corresponding $\gamma$ is set to 1). If turned on (`soim_opt=0`), which is recommended, soim $\gamma$ is calculated and the prescribed 4-layer soil depths (`soild[1-4]` below) are used.  Four layers are assumed, and are based on GFS Noah and Noah-MP LSM. |
 | `soild[1-4]` | user-set real values of four level soil depths at centerpoint (cm).  Four layers are based on the GFS Noah and Noah-MP LSM, default values are `soild1=5.0`, `soild2=25.0`, `soild3=70.0`, and  `soild4=150.0`. |
+| `aq_opt`       | user-set options for applying an air quality stress factor for biogenic emissions using calculated, spatially-dependent and global GFS-based ozone W126 values (= `0`) or a constant user-set W126 value (= `1`). To turn off aq stress factor set `aq_opt=2` (set as default, Off).  Note:  The aq_opt should only be turned on during simulations across respective ozone season for specific region (e.g., April-October in the U.S.)|
+| `w126_set`       | user-set real value of constant ozone W126 values (ppm-hours) (only used if `aq_opt=1`) |
+| `ht_opt`       | user-set options for applying a daily high temperature stress factor for biogenic emissions using daily maximum 2-meter input temperature (= `0`).  This is based on MEGAN3 and it is recommended that this option is only used when turning the historical option on (i.e., `hist_opt=1`) and running longer than 1-day simulations to obtain the daily max.   To turn off ht stress factor set `ht_opt=1` (set as default, Off)  |
+| `lt_opt`       | user-set options for applying a daily low temperature stress factor for biogenic emissions using daily minimum 2-meter input temperature (= `0`).  This is based on MEGAN3 and it is recommended that this option is only used when turning the historical option on (i.e., `hist_opt=1`) and running longer than 1-day simulations to obtain the daily min.   To turn off lt stress factor set `lt_opt=1` (set as default, Off) |
+| `hw_opt`       | user-set options for applying a daily high wind speed stress factor for biogenic emissions using daily maximum 10-meter input wind speed (= `0`).  This is based on MEGAN3 and it is recommended that this option is only used when turning the historical option on (i.e., `hist_opt=1`) and running longer than 1-day simulations to obtain the daily max.   To turn off hw stress factor set `hw_opt=1` (set as default, Off) |
+
 
 **\*\*** If `modres` >> `flameh` then some error in WAF calculation will be incurred.  Suggestion is to use relative fine `modres` (at least <= 0.5 m) compared to average flame heights (e.g., ~ 1.0 m) if WAF is required.
 

@@ -41,6 +41,7 @@ MODULE canopy_canmet_mod
         real(rk)   :: soilw3       !volumetric soil moisture level 3 (m3/m3)
         real(rk)   :: soilw4       !volumetric soil moisture level 4 (m3/m3)
         real(rk)   :: wilt         !wilting point (proportion)
+        real(rk)   :: ozone_w126   !ozone W126 values (ppm-hours)
 
     end TYPE variable_type
 
@@ -127,6 +128,8 @@ MODULE canopy_canmet_mod
     real(rk)       ::    soilw3ref       !volumetric soil moisture (m3/m3) Layer 3
     real(rk)       ::    soilw4ref       !volumetric soil moisture (m3/m3) Layer 4
     real(rk)       ::    wiltref         !wilting point (proportion)
+    real(rk)       ::    ozone_w126ref   !ozone W126 values (ppm-hours)
+
 !    real(rk)       ::    lev01ref, lev02ref, lev03ref, lev04ref, lev05ref, & !Input canopy profile levels
 !                         lev06ref, lev07ref, lev08ref, lev09ref, lev10ref, &
 !                         lev11ref, lev12ref, lev13ref, lev14ref
