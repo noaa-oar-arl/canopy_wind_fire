@@ -340,73 +340,8 @@ SUBROUTINE canopy_calcs(nn)
                                     tleaf_ave240_tmp_3d(nn,i,j,:)   = tleaf_ave
                                     tmp2mref_tmp_3d(nn,i,j)         = tmp2mref
                                     ubzref_tmp_3d(nn,i,j)           = ubzref
-                                else if (nn .le. 240) then
-                                    ppfd_sun24_tmp_3d(25,i,j,:)     = ppfd_sun
-                                    ppfd_shade24_tmp_3d(25,i,j,:)   = ppfd_shade
-                                    tleaf_sun24_tmp_3d(25,i,j,:)    = tleaf_sun
-                                    tleaf_shade24_tmp_3d(25,i,j,:)  = tleaf_shade
-                                    tleaf_ave24_tmp_3d(25,i,j,:)    = tleaf_ave
-                                    ppfd_sun240_tmp_3d(nn,i,j,:)    = ppfd_sun
-                                    ppfd_shade240_tmp_3d(nn,i,j,:)  = ppfd_shade
-                                    tleaf_sun240_tmp_3d(nn,i,j,:)   = tleaf_sun
-                                    tleaf_shade240_tmp_3d(nn,i,j,:) = tleaf_shade
-                                    tleaf_ave240_tmp_3d(nn,i,j,:)   = tleaf_ave
-                                    tmp2mref_tmp_3d(25,i,j)         = tmp2mref
-                                    ubzref_tmp_3d(25,i,j)           = ubzref
-                                    ppfd_sun24_rst_3d(:,i,j,:)     = ppfd_sun24_tmp_3d(1:24,i,j,:)
-                                    ppfd_shade24_rst_3d(:,i,j,:)   = ppfd_shade24_tmp_3d(1:24,i,j,:)
-                                    tleaf_sun24_rst_3d(:,i,j,:)    = tleaf_sun24_tmp_3d(1:24,i,j,:)
-                                    tleaf_shade24_rst_3d(:,i,j,:)  = tleaf_shade24_tmp_3d(1:24,i,j,:)
-                                    tleaf_ave24_rst_3d(:,i,j,:)    = tleaf_ave24_tmp_3d(1:24,i,j,:)
-                                    tmp2mref_rst_3d(:,i,j)         = tmp2mref_tmp_3d(1:24,i,j)
-                                    ubzref_rst_3d(:,i,j)           = ubzref_tmp_3d(1:24,i,j)
-                                    ppfd_sun24_tmp_3d(1:24,i,j,:)     = ppfd_sun24_tmp_3d(2:25,i,j,:)
-                                    ppfd_shade24_tmp_3d(1:24,i,j,:)   = ppfd_shade24_tmp_3d(2:25,i,j,:)
-                                    tleaf_sun24_tmp_3d(1:24,i,j,:)    = tleaf_sun24_tmp_3d(2:25,i,j,:)
-                                    tleaf_shade24_tmp_3d(1:24,i,j,:)  = tleaf_shade24_tmp_3d(2:25,i,j,:)
-                                    tleaf_ave24_tmp_3d(1:24,i,j,:)    = tleaf_ave24_tmp_3d(2:25,i,j,:)
-                                    tmp2mref_tmp_3d(1:24,i,j)         = tmp2mref_tmp_3d(2:25,i,j)
-                                    ubzref_tmp_3d(1:24,i,j)           = ubzref_tmp_3d(2:25,i,j)
-                                else
-                                    ppfd_sun24_tmp_3d(25,i,j,:)     = ppfd_sun
-                                    ppfd_shade24_tmp_3d(25,i,j,:)   = ppfd_shade
-                                    tleaf_sun24_tmp_3d(25,i,j,:)    = tleaf_sun
-                                    tleaf_shade24_tmp_3d(25,i,j,:)  = tleaf_shade
-                                    tleaf_ave24_tmp_3d(25,i,j,:)    = tleaf_ave
-                                    ppfd_sun240_tmp_3d(241,i,j,:)    = ppfd_sun
-                                    ppfd_shade240_tmp_3d(241,i,j,:)  = ppfd_shade
-                                    tleaf_sun240_tmp_3d(241,i,j,:)   = tleaf_sun
-                                    tleaf_shade240_tmp_3d(241,i,j,:) = tleaf_shade
-                                    tleaf_ave240_tmp_3d(241,i,j,:)   = tleaf_ave
-                                    tmp2mref_tmp_3d(25,i,j)         = tmp2mref
-                                    ubzref_tmp_3d(25,i,j)           = ubzref
-                                    ppfd_sun24_rst_3d(:,i,j,:)     = ppfd_sun24_tmp_3d(1:24,i,j,:)
-                                    ppfd_shade24_rst_3d(:,i,j,:)   = ppfd_shade24_tmp_3d(1:24,i,j,:)
-                                    tleaf_sun24_rst_3d(:,i,j,:)    = tleaf_sun24_tmp_3d(1:24,i,j,:)
-                                    tleaf_shade24_rst_3d(:,i,j,:)  = tleaf_shade24_tmp_3d(1:24,i,j,:)
-                                    tleaf_ave24_rst_3d(:,i,j,:)    = tleaf_ave24_tmp_3d(1:24,i,j,:)
-                                    ppfd_sun240_rst_3d(:,i,j,:)    = ppfd_sun240_tmp_3d(1:240,i,j,:)
-                                    ppfd_shade240_rst_3d(:,i,j,:)  = ppfd_shade240_tmp_3d(1:240,i,j,:)
-                                    tleaf_sun240_rst_3d(:,i,j,:)   = tleaf_sun240_tmp_3d(1:240,i,j,:)
-                                    tleaf_shade240_rst_3d(:,i,j,:) = tleaf_shade240_tmp_3d(1:240,i,j,:)
-                                    tleaf_ave240_rst_3d(:,i,j,:)   = tleaf_ave240_tmp_3d(1:240,i,j,:)
-                                    tmp2mref_rst_3d(:,i,j)         = tmp2mref_tmp_3d(1:24,i,j)
-                                    ubzref_rst_3d(:,i,j)           = ubzref_tmp_3d(1:24,i,j)
-                                    ppfd_sun24_tmp_3d(1:24,i,j,:)     = ppfd_sun24_tmp_3d(2:25,i,j,:)
-                                    ppfd_shade24_tmp_3d(1:24,i,j,:)   = ppfd_shade24_tmp_3d(2:25,i,j,:)
-                                    tleaf_sun24_tmp_3d(1:24,i,j,:)    = tleaf_sun24_tmp_3d(2:25,i,j,:)
-                                    tleaf_shade24_tmp_3d(1:24,i,j,:)  = tleaf_shade24_tmp_3d(2:25,i,j,:)
-                                    tleaf_ave24_tmp_3d(1:24,i,j,:)    = tleaf_ave24_tmp_3d(2:25,i,j,:)
-                                    ppfd_sun240_tmp_3d(1:240,i,j,:)    = ppfd_sun240_tmp_3d(2:241,i,j,:)
-                                    ppfd_shade240_tmp_3d(1:240,i,j,:)  = ppfd_shade240_tmp_3d(2:241,i,j,:)
-                                    tleaf_sun240_tmp_3d(1:240,i,j,:)   = tleaf_sun240_tmp_3d(2:241,i,j,:)
-                                    tleaf_shade240_tmp_3d(1:240,i,j,:) = tleaf_shade240_tmp_3d(2:241,i,j,:)
-                                    tleaf_ave240_tmp_3d(1:240,i,j,:)   = tleaf_ave240_tmp_3d(2:241,i,j,:)
-                                    tmp2mref_tmp_3d(1:24,i,j)         = tmp2mref_tmp_3d(2:25,i,j)
-                                    ubzref_tmp_3d(1:24,i,j)           = ubzref_tmp_3d(2:25,i,j)
-                                end if
 
-                                if (nn .le. 24) then !TODO:  Restart capability needed to get past leaf temp and PAR if avaialble
+                                    !!TODO:  Restart capability needed to get past leaf temp and PAR if avaialble
                                     !For now, if <= 24 hours then only option is to use current instantaneous values
                                     ppfd_sun24_3d(i,j,:)     = ppfd_sun
                                     ppfd_shade24_3d(i,j,:)   = ppfd_shade
@@ -422,18 +357,34 @@ SUBROUTINE canopy_calcs(nn)
                                     daily_maxt2m_2d(i,j)        = tmp2mref
                                     daily_mint2m_2d(i,j)        = tmp2mref
                                     daily_maxws10m_2d(i,j)      = ubzref
+
                                 else if (nn .le. 240) then
-                                    ppfd_sun24_3d(i,j,:)     = sum(ppfd_sun24_rst_3d(:,i,j,:),1)/24.0
-                                    ppfd_shade24_3d(i,j,:)   = sum(ppfd_shade24_rst_3d(:,i,j,:),1)/24.0
-                                    tleaf_sun24_3d(i,j,:)    = sum(tleaf_sun24_rst_3d(:,i,j,:),1)/24.0
-                                    tleaf_shade24_3d(i,j,:)  = sum(tleaf_shade24_rst_3d(:,i,j,:),1)/24.0
-                                    tleaf_ave24_3d(i,j,:)    = sum(tleaf_ave24_rst_3d(:,i,j,:),1)/24.0
-                                    !Use 24 hour restarts until 240 restarts become available
-                                    ppfd_sun240_3d(i,j,:)    = sum(ppfd_sun24_rst_3d(:,i,j,:),1)/24.0
-                                    ppfd_shade240_3d(i,j,:)  = sum(ppfd_shade24_rst_3d(:,i,j,:),1)/24.0
-                                    tleaf_sun240_3d(i,j,:)   = sum(tleaf_sun24_rst_3d(:,i,j,:),1)/24.0
-                                    tleaf_shade240_3d(i,j,:) = sum(tleaf_shade24_rst_3d(:,i,j,:),1)/24.0
-                                    tleaf_ave240_3d(i,j,:)   = sum(tleaf_ave24_rst_3d(:,i,j,:),1)/24.0
+                                    !Drop nth value into end time slice
+                                    ppfd_sun24_tmp_3d(25,i,j,:)     = ppfd_sun
+                                    ppfd_shade24_tmp_3d(25,i,j,:)   = ppfd_shade
+                                    tleaf_sun24_tmp_3d(25,i,j,:)    = tleaf_sun
+                                    tleaf_shade24_tmp_3d(25,i,j,:)  = tleaf_shade
+                                    tleaf_ave24_tmp_3d(25,i,j,:)    = tleaf_ave
+                                    ppfd_sun240_tmp_3d(nn,i,j,:)    = ppfd_sun
+                                    ppfd_shade240_tmp_3d(nn,i,j,:)  = ppfd_shade
+                                    tleaf_sun240_tmp_3d(nn,i,j,:)   = tleaf_sun
+                                    tleaf_shade240_tmp_3d(nn,i,j,:) = tleaf_shade
+                                    tleaf_ave240_tmp_3d(nn,i,j,:)   = tleaf_ave
+                                    tmp2mref_tmp_3d(25,i,j)         = tmp2mref
+                                    ubzref_tmp_3d(25,i,j)           = ubzref
+
+                                    !Calculate 24 and 240 hour averages
+                                    ppfd_sun24_3d(i,j,:)     = sum(ppfd_sun24_tmp_3d(1:24,i,j,:),1)/24.0
+                                    ppfd_shade24_3d(i,j,:)   = sum(ppfd_shade24_tmp_3d(1:24,i,j,:),1)/24.0
+                                    tleaf_sun24_3d(i,j,:)    = sum(tleaf_sun24_tmp_3d(1:24,i,j,:),1)/24.0
+                                    tleaf_shade24_3d(i,j,:)  = sum(tleaf_shade24_tmp_3d(1:24,i,j,:),1)/24.0
+                                    tleaf_ave24_3d(i,j,:)    = sum(tleaf_ave24_tmp_3d(1:24,i,j,:),1)/24.0
+                                    !Use 24 hour data until 240 data become available
+                                    ppfd_sun240_3d(i,j,:)    = sum(ppfd_sun24_tmp_3d(1:24,i,j,:),1)/24.0
+                                    ppfd_shade240_3d(i,j,:)  = sum(ppfd_shade24_tmp_3d(1:24,i,j,:),1)/24.0
+                                    tleaf_sun240_3d(i,j,:)   = sum(tleaf_sun24_tmp_3d(1:24,i,j,:),1)/24.0
+                                    tleaf_shade240_3d(i,j,:) = sum(tleaf_shade24_tmp_3d(1:24,i,j,:),1)/24.0
+                                    tleaf_ave240_3d(i,j,:)   = sum(tleaf_ave24_tmp_3d(1:24,i,j,:),1)/24.0
                                     !Updated rolling 24 hour (hourly, short term) and 240 hour (daily, long-term) averages
                                     ppfd_sun24_3d(i,j,:)     = ( holdfrac * ppfd_sun24_3d(i,j,:) ) + ( hnewfrac * ppfd_sun )
                                     ppfd_shade24_3d(i,j,:)   = ( holdfrac * ppfd_shade24_3d(i,j,:) ) + ( hnewfrac * ppfd_shade )
@@ -446,21 +397,45 @@ SUBROUTINE canopy_calcs(nn)
                                     tleaf_shade240_3d(i,j,:)  = ( holdfrac * tleaf_shade24_3d(i,j,:) ) + ( hnewfrac * tleaf_shade )
                                     tleaf_ave240_3d(i,j,:)    = ( holdfrac * tleaf_ave24_3d(i,j,:) ) + ( hnewfrac * tleaf_ave )
                                     !Take daily max/min for temperature and daily max for wind speed
-                                    daily_maxt2m_2d(i,j)        = maxval(tmp2mref_rst_3d(:,i,j))
-                                    daily_mint2m_2d(i,j)        = minval(tmp2mref_rst_3d(:,i,j))
-                                    daily_maxws10m_2d(i,j)      = maxval(ubzref_rst_3d(:,i,j))
-                                else  !Updated running 24 hour (hourly, short term) and 240 hour (daily, long-term) averages
-                                    ppfd_sun24_3d(i,j,:)     = sum(ppfd_sun24_rst_3d(:,i,j,:),1)/24.0
-                                    ppfd_shade24_3d(i,j,:)   = sum(ppfd_shade24_rst_3d(:,i,j,:),1)/24.0
-                                    tleaf_sun24_3d(i,j,:)    = sum(tleaf_sun24_rst_3d(:,i,j,:),1)/24.0
-                                    tleaf_shade24_3d(i,j,:)  = sum(tleaf_shade24_rst_3d(:,i,j,:),1)/24.0
-                                    tleaf_ave24_3d(i,j,:)    = sum(tleaf_ave24_rst_3d(:,i,j,:),1)/24.0
-                                    ppfd_sun240_3d(i,j,:)    = sum(ppfd_sun240_rst_3d(:,i,j,:),1)/240.0
-                                    ppfd_shade240_3d(i,j,:)  = sum(ppfd_shade240_rst_3d(:,i,j,:),1)/240.0
-                                    tleaf_sun240_3d(i,j,:)   = sum(tleaf_sun240_rst_3d(:,i,j,:),1)/240.0
-                                    tleaf_shade240_3d(i,j,:) = sum(tleaf_shade240_rst_3d(:,i,j,:),1)/240.0
-                                    tleaf_ave240_3d(i,j,:)   = sum(tleaf_ave240_rst_3d(:,i,j,:),1)/240.0
+                                    daily_maxt2m_2d(i,j)        = maxval(tmp2mref_tmp_3d(1:24,i,j))
+                                    daily_mint2m_2d(i,j)        = minval(tmp2mref_tmp_3d(1:24,i,j))
+                                    daily_maxws10m_2d(i,j)      = maxval(ubzref_tmp_3d(1:24,i,j))
 
+                                    !Shift time window to make room for new nth value
+                                    ppfd_sun24_tmp_3d(1:24,i,j,:)     = ppfd_sun24_tmp_3d(2:25,i,j,:)
+                                    ppfd_shade24_tmp_3d(1:24,i,j,:)   = ppfd_shade24_tmp_3d(2:25,i,j,:)
+                                    tleaf_sun24_tmp_3d(1:24,i,j,:)    = tleaf_sun24_tmp_3d(2:25,i,j,:)
+                                    tleaf_shade24_tmp_3d(1:24,i,j,:)  = tleaf_shade24_tmp_3d(2:25,i,j,:)
+                                    tleaf_ave24_tmp_3d(1:24,i,j,:)    = tleaf_ave24_tmp_3d(2:25,i,j,:)
+                                    tmp2mref_tmp_3d(1:24,i,j)         = tmp2mref_tmp_3d(2:25,i,j)
+                                    ubzref_tmp_3d(1:24,i,j)           = ubzref_tmp_3d(2:25,i,j)
+
+                                else
+                                    !Drop nth value into end time slice
+                                    ppfd_sun24_tmp_3d(25,i,j,:)     = ppfd_sun
+                                    ppfd_shade24_tmp_3d(25,i,j,:)   = ppfd_shade
+                                    tleaf_sun24_tmp_3d(25,i,j,:)    = tleaf_sun
+                                    tleaf_shade24_tmp_3d(25,i,j,:)  = tleaf_shade
+                                    tleaf_ave24_tmp_3d(25,i,j,:)    = tleaf_ave
+                                    ppfd_sun240_tmp_3d(241,i,j,:)    = ppfd_sun
+                                    ppfd_shade240_tmp_3d(241,i,j,:)  = ppfd_shade
+                                    tleaf_sun240_tmp_3d(241,i,j,:)   = tleaf_sun
+                                    tleaf_shade240_tmp_3d(241,i,j,:) = tleaf_shade
+                                    tleaf_ave240_tmp_3d(241,i,j,:)   = tleaf_ave
+                                    tmp2mref_tmp_3d(25,i,j)         = tmp2mref
+                                    ubzref_tmp_3d(25,i,j)           = ubzref
+
+                                    !Calculate 24 and 240 hour averages
+                                    ppfd_sun24_3d(i,j,:)     = sum(ppfd_sun24_tmp_3d(1:24,i,j,:),1)/24.0
+                                    ppfd_shade24_3d(i,j,:)   = sum(ppfd_shade24_tmp_3d(1:24,i,j,:),1)/24.0
+                                    tleaf_sun24_3d(i,j,:)    = sum(tleaf_sun24_tmp_3d(1:24,i,j,:),1)/24.0
+                                    tleaf_shade24_3d(i,j,:)  = sum(tleaf_shade24_tmp_3d(1:24,i,j,:),1)/24.0
+                                    tleaf_ave24_3d(i,j,:)    = sum(tleaf_ave24_tmp_3d(1:24,i,j,:),1)/24.0
+                                    ppfd_sun240_3d(i,j,:)    = sum(ppfd_sun240_tmp_3d(1:240,i,j,:),1)/240.0
+                                    ppfd_shade240_3d(i,j,:)  = sum(ppfd_shade240_tmp_3d(1:240,i,j,:),1)/240.0
+                                    tleaf_sun240_3d(i,j,:)   = sum(tleaf_sun240_tmp_3d(1:240,i,j,:),1)/240.0
+                                    tleaf_shade240_3d(i,j,:) = sum(tleaf_shade240_tmp_3d(1:240,i,j,:),1)/240.0
+                                    tleaf_ave240_3d(i,j,:)   = sum(tleaf_ave240_tmp_3d(1:240,i,j,:),1)/240.0
                                     !Update for current time value using efolding (holdfrac and hnewfrac)
                                     ppfd_sun24_3d(i,j,:)     = ( holdfrac * ppfd_sun24_3d(i,j,:) ) + ( hnewfrac * ppfd_sun )
                                     ppfd_shade24_3d(i,j,:)   = ( holdfrac * ppfd_shade24_3d(i,j,:) ) + ( hnewfrac * ppfd_shade )
@@ -473,9 +448,23 @@ SUBROUTINE canopy_calcs(nn)
                                     tleaf_shade240_3d(i,j,:) = ( doldfrac * tleaf_shade240_3d(i,j,:) ) + ( dnewfrac * tleaf_shade )
                                     tleaf_ave240_3d(i,j,:)   = ( doldfrac * tleaf_ave240_3d(i,j,:) ) + ( dnewfrac * tleaf_ave )
                                     !Take daily max/min for temperature and daily max for wind speed
-                                    daily_maxt2m_2d(i,j)        = maxval(tmp2mref_rst_3d(:,i,j))
-                                    daily_mint2m_2d(i,j)        = minval(tmp2mref_rst_3d(:,i,j))
-                                    daily_maxws10m_2d(i,j)      = maxval(ubzref_rst_3d(:,i,j))
+                                    daily_maxt2m_2d(i,j)        = maxval(tmp2mref_tmp_3d(1:24,i,j))
+                                    daily_mint2m_2d(i,j)        = minval(tmp2mref_tmp_3d(1:24,i,j))
+                                    daily_maxws10m_2d(i,j)      = maxval(ubzref_tmp_3d(1:24,i,j))
+
+                                    !Shift time window to make room for new nth value
+                                    ppfd_sun24_tmp_3d(1:24,i,j,:)     = ppfd_sun24_tmp_3d(2:25,i,j,:)
+                                    ppfd_shade24_tmp_3d(1:24,i,j,:)   = ppfd_shade24_tmp_3d(2:25,i,j,:)
+                                    tleaf_sun24_tmp_3d(1:24,i,j,:)    = tleaf_sun24_tmp_3d(2:25,i,j,:)
+                                    tleaf_shade24_tmp_3d(1:24,i,j,:)  = tleaf_shade24_tmp_3d(2:25,i,j,:)
+                                    tleaf_ave24_tmp_3d(1:24,i,j,:)    = tleaf_ave24_tmp_3d(2:25,i,j,:)
+                                    ppfd_sun240_tmp_3d(1:240,i,j,:)    = ppfd_sun240_tmp_3d(2:241,i,j,:)
+                                    ppfd_shade240_tmp_3d(1:240,i,j,:)  = ppfd_shade240_tmp_3d(2:241,i,j,:)
+                                    tleaf_sun240_tmp_3d(1:240,i,j,:)   = tleaf_sun240_tmp_3d(2:241,i,j,:)
+                                    tleaf_shade240_tmp_3d(1:240,i,j,:) = tleaf_shade240_tmp_3d(2:241,i,j,:)
+                                    tleaf_ave240_tmp_3d(1:240,i,j,:)   = tleaf_ave240_tmp_3d(2:241,i,j,:)
+                                    tmp2mref_tmp_3d(1:24,i,j)         = tmp2mref_tmp_3d(2:25,i,j)
+                                    ubzref_tmp_3d(1:24,i,j)           = ubzref_tmp_3d(2:25,i,j)
                                 end if
                             else
                                 write(*,*) 'wrong HIST_OPT namelist option = ', hist_opt, 'only option = 0 or 1'
@@ -1132,73 +1121,8 @@ SUBROUTINE canopy_calcs(nn)
                                 tleaf_ave240_tmp(nn,loc,:)   = tleaf_ave
                                 tmp2mref_tmp(nn,loc)         = tmp2mref
                                 ubzref_tmp(nn,loc)           = ubzref
-                            else if (nn .le. 240) then
-                                ppfd_sun24_tmp(25,loc,:)     = ppfd_sun
-                                ppfd_shade24_tmp(25,loc,:)   = ppfd_shade
-                                tleaf_sun24_tmp(25,loc,:)    = tleaf_sun
-                                tleaf_shade24_tmp(25,loc,:)  = tleaf_shade
-                                tleaf_ave24_tmp(25,loc,:)    = tleaf_ave
-                                ppfd_sun240_tmp(nn,loc,:)    = ppfd_sun
-                                ppfd_shade240_tmp(nn,loc,:)  = ppfd_shade
-                                tleaf_sun240_tmp(nn,loc,:)   = tleaf_sun
-                                tleaf_shade240_tmp(nn,loc,:) = tleaf_shade
-                                tleaf_ave240_tmp(nn,loc,:)   = tleaf_ave
-                                tmp2mref_tmp(25,loc)         = tmp2mref
-                                ubzref_tmp(25,loc)           = ubzref
-                                ppfd_sun24_rst(:,loc,:)     = ppfd_sun24_tmp(1:24,loc,:)
-                                ppfd_shade24_rst(:,loc,:)   = ppfd_shade24_tmp(1:24,loc,:)
-                                tleaf_sun24_rst(:,loc,:)    = tleaf_sun24_tmp(1:24,loc,:)
-                                tleaf_shade24_rst(:,loc,:)  = tleaf_shade24_tmp(1:24,loc,:)
-                                tleaf_ave24_rst(:,loc,:)    = tleaf_ave24_tmp(1:24,loc,:)
-                                tmp2mref_rst(:,loc)         = tmp2mref_tmp(1:24,loc)
-                                ubzref_rst(:,loc)           = ubzref_tmp(1:24,loc)
-                                ppfd_sun24_tmp(1:24,loc,:)     = ppfd_sun24_tmp(2:25,loc,:)
-                                ppfd_shade24_tmp(1:24,loc,:)   = ppfd_shade24_tmp(2:25,loc,:)
-                                tleaf_sun24_tmp(1:24,loc,:)    = tleaf_sun24_tmp(2:25,loc,:)
-                                tleaf_shade24_tmp(1:24,loc,:)  = tleaf_shade24_tmp(2:25,loc,:)
-                                tleaf_ave24_tmp(1:24,loc,:)    = tleaf_ave24_tmp(2:25,loc,:)
-                                tmp2mref_tmp(1:24,loc)         = tmp2mref_tmp(2:25,loc)
-                                ubzref_tmp(1:24,loc)           = ubzref_tmp(2:25,loc)
-                            else
-                                ppfd_sun24_tmp(25,loc,:)     = ppfd_sun
-                                ppfd_shade24_tmp(25,loc,:)   = ppfd_shade
-                                tleaf_sun24_tmp(25,loc,:)    = tleaf_sun
-                                tleaf_shade24_tmp(25,loc,:)  = tleaf_shade
-                                tleaf_ave24_tmp(25,loc,:)    = tleaf_ave
-                                ppfd_sun240_tmp(241,loc,:)    = ppfd_sun
-                                ppfd_shade240_tmp(241,loc,:)  = ppfd_shade
-                                tleaf_sun240_tmp(241,loc,:)   = tleaf_sun
-                                tleaf_shade240_tmp(241,loc,:) = tleaf_shade
-                                tleaf_ave240_tmp(241,loc,:)   = tleaf_ave
-                                tmp2mref_tmp(25,loc)         = tmp2mref
-                                ubzref_tmp(25,loc)           = ubzref
-                                ppfd_sun24_rst(:,loc,:)     = ppfd_sun24_tmp(1:24,loc,:)
-                                ppfd_shade24_rst(:,loc,:)   = ppfd_shade24_tmp(1:24,loc,:)
-                                tleaf_sun24_rst(:,loc,:)    = tleaf_sun24_tmp(1:24,loc,:)
-                                tleaf_shade24_rst(:,loc,:)  = tleaf_shade24_tmp(1:24,loc,:)
-                                tleaf_ave24_rst(:,loc,:)    = tleaf_ave24_tmp(1:24,loc,:)
-                                ppfd_sun240_rst(:,loc,:)    = ppfd_sun240_tmp(1:240,loc,:)
-                                ppfd_shade240_rst(:,loc,:)  = ppfd_shade240_tmp(1:240,loc,:)
-                                tleaf_sun240_rst(:,loc,:)   = tleaf_sun240_tmp(1:240,loc,:)
-                                tleaf_shade240_rst(:,loc,:) = tleaf_shade240_tmp(1:240,loc,:)
-                                tleaf_ave240_rst(:,loc,:)   = tleaf_ave240_tmp(1:240,loc,:)
-                                tmp2mref_rst(:,loc)         = tmp2mref_tmp(1:24,loc)
-                                ubzref_rst(:,loc)           = ubzref_tmp(1:24,loc)
-                                ppfd_sun24_tmp(1:24,loc,:)     = ppfd_sun24_tmp(2:25,loc,:)
-                                ppfd_shade24_tmp(1:24,loc,:)   = ppfd_shade24_tmp(2:25,loc,:)
-                                tleaf_sun24_tmp(1:24,loc,:)    = tleaf_sun24_tmp(2:25,loc,:)
-                                tleaf_shade24_tmp(1:24,loc,:)  = tleaf_shade24_tmp(2:25,loc,:)
-                                tleaf_ave24_tmp(1:24,loc,:)    = tleaf_ave24_tmp(2:25,loc,:)
-                                ppfd_sun240_tmp(1:240,loc,:)    = ppfd_sun240_tmp(2:241,loc,:)
-                                ppfd_shade240_tmp(1:240,loc,:)  = ppfd_shade240_tmp(2:241,loc,:)
-                                tleaf_sun240_tmp(1:240,loc,:)   = tleaf_sun240_tmp(2:241,loc,:)
-                                tleaf_shade240_tmp(1:240,loc,:) = tleaf_shade240_tmp(2:241,loc,:)
-                                tleaf_ave240_tmp(1:240,loc,:)   = tleaf_ave240_tmp(2:241,loc,:)
-                                tmp2mref_tmp(1:24,loc)          = tmp2mref_tmp(2:25,loc)
-                                ubzref_tmp(1:24,loc)            = ubzref_tmp(2:25,loc)
-                            end if
 
-                            if (nn .le. 24) then !TODO:  Restart capability needed to get past leaf temp and PAR if avaialble
+                                !TODO:  Restart capability needed to get past leaf temp and PAR if avaialble
                                 !For now, if <= 24 hours then use current instantaneous
                                 ppfd_sun24(loc,:)     = ppfd_sun
                                 ppfd_shade24(loc,:)   = ppfd_shade
@@ -1214,18 +1138,34 @@ SUBROUTINE canopy_calcs(nn)
                                 daily_maxt2m(loc)     = tmp2mref
                                 daily_mint2m(loc)     = tmp2mref
                                 daily_maxws10m(loc)   = ubzref
+
                             else if (nn .le. 240) then
-                                ppfd_sun24(loc,:)     = sum(ppfd_sun24_rst(:,loc,:),1)/24.0
-                                ppfd_shade24(loc,:)   = sum(ppfd_shade24_rst(:,loc,:),1)/24.0
-                                tleaf_sun24(loc,:)    = sum(tleaf_sun24_rst(:,loc,:),1)/24.0
-                                tleaf_shade24(loc,:)  = sum(tleaf_shade24_rst(:,loc,:),1)/24.0
-                                tleaf_ave24(loc,:)    = sum(tleaf_ave24_rst(:,loc,:),1)/24.0
+                                !Drop nth value into end time slice
+                                ppfd_sun24_tmp(25,loc,:)     = ppfd_sun
+                                ppfd_shade24_tmp(25,loc,:)   = ppfd_shade
+                                tleaf_sun24_tmp(25,loc,:)    = tleaf_sun
+                                tleaf_shade24_tmp(25,loc,:)  = tleaf_shade
+                                tleaf_ave24_tmp(25,loc,:)    = tleaf_ave
+                                ppfd_sun240_tmp(nn,loc,:)    = ppfd_sun
+                                ppfd_shade240_tmp(nn,loc,:)  = ppfd_shade
+                                tleaf_sun240_tmp(nn,loc,:)   = tleaf_sun
+                                tleaf_shade240_tmp(nn,loc,:) = tleaf_shade
+                                tleaf_ave240_tmp(nn,loc,:)   = tleaf_ave
+                                tmp2mref_tmp(25,loc)         = tmp2mref
+                                ubzref_tmp(25,loc)           = ubzref
+
+                                !Calculate 24 and 240 hour averages
+                                ppfd_sun24(loc,:)     = sum(ppfd_sun24_tmp(1:24,loc,:),1)/24.0
+                                ppfd_shade24(loc,:)   = sum(ppfd_shade24_tmp(1:24,loc,:),1)/24.0
+                                tleaf_sun24(loc,:)    = sum(tleaf_sun24_tmp(1:24,loc,:),1)/24.0
+                                tleaf_shade24(loc,:)  = sum(tleaf_shade24_tmp(1:24,loc,:),1)/24.0
+                                tleaf_ave24(loc,:)    = sum(tleaf_ave24_tmp(1:24,loc,:),1)/24.0
                                 !Use 24 hour restarts until 240 restarts become available
-                                ppfd_sun240(loc,:)    = sum(ppfd_sun24_rst(:,loc,:),1)/24.0
-                                ppfd_shade240(loc,:)  = sum(ppfd_shade24_rst(:,loc,:),1)/24.0
-                                tleaf_sun240(loc,:)   = sum(tleaf_sun24_rst(:,loc,:),1)/24.0
-                                tleaf_shade240(loc,:) = sum(tleaf_shade24_rst(:,loc,:),1)/24.0
-                                tleaf_ave240(loc,:)   = sum(tleaf_ave24_rst(:,loc,:),1)/24.0
+                                ppfd_sun240(loc,:)    = sum(ppfd_sun24_tmp(1:24,loc,:),1)/24.0
+                                ppfd_shade240(loc,:)  = sum(ppfd_shade24_tmp(1:24,loc,:),1)/24.0
+                                tleaf_sun240(loc,:)   = sum(tleaf_sun24_tmp(1:24,loc,:),1)/24.0
+                                tleaf_shade240(loc,:) = sum(tleaf_shade24_tmp(1:24,loc,:),1)/24.0
+                                tleaf_ave240(loc,:)   = sum(tleaf_ave24_tmp(1:24,loc,:),1)/24.0
                                 !Updated rolling 24 hour (hourly, short term) and 240 hour (daily, long-term) averages
                                 ppfd_sun24(loc,:)     = ( holdfrac * ppfd_sun24(loc,:) )     + ( hnewfrac * ppfd_sun )
                                 ppfd_shade24(loc,:)   = ( holdfrac * ppfd_shade24(loc,:) )   + ( hnewfrac * ppfd_shade )
@@ -1238,21 +1178,45 @@ SUBROUTINE canopy_calcs(nn)
                                 tleaf_shade240(loc,:)  = ( holdfrac * tleaf_shade24(loc,:) )  + ( hnewfrac * tleaf_shade )
                                 tleaf_ave240(loc,:)    = ( holdfrac * tleaf_ave24(loc,:) )    + ( hnewfrac * tleaf_ave )
                                 !Take daily max/min for temperature and daily max for wind speed
-                                daily_maxt2m(loc)        = maxval(tmp2mref_rst(:,loc))
-                                daily_mint2m(loc)        = minval(tmp2mref_rst(:,loc))
-                                daily_maxws10m(loc)      = maxval(ubzref_rst(:,loc))
-                            else
-                                ppfd_sun24(loc,:)     = sum(ppfd_sun24_rst(:,loc,:),1)/24.0
-                                ppfd_shade24(loc,:)   = sum(ppfd_shade24_rst(:,loc,:),1)/24.0
-                                tleaf_sun24(loc,:)    = sum(tleaf_sun24_rst(:,loc,:),1)/24.0
-                                tleaf_shade24(loc,:)  = sum(tleaf_shade24_rst(:,loc,:),1)/24.0
-                                tleaf_ave24(loc,:)    = sum(tleaf_ave24_rst(:,loc,:),1)/24.0
-                                ppfd_sun240(loc,:)    = sum(ppfd_sun240_rst(:,loc,:),1)/240.0
-                                ppfd_shade240(loc,:)  = sum(ppfd_shade240_rst(:,loc,:),1)/240.0
-                                tleaf_sun240(loc,:)   = sum(tleaf_sun240_rst(:,loc,:),1)/240.0
-                                tleaf_shade240(loc,:) = sum(tleaf_shade240_rst(:,loc,:),1)/240.0
-                                tleaf_ave240(loc,:)   = sum(tleaf_ave240_rst(:,loc,:),1)/240.0
+                                daily_maxt2m(loc)        = maxval(tmp2mref_tmp(1:24,loc))
+                                daily_mint2m(loc)        = minval(tmp2mref_tmp(1:24,loc))
+                                daily_maxws10m(loc)      = maxval(ubzref_tmp(1:24,loc))
 
+                                !Shift time window to make room for new nth value
+                                ppfd_sun24_tmp(1:24,loc,:)     = ppfd_sun24_tmp(2:25,loc,:)
+                                ppfd_shade24_tmp(1:24,loc,:)   = ppfd_shade24_tmp(2:25,loc,:)
+                                tleaf_sun24_tmp(1:24,loc,:)    = tleaf_sun24_tmp(2:25,loc,:)
+                                tleaf_shade24_tmp(1:24,loc,:)  = tleaf_shade24_tmp(2:25,loc,:)
+                                tleaf_ave24_tmp(1:24,loc,:)    = tleaf_ave24_tmp(2:25,loc,:)
+                                tmp2mref_tmp(1:24,loc)         = tmp2mref_tmp(2:25,loc)
+                                ubzref_tmp(1:24,loc)           = ubzref_tmp(2:25,loc)
+
+                            else
+                                !Drop nth value into end time slice
+                                ppfd_sun24_tmp(25,loc,:)     = ppfd_sun
+                                ppfd_shade24_tmp(25,loc,:)   = ppfd_shade
+                                tleaf_sun24_tmp(25,loc,:)    = tleaf_sun
+                                tleaf_shade24_tmp(25,loc,:)  = tleaf_shade
+                                tleaf_ave24_tmp(25,loc,:)    = tleaf_ave
+                                ppfd_sun240_tmp(241,loc,:)    = ppfd_sun
+                                ppfd_shade240_tmp(241,loc,:)  = ppfd_shade
+                                tleaf_sun240_tmp(241,loc,:)   = tleaf_sun
+                                tleaf_shade240_tmp(241,loc,:) = tleaf_shade
+                                tleaf_ave240_tmp(241,loc,:)   = tleaf_ave
+                                tmp2mref_tmp(25,loc)         = tmp2mref
+                                ubzref_tmp(25,loc)           = ubzref
+
+                                !Calculate 24 and 240 hour averages
+                                ppfd_sun24(loc,:)     = sum(ppfd_sun24_tmp(1:24,loc,:),1)/24.0
+                                ppfd_shade24(loc,:)   = sum(ppfd_shade24_tmp(1:24,loc,:),1)/24.0
+                                tleaf_sun24(loc,:)    = sum(tleaf_sun24_tmp(1:24,loc,:),1)/24.0
+                                tleaf_shade24(loc,:)  = sum(tleaf_shade24_tmp(1:24,loc,:),1)/24.0
+                                tleaf_ave24(loc,:)    = sum(tleaf_ave24_tmp(1:24,loc,:),1)/24.0
+                                ppfd_sun240(loc,:)    = sum(ppfd_sun240_tmp(1:240,loc,:),1)/240.0
+                                ppfd_shade240(loc,:)  = sum(ppfd_shade240_tmp(1:240,loc,:),1)/240.0
+                                tleaf_sun240(loc,:)   = sum(tleaf_sun240_tmp(1:240,loc,:),1)/240.0
+                                tleaf_shade240(loc,:) = sum(tleaf_shade240_tmp(1:240,loc,:),1)/240.0
+                                tleaf_ave240(loc,:)   = sum(tleaf_ave240_tmp(1:240,loc,:),1)/240.0
                                 !Updated rolling 24 hour (hourly, short term) and 240 hour (daily, long-term) averages
                                 ppfd_sun24(loc,:)     = ( holdfrac * ppfd_sun24(loc,:) )     + ( hnewfrac * ppfd_sun )
                                 ppfd_shade24(loc,:)   = ( holdfrac * ppfd_shade24(loc,:) )   + ( hnewfrac * ppfd_shade )
@@ -1265,9 +1229,23 @@ SUBROUTINE canopy_calcs(nn)
                                 tleaf_shade240(loc,:) = ( doldfrac * tleaf_shade240(loc,:) ) + ( dnewfrac * tleaf_shade )
                                 tleaf_ave240(loc,:)   = ( doldfrac * tleaf_ave240(loc,:) )   + ( dnewfrac * tleaf_ave )
                                 !Take daily max/min for temperature and daily max for wind speed
-                                daily_maxt2m(loc)        = maxval(tmp2mref_rst(:,loc))
-                                daily_mint2m(loc)        = minval(tmp2mref_rst(:,loc))
-                                daily_maxws10m(loc)      = maxval(ubzref_rst(:,loc))
+                                daily_maxt2m(loc)        = maxval(tmp2mref_tmp(1:24,loc))
+                                daily_mint2m(loc)        = minval(tmp2mref_tmp(1:24,loc))
+                                daily_maxws10m(loc)      = maxval(ubzref_tmp(1:24,loc))
+
+                                !Shift time window to make room for new nth value
+                                ppfd_sun24_tmp(1:24,loc,:)     = ppfd_sun24_tmp(2:25,loc,:)
+                                ppfd_shade24_tmp(1:24,loc,:)   = ppfd_shade24_tmp(2:25,loc,:)
+                                tleaf_sun24_tmp(1:24,loc,:)    = tleaf_sun24_tmp(2:25,loc,:)
+                                tleaf_shade24_tmp(1:24,loc,:)  = tleaf_shade24_tmp(2:25,loc,:)
+                                tleaf_ave24_tmp(1:24,loc,:)    = tleaf_ave24_tmp(2:25,loc,:)
+                                ppfd_sun240_tmp(1:240,loc,:)    = ppfd_sun240_tmp(2:241,loc,:)
+                                ppfd_shade240_tmp(1:240,loc,:)  = ppfd_shade240_tmp(2:241,loc,:)
+                                tleaf_sun240_tmp(1:240,loc,:)   = tleaf_sun240_tmp(2:241,loc,:)
+                                tleaf_shade240_tmp(1:240,loc,:) = tleaf_shade240_tmp(2:241,loc,:)
+                                tleaf_ave240_tmp(1:240,loc,:)   = tleaf_ave240_tmp(2:241,loc,:)
+                                tmp2mref_tmp(1:24,loc)          = tmp2mref_tmp(2:25,loc)
+                                ubzref_tmp(1:24,loc)            = ubzref_tmp(2:25,loc)
                             end if
                         else
                             write(*,*) 'wrong HIST_OPT namelist option = ', hist_opt, 'only option = 0 or 1'
