@@ -461,40 +461,6 @@ SUBROUTINE canopy_calcs(nn)
                                     tleaf_shade240_3d(i,j,:) = sum(tleaf_shade240_rst_3d(:,i,j,:),1)/240.0
                                     tleaf_ave240_3d(i,j,:)   = sum(tleaf_ave240_rst_3d(:,i,j,:),1)/240.0
 
-                                    !ppfd_sun24_3d(i,j,:)     = 0.0_rk
-                                    !ppfd_shade24_3d(i,j,:)   = 0.0_rk
-                                    !tleaf_sun24_3d(i,j,:)    = 0.0_rk
-                                    !tleaf_shade24_3d(i,j,:)  = 0.0_rk
-                                    !tleaf_ave24_3d(i,j,:)    = 0.0_rk
-                                    !ppfd_sun240_3d(i,j,:)    = 0.0_rk
-                                    !ppfd_shade240_3d(i,j,:)  = 0.0_rk
-                                    !tleaf_sun240_3d(i,j,:)   = 0.0_rk
-                                    !tleaf_shade240_3d(i,j,:) = 0.0_rk
-                                    !tleaf_ave240_3d(i,j,:)   = 0.0_rk
-                                    !do t = nn-24, nn-1 !>24 hours sum previous 24 hour moving time window (i.e., running)
-                                    !    ppfd_sun24_3d(i,j,:)     = ppfd_sun24_tmp_3d(t,i,j,:) + ppfd_sun24_3d(i,j,:)
-                                    !    ppfd_shade24_3d(i,j,:)   = ppfd_shade24_tmp_3d(t,i,j,:) + ppfd_shade24_3d(i,j,:)
-                                    !    tleaf_sun24_3d(i,j,:)    = tleaf_sun24_tmp_3d(t,i,j,:) + tleaf_sun24_3d(i,j,:)
-                                    !    tleaf_shade24_3d(i,j,:)  = tleaf_shade24_tmp_3d(t,i,j,:) + tleaf_shade24_3d(i,j,:)
-                                    !    tleaf_ave24_3d(i,j,:)    = tleaf_ave24_tmp_3d(t,i,j,:) + tleaf_ave24_3d(i,j,:)
-                                    !    ppfd_sun240_3d(i,j,:)    = ppfd_sun240_tmp_3d(t,i,j,:) + ppfd_sun240_3d(i,j,:)
-                                    !    ppfd_shade240_3d(i,j,:)  = ppfd_shade240_tmp_3d(t,i,j,:) + ppfd_shade240_3d(i,j,:)
-                                    !    tleaf_sun240_3d(i,j,:)   = tleaf_sun240_tmp_3d(t,i,j,:) + tleaf_sun240_3d(i,j,:)
-                                    !    tleaf_shade240_3d(i,j,:) = tleaf_shade240_tmp_3d(t,i,j,:) + tleaf_sun240_3d(i,j,:)
-                                    !    tleaf_ave240_3d(i,j,:)   = tleaf_ave240_tmp_3d(t,i,j,:) + tleaf_ave240_3d(i,j,:)
-                                    !end do
-                                    !!average hours
-                                    !ppfd_sun24_3d(i,j,:)     =  ppfd_sun24_3d(i,j,:)/24.0_rk
-                                    !ppfd_shade24_3d(i,j,:)   =  ppfd_shade24_3d(i,j,:)/24.0_rk
-                                    !tleaf_sun24_3d(i,j,:)    =  tleaf_sun24_3d(i,j,:)/24.0_rk
-                                    !tleaf_shade24_3d(i,j,:)  =  tleaf_shade24_3d(i,j,:)/24.0_rk
-                                    !tleaf_ave24_3d(i,j,:)    =  tleaf_ave24_3d(i,j,:)/24.0_rk
-                                    !ppfd_sun240_3d(i,j,:)    =  ppfd_sun240_3d(i,j,:)/24.0_rk
-                                    !ppfd_shade240_3d(i,j,:)  =  ppfd_shade240_3d(i,j,:)/24.0_rk
-                                    !tleaf_sun240_3d(i,j,:)   =  tleaf_sun240_3d(i,j,:)/24.0_rk
-                                    !tleaf_shade240_3d(i,j,:) =  tleaf_shade240_3d(i,j,:)/24.0_rk
-                                    !tleaf_ave240_3d(i,j,:)   =  tleaf_ave240_3d(i,j,:)/24.0_rk
-
                                     !Update for current time value using efolding (holdfrac and hnewfrac)
                                     ppfd_sun24_3d(i,j,:)     = ( holdfrac * ppfd_sun24_3d(i,j,:) ) + ( hnewfrac * ppfd_sun )
                                     ppfd_shade24_3d(i,j,:)   = ( holdfrac * ppfd_shade24_3d(i,j,:) ) + ( hnewfrac * ppfd_shade )
@@ -1286,40 +1252,6 @@ SUBROUTINE canopy_calcs(nn)
                                 tleaf_sun240(loc,:)   = sum(tleaf_sun240_rst(:,loc,:),1)/240.0
                                 tleaf_shade240(loc,:) = sum(tleaf_shade240_rst(:,loc,:),1)/240.0
                                 tleaf_ave240(loc,:)   = sum(tleaf_ave240_rst(:,loc,:),1)/240.0
-
-                                !ppfd_sun24(loc,:)     = 0.0_rk
-                                !ppfd_shade24(loc,:)   = 0.0_rk
-                                !tleaf_sun24(loc,:)    = 0.0_rk
-                                !tleaf_shade24(loc,:)  = 0.0_rk
-                                !tleaf_ave24(loc,:)    = 0.0_rk
-                                !ppfd_sun240(loc,:)    = 0.0_rk
-                                !ppfd_shade240(loc,:)  = 0.0_rk
-                                !tleaf_sun240(loc,:)   = 0.0_rk
-                                !tleaf_shade240(loc,:) = 0.0_rk
-                                !tleaf_ave240(loc,:)   = 0.0_rk
-                                !do t = nn-24, nn-1 !>24 hours sum previous 24 hour moving time window (i.e., running)
-                                !    ppfd_sun24(loc,:)     = ppfd_sun24_tmp(t,loc,:) + ppfd_sun24(loc,:)
-                                !    ppfd_shade24(loc,:)   = ppfd_shade24_tmp(t,loc,:) + ppfd_shade24(loc,:)
-                                !    tleaf_sun24(loc,:)    = tleaf_sun24_tmp(t,loc,:) + tleaf_sun24(loc,:)
-                                !    tleaf_shade24(loc,:)  = tleaf_shade24_tmp(t,loc,:) + tleaf_shade24(loc,:)
-                                !    tleaf_ave24(loc,:)    = tleaf_ave24_tmp(t,loc,:) + tleaf_ave24(loc,:)
-                                !    ppfd_sun240(loc,:)    = ppfd_sun240_tmp(t,loc,:) + ppfd_sun240(loc,:)
-                                !    ppfd_shade240(loc,:)  = ppfd_shade240_tmp(t,loc,:) + ppfd_shade240(loc,:)
-                                !    tleaf_sun240(loc,:)   = tleaf_sun240_tmp(t,loc,:) + tleaf_sun240(loc,:)
-                                !    tleaf_shade240(loc,:) = tleaf_shade240_tmp(t,loc,:) + tleaf_sun240(loc,:)
-                                !    tleaf_ave240(loc,:)   = tleaf_ave240_tmp(t,loc,:) + tleaf_ave240(loc,:)
-                                !end do
-                                !!average hours
-                                !ppfd_sun24(loc,:)     = ppfd_sun24(loc,:)/24.0_rk
-                                !ppfd_shade24(loc,:)   = ppfd_shade24(loc,:)/24.0_rk
-                                !tleaf_sun24(loc,:)    = tleaf_sun24(loc,:)/24.0_rk
-                                !tleaf_shade24(loc,:)  = tleaf_shade24(loc,:)/24.0_rk
-                                !tleaf_ave24(loc,:)    = tleaf_ave24(loc,:)/24.0_rk
-                                !ppfd_sun240(loc,:)    = ppfd_sun240(loc,:)/24.0_rk
-                                !ppfd_shade240(loc,:)  = ppfd_shade240(loc,:)/24.0_rk
-                                !tleaf_sun240(loc,:)   = tleaf_sun240(loc,:)/24.0_rk
-                                !tleaf_shade240(loc,:) = tleaf_shade240(loc,:)/24.0_rk
-                                !tleaf_ave240(loc,:)   = tleaf_ave240(loc,:)/24.0_rk
 
                                 !Updated rolling 24 hour (hourly, short term) and 240 hour (daily, long-term) averages
                                 ppfd_sun24(loc,:)     = ( holdfrac * ppfd_sun24(loc,:) )     + ( hnewfrac * ppfd_sun )
