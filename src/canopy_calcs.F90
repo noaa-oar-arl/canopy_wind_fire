@@ -29,7 +29,7 @@ SUBROUTINE canopy_calcs(nn)
     INTEGER,     INTENT( IN )       :: nn         ! Input time step
 
     !Local variables
-    integer i,j,k,t,loc
+    integer i,j,k,loc
     ! LAI variables for Leaf Age factor calculations
     REAL(rk) :: pastlai             !Past LAI [cm2/cm2]
     REAL(rk), save :: currentlai    ! Current LAI [cm2/cm2]  (saved from one timestep to the next)
@@ -325,21 +325,23 @@ SUBROUTINE canopy_calcs(nn)
                                 doldfrac = 1.0_rk - dnewfrac
                                 hnewfrac = time_intvl / ( tau_hours * 3600.0_rk )
                                 holdfrac = 1.0_rk - hnewfrac
-                                !Track times for moving time window (running) average below
-                                ppfd_sun24_tmp_3d(nn,i,j,:)     = ppfd_sun
-                                ppfd_shade24_tmp_3d(nn,i,j,:)   = ppfd_shade
-                                tleaf_sun24_tmp_3d(nn,i,j,:)    = tleaf_sun
-                                tleaf_shade24_tmp_3d(nn,i,j,:)  = tleaf_shade
-                                tleaf_ave24_tmp_3d(nn,i,j,:)    = tleaf_ave
-                                ppfd_sun240_tmp_3d(nn,i,j,:)    = ppfd_sun
-                                ppfd_shade240_tmp_3d(nn,i,j,:)  = ppfd_shade
-                                tleaf_sun240_tmp_3d(nn,i,j,:)   = tleaf_sun
-                                tleaf_shade240_tmp_3d(nn,i,j,:) = tleaf_shade
-                                tleaf_ave240_tmp_3d(nn,i,j,:)   = tleaf_ave
-                                !Track times for daily maximum/minimum temperature and maximum wind speed calculation below
-                                tmp2mref_tmp_3d(nn,i,j)         = tmp2mref
-                                ubzref_tmp_3d(nn,i,j)           = ubzref
-                                if (nn .le. 24) then !TODO:  Restart capability needed to get past leaf temp and PAR if avaialble
+
+                                if (nn .le. 24) then
+                                    !Track times for moving time window (running) average below
+                                    ppfd_sun24_tmp_3d(nn,i,j,:)     = ppfd_sun
+                                    ppfd_shade24_tmp_3d(nn,i,j,:)   = ppfd_shade
+                                    tleaf_sun24_tmp_3d(nn,i,j,:)    = tleaf_sun
+                                    tleaf_shade24_tmp_3d(nn,i,j,:)  = tleaf_shade
+                                    tleaf_ave24_tmp_3d(nn,i,j,:)    = tleaf_ave
+                                    ppfd_sun240_tmp_3d(nn,i,j,:)    = ppfd_sun
+                                    ppfd_shade240_tmp_3d(nn,i,j,:)  = ppfd_shade
+                                    tleaf_sun240_tmp_3d(nn,i,j,:)   = tleaf_sun
+                                    tleaf_shade240_tmp_3d(nn,i,j,:) = tleaf_shade
+                                    tleaf_ave240_tmp_3d(nn,i,j,:)   = tleaf_ave
+                                    tmp2mref_tmp_3d(nn,i,j)         = tmp2mref
+                                    ubzref_tmp_3d(nn,i,j)           = ubzref
+
+                                    !!TODO:  Restart capability needed to get past leaf temp and PAR if avaialble
                                     !For now, if <= 24 hours then only option is to use current instantaneous values
                                     ppfd_sun24_3d(i,j,:)     = ppfd_sun
                                     ppfd_shade24_3d(i,j,:)   = ppfd_shade
@@ -355,40 +357,85 @@ SUBROUTINE canopy_calcs(nn)
                                     daily_maxt2m_2d(i,j)        = tmp2mref
                                     daily_mint2m_2d(i,j)        = tmp2mref
                                     daily_maxws10m_2d(i,j)      = ubzref
-                                else  !Updated running 24 hour (hourly, short term) and 240 hour (daily, long-term) averages
-                                    ppfd_sun24_3d(i,j,:)     = 0.0_rk
-                                    ppfd_shade24_3d(i,j,:)   = 0.0_rk
-                                    tleaf_sun24_3d(i,j,:)    = 0.0_rk
-                                    tleaf_shade24_3d(i,j,:)  = 0.0_rk
-                                    tleaf_ave24_3d(i,j,:)    = 0.0_rk
-                                    ppfd_sun240_3d(i,j,:)    = 0.0_rk
-                                    ppfd_shade240_3d(i,j,:)  = 0.0_rk
-                                    tleaf_sun240_3d(i,j,:)   = 0.0_rk
-                                    tleaf_shade240_3d(i,j,:) = 0.0_rk
-                                    tleaf_ave240_3d(i,j,:)   = 0.0_rk
-                                    do t = nn-24, nn-1 !>24 hours sum previous 24 hour moving time window (i.e., running)
-                                        ppfd_sun24_3d(i,j,:)     = ppfd_sun24_tmp_3d(t,i,j,:) + ppfd_sun24_3d(i,j,:)
-                                        ppfd_shade24_3d(i,j,:)   = ppfd_shade24_tmp_3d(t,i,j,:) + ppfd_shade24_3d(i,j,:)
-                                        tleaf_sun24_3d(i,j,:)    = tleaf_sun24_tmp_3d(t,i,j,:) + tleaf_sun24_3d(i,j,:)
-                                        tleaf_shade24_3d(i,j,:)  = tleaf_shade24_tmp_3d(t,i,j,:) + tleaf_shade24_3d(i,j,:)
-                                        tleaf_ave24_3d(i,j,:)    = tleaf_ave24_tmp_3d(t,i,j,:) + tleaf_ave24_3d(i,j,:)
-                                        ppfd_sun240_3d(i,j,:)    = ppfd_sun240_tmp_3d(t,i,j,:) + ppfd_sun240_3d(i,j,:)
-                                        ppfd_shade240_3d(i,j,:)  = ppfd_shade240_tmp_3d(t,i,j,:) + ppfd_shade240_3d(i,j,:)
-                                        tleaf_sun240_3d(i,j,:)   = tleaf_sun240_tmp_3d(t,i,j,:) + tleaf_sun240_3d(i,j,:)
-                                        tleaf_shade240_3d(i,j,:) = tleaf_shade240_tmp_3d(t,i,j,:) + tleaf_sun240_3d(i,j,:)
-                                        tleaf_ave240_3d(i,j,:)   = tleaf_ave240_tmp_3d(t,i,j,:) + tleaf_ave240_3d(i,j,:)
-                                    end do
-                                    !average hours
-                                    ppfd_sun24_3d(i,j,:)     =  ppfd_sun24_3d(i,j,:)/24.0_rk
-                                    ppfd_shade24_3d(i,j,:)   =  ppfd_shade24_3d(i,j,:)/24.0_rk
-                                    tleaf_sun24_3d(i,j,:)    =  tleaf_sun24_3d(i,j,:)/24.0_rk
-                                    tleaf_shade24_3d(i,j,:)  =  tleaf_shade24_3d(i,j,:)/24.0_rk
-                                    tleaf_ave24_3d(i,j,:)    =  tleaf_ave24_3d(i,j,:)/24.0_rk
-                                    ppfd_sun240_3d(i,j,:)    =  ppfd_sun240_3d(i,j,:)/24.0_rk
-                                    ppfd_shade240_3d(i,j,:)  =  ppfd_shade240_3d(i,j,:)/24.0_rk
-                                    tleaf_sun240_3d(i,j,:)   =  tleaf_sun240_3d(i,j,:)/24.0_rk
-                                    tleaf_shade240_3d(i,j,:) =  tleaf_shade240_3d(i,j,:)/24.0_rk
-                                    tleaf_ave240_3d(i,j,:)   =  tleaf_ave240_3d(i,j,:)/24.0_rk
+
+                                else if (nn .le. 240) then
+                                    !Drop nth value into end time slice
+                                    ppfd_sun24_tmp_3d(25,i,j,:)     = ppfd_sun
+                                    ppfd_shade24_tmp_3d(25,i,j,:)   = ppfd_shade
+                                    tleaf_sun24_tmp_3d(25,i,j,:)    = tleaf_sun
+                                    tleaf_shade24_tmp_3d(25,i,j,:)  = tleaf_shade
+                                    tleaf_ave24_tmp_3d(25,i,j,:)    = tleaf_ave
+                                    ppfd_sun240_tmp_3d(nn,i,j,:)    = ppfd_sun
+                                    ppfd_shade240_tmp_3d(nn,i,j,:)  = ppfd_shade
+                                    tleaf_sun240_tmp_3d(nn,i,j,:)   = tleaf_sun
+                                    tleaf_shade240_tmp_3d(nn,i,j,:) = tleaf_shade
+                                    tleaf_ave240_tmp_3d(nn,i,j,:)   = tleaf_ave
+                                    tmp2mref_tmp_3d(25,i,j)         = tmp2mref
+                                    ubzref_tmp_3d(25,i,j)           = ubzref
+
+                                    !Calculate 24 and 240 hour averages
+                                    ppfd_sun24_3d(i,j,:)     = sum(ppfd_sun24_tmp_3d(1:24,i,j,:),1)/24.0
+                                    ppfd_shade24_3d(i,j,:)   = sum(ppfd_shade24_tmp_3d(1:24,i,j,:),1)/24.0
+                                    tleaf_sun24_3d(i,j,:)    = sum(tleaf_sun24_tmp_3d(1:24,i,j,:),1)/24.0
+                                    tleaf_shade24_3d(i,j,:)  = sum(tleaf_shade24_tmp_3d(1:24,i,j,:),1)/24.0
+                                    tleaf_ave24_3d(i,j,:)    = sum(tleaf_ave24_tmp_3d(1:24,i,j,:),1)/24.0
+                                    !Use 24 hour data until 240 data become available
+                                    ppfd_sun240_3d(i,j,:)    = sum(ppfd_sun24_tmp_3d(1:24,i,j,:),1)/24.0
+                                    ppfd_shade240_3d(i,j,:)  = sum(ppfd_shade24_tmp_3d(1:24,i,j,:),1)/24.0
+                                    tleaf_sun240_3d(i,j,:)   = sum(tleaf_sun24_tmp_3d(1:24,i,j,:),1)/24.0
+                                    tleaf_shade240_3d(i,j,:) = sum(tleaf_shade24_tmp_3d(1:24,i,j,:),1)/24.0
+                                    tleaf_ave240_3d(i,j,:)   = sum(tleaf_ave24_tmp_3d(1:24,i,j,:),1)/24.0
+                                    !Updated rolling 24 hour (hourly, short term) and 240 hour (daily, long-term) averages
+                                    ppfd_sun24_3d(i,j,:)     = ( holdfrac * ppfd_sun24_3d(i,j,:) ) + ( hnewfrac * ppfd_sun )
+                                    ppfd_shade24_3d(i,j,:)   = ( holdfrac * ppfd_shade24_3d(i,j,:) ) + ( hnewfrac * ppfd_shade )
+                                    tleaf_sun24_3d(i,j,:)    = ( holdfrac * tleaf_sun24_3d(i,j,:) ) + ( hnewfrac * tleaf_sun )
+                                    tleaf_shade24_3d(i,j,:)  = ( holdfrac * tleaf_shade24_3d(i,j,:) ) + ( hnewfrac * tleaf_shade )
+                                    tleaf_ave24_3d(i,j,:)    = ( holdfrac * tleaf_ave24_3d(i,j,:) ) + ( hnewfrac * tleaf_ave )
+                                    ppfd_sun240_3d(i,j,:)     = ( holdfrac * ppfd_sun24_3d(i,j,:) ) + ( hnewfrac * ppfd_sun )
+                                    ppfd_shade240_3d(i,j,:)   = ( holdfrac * ppfd_shade24_3d(i,j,:) ) + ( hnewfrac * ppfd_shade )
+                                    tleaf_sun240_3d(i,j,:)    = ( holdfrac * tleaf_sun24_3d(i,j,:) ) + ( hnewfrac * tleaf_sun )
+                                    tleaf_shade240_3d(i,j,:)  = ( holdfrac * tleaf_shade24_3d(i,j,:) ) + ( hnewfrac * tleaf_shade )
+                                    tleaf_ave240_3d(i,j,:)    = ( holdfrac * tleaf_ave24_3d(i,j,:) ) + ( hnewfrac * tleaf_ave )
+                                    !Take daily max/min for temperature and daily max for wind speed
+                                    daily_maxt2m_2d(i,j)        = maxval(tmp2mref_tmp_3d(1:24,i,j))
+                                    daily_mint2m_2d(i,j)        = minval(tmp2mref_tmp_3d(1:24,i,j))
+                                    daily_maxws10m_2d(i,j)      = maxval(ubzref_tmp_3d(1:24,i,j))
+
+                                    !Shift time window to make room for new nth value
+                                    ppfd_sun24_tmp_3d(1:24,i,j,:)     = ppfd_sun24_tmp_3d(2:25,i,j,:)
+                                    ppfd_shade24_tmp_3d(1:24,i,j,:)   = ppfd_shade24_tmp_3d(2:25,i,j,:)
+                                    tleaf_sun24_tmp_3d(1:24,i,j,:)    = tleaf_sun24_tmp_3d(2:25,i,j,:)
+                                    tleaf_shade24_tmp_3d(1:24,i,j,:)  = tleaf_shade24_tmp_3d(2:25,i,j,:)
+                                    tleaf_ave24_tmp_3d(1:24,i,j,:)    = tleaf_ave24_tmp_3d(2:25,i,j,:)
+                                    tmp2mref_tmp_3d(1:24,i,j)         = tmp2mref_tmp_3d(2:25,i,j)
+                                    ubzref_tmp_3d(1:24,i,j)           = ubzref_tmp_3d(2:25,i,j)
+
+                                else
+                                    !Drop nth value into end time slice
+                                    ppfd_sun24_tmp_3d(25,i,j,:)     = ppfd_sun
+                                    ppfd_shade24_tmp_3d(25,i,j,:)   = ppfd_shade
+                                    tleaf_sun24_tmp_3d(25,i,j,:)    = tleaf_sun
+                                    tleaf_shade24_tmp_3d(25,i,j,:)  = tleaf_shade
+                                    tleaf_ave24_tmp_3d(25,i,j,:)    = tleaf_ave
+                                    ppfd_sun240_tmp_3d(241,i,j,:)    = ppfd_sun
+                                    ppfd_shade240_tmp_3d(241,i,j,:)  = ppfd_shade
+                                    tleaf_sun240_tmp_3d(241,i,j,:)   = tleaf_sun
+                                    tleaf_shade240_tmp_3d(241,i,j,:) = tleaf_shade
+                                    tleaf_ave240_tmp_3d(241,i,j,:)   = tleaf_ave
+                                    tmp2mref_tmp_3d(25,i,j)         = tmp2mref
+                                    ubzref_tmp_3d(25,i,j)           = ubzref
+
+                                    !Calculate 24 and 240 hour averages
+                                    ppfd_sun24_3d(i,j,:)     = sum(ppfd_sun24_tmp_3d(1:24,i,j,:),1)/24.0
+                                    ppfd_shade24_3d(i,j,:)   = sum(ppfd_shade24_tmp_3d(1:24,i,j,:),1)/24.0
+                                    tleaf_sun24_3d(i,j,:)    = sum(tleaf_sun24_tmp_3d(1:24,i,j,:),1)/24.0
+                                    tleaf_shade24_3d(i,j,:)  = sum(tleaf_shade24_tmp_3d(1:24,i,j,:),1)/24.0
+                                    tleaf_ave24_3d(i,j,:)    = sum(tleaf_ave24_tmp_3d(1:24,i,j,:),1)/24.0
+                                    ppfd_sun240_3d(i,j,:)    = sum(ppfd_sun240_tmp_3d(1:240,i,j,:),1)/240.0
+                                    ppfd_shade240_3d(i,j,:)  = sum(ppfd_shade240_tmp_3d(1:240,i,j,:),1)/240.0
+                                    tleaf_sun240_3d(i,j,:)   = sum(tleaf_sun240_tmp_3d(1:240,i,j,:),1)/240.0
+                                    tleaf_shade240_3d(i,j,:) = sum(tleaf_shade240_tmp_3d(1:240,i,j,:),1)/240.0
+                                    tleaf_ave240_3d(i,j,:)   = sum(tleaf_ave240_tmp_3d(1:240,i,j,:),1)/240.0
                                     !Update for current time value using efolding (holdfrac and hnewfrac)
                                     ppfd_sun24_3d(i,j,:)     = ( holdfrac * ppfd_sun24_3d(i,j,:) ) + ( hnewfrac * ppfd_sun )
                                     ppfd_shade24_3d(i,j,:)   = ( holdfrac * ppfd_shade24_3d(i,j,:) ) + ( hnewfrac * ppfd_shade )
@@ -401,9 +448,23 @@ SUBROUTINE canopy_calcs(nn)
                                     tleaf_shade240_3d(i,j,:) = ( doldfrac * tleaf_shade240_3d(i,j,:) ) + ( dnewfrac * tleaf_shade )
                                     tleaf_ave240_3d(i,j,:)   = ( doldfrac * tleaf_ave240_3d(i,j,:) ) + ( dnewfrac * tleaf_ave )
                                     !Take daily max/min for temperature and daily max for wind speed
-                                    daily_maxt2m_2d(i,j)        = maxval(tmp2mref_tmp_3d(nn-24:nn-1,i,j))
-                                    daily_mint2m_2d(i,j)        = minval(tmp2mref_tmp_3d(nn-24:nn-1,i,j))
-                                    daily_maxws10m_2d(i,j)      = maxval(ubzref_tmp_3d(nn-24:nn-1,i,j))
+                                    daily_maxt2m_2d(i,j)        = maxval(tmp2mref_tmp_3d(1:24,i,j))
+                                    daily_mint2m_2d(i,j)        = minval(tmp2mref_tmp_3d(1:24,i,j))
+                                    daily_maxws10m_2d(i,j)      = maxval(ubzref_tmp_3d(1:24,i,j))
+
+                                    !Shift time window to make room for new nth value
+                                    ppfd_sun24_tmp_3d(1:24,i,j,:)     = ppfd_sun24_tmp_3d(2:25,i,j,:)
+                                    ppfd_shade24_tmp_3d(1:24,i,j,:)   = ppfd_shade24_tmp_3d(2:25,i,j,:)
+                                    tleaf_sun24_tmp_3d(1:24,i,j,:)    = tleaf_sun24_tmp_3d(2:25,i,j,:)
+                                    tleaf_shade24_tmp_3d(1:24,i,j,:)  = tleaf_shade24_tmp_3d(2:25,i,j,:)
+                                    tleaf_ave24_tmp_3d(1:24,i,j,:)    = tleaf_ave24_tmp_3d(2:25,i,j,:)
+                                    ppfd_sun240_tmp_3d(1:240,i,j,:)    = ppfd_sun240_tmp_3d(2:241,i,j,:)
+                                    ppfd_shade240_tmp_3d(1:240,i,j,:)  = ppfd_shade240_tmp_3d(2:241,i,j,:)
+                                    tleaf_sun240_tmp_3d(1:240,i,j,:)   = tleaf_sun240_tmp_3d(2:241,i,j,:)
+                                    tleaf_shade240_tmp_3d(1:240,i,j,:) = tleaf_shade240_tmp_3d(2:241,i,j,:)
+                                    tleaf_ave240_tmp_3d(1:240,i,j,:)   = tleaf_ave240_tmp_3d(2:241,i,j,:)
+                                    tmp2mref_tmp_3d(1:24,i,j)         = tmp2mref_tmp_3d(2:25,i,j)
+                                    ubzref_tmp_3d(1:24,i,j)           = ubzref_tmp_3d(2:25,i,j)
                                 end if
                             else
                                 write(*,*) 'wrong HIST_OPT namelist option = ', hist_opt, 'only option = 0 or 1'
@@ -414,271 +475,309 @@ SUBROUTINE canopy_calcs(nn)
                                 if (cszref .ge. 0.0_rk .and. dswrfref .gt. 0.0_rk &
                                     .and. cluref .gt. 0.0_rk) then
                                     !ISOP
-                                    call canopy_bio(zk, fafraczInt, hcmref, &
-                                        lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
-                                        ppfd_sun24_3d(i,j,:), ppfd_shade24_3d(i,j,:), &
-                                        tleaf_ave24_3d(i,j,:), ppfd_sun240_3d(i,j,:), ppfd_shade240_3d(i,j,:), &
-                                        tleaf_ave240_3d(i,j,:), tmp2mref, &
-                                        lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
-                                        leafage_opt, pastlai, currentlai, tsteplai,  &
-                                        loss_opt, loss_set, loss_ind, lifetime, ustref, &
-                                        soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
-                                        soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
-                                        ht_opt, lt_opt, hw_opt, daily_maxt2m_2d(i,j), daily_mint2m_2d(i,j), &
-                                        daily_maxws10m_2d(i,j), &
-                                        modlays, 1, emi_isop_3d(i,j,:))
+                                    if (biospec_opt == 0 .or. biospec_opt == 1) then
+                                        call canopy_bio(zk, fafraczInt, hcmref, &
+                                            lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
+                                            ppfd_sun24_3d(i,j,:), ppfd_shade24_3d(i,j,:), &
+                                            tleaf_ave24_3d(i,j,:), ppfd_sun240_3d(i,j,:), ppfd_shade240_3d(i,j,:), &
+                                            tleaf_ave240_3d(i,j,:), tmp2mref, &
+                                            lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
+                                            leafage_opt, pastlai, currentlai, tsteplai,  &
+                                            loss_opt, loss_set, loss_ind, lifetime, ustref, &
+                                            soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
+                                            soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                            ht_opt, lt_opt, hw_opt, daily_maxt2m_2d(i,j), daily_mint2m_2d(i,j), &
+                                            daily_maxws10m_2d(i,j), &
+                                            modlays, 1, emi_isop_3d(i,j,:))
+                                    end if
                                     !MYRC
-                                    call canopy_bio(zk, fafraczInt, hcmref, &
-                                        lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
-                                        ppfd_sun24_3d(i,j,:), ppfd_shade24_3d(i,j,:), &
-                                        tleaf_ave24_3d(i,j,:), ppfd_sun240_3d(i,j,:), ppfd_shade240_3d(i,j,:), &
-                                        tleaf_ave240_3d(i,j,:), tmp2mref, &
-                                        lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
-                                        leafage_opt, pastlai, currentlai, tsteplai,  &
-                                        loss_opt, loss_set, loss_ind, lifetime, ustref, &
-                                        soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
-                                        soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
-                                        ht_opt, lt_opt, hw_opt, daily_maxt2m_2d(i,j), daily_mint2m_2d(i,j), &
-                                        daily_maxws10m_2d(i,j), &
-                                        modlays, 2, emi_myrc_3d(i,j,:))
+                                    if (biospec_opt == 0 .or. biospec_opt == 2) then
+                                        call canopy_bio(zk, fafraczInt, hcmref, &
+                                            lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
+                                            ppfd_sun24_3d(i,j,:), ppfd_shade24_3d(i,j,:), &
+                                            tleaf_ave24_3d(i,j,:), ppfd_sun240_3d(i,j,:), ppfd_shade240_3d(i,j,:), &
+                                            tleaf_ave240_3d(i,j,:), tmp2mref, &
+                                            lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
+                                            leafage_opt, pastlai, currentlai, tsteplai,  &
+                                            loss_opt, loss_set, loss_ind, lifetime, ustref, &
+                                            soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
+                                            soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                            ht_opt, lt_opt, hw_opt, daily_maxt2m_2d(i,j), daily_mint2m_2d(i,j), &
+                                            daily_maxws10m_2d(i,j), &
+                                            modlays, 2, emi_myrc_3d(i,j,:))
+                                    end if
                                     !SABI
-                                    call canopy_bio(zk, fafraczInt, hcmref, &
-                                        lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
-                                        ppfd_sun24_3d(i,j,:), ppfd_shade24_3d(i,j,:), &
-                                        tleaf_ave24_3d(i,j,:), ppfd_sun240_3d(i,j,:), ppfd_shade240_3d(i,j,:), &
-                                        tleaf_ave240_3d(i,j,:), tmp2mref, &
-                                        lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
-                                        leafage_opt, pastlai, currentlai, tsteplai,  &
-                                        loss_opt, loss_set, loss_ind, lifetime, ustref, &
-                                        soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
-                                        soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
-                                        ht_opt, lt_opt, hw_opt, daily_maxt2m_2d(i,j), daily_mint2m_2d(i,j), &
-                                        daily_maxws10m_2d(i,j), &
-                                        modlays, 3, emi_sabi_3d(i,j,:))
+                                    if (biospec_opt == 0 .or. biospec_opt == 3) then
+                                        call canopy_bio(zk, fafraczInt, hcmref, &
+                                            lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
+                                            ppfd_sun24_3d(i,j,:), ppfd_shade24_3d(i,j,:), &
+                                            tleaf_ave24_3d(i,j,:), ppfd_sun240_3d(i,j,:), ppfd_shade240_3d(i,j,:), &
+                                            tleaf_ave240_3d(i,j,:), tmp2mref, &
+                                            lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
+                                            leafage_opt, pastlai, currentlai, tsteplai,  &
+                                            loss_opt, loss_set, loss_ind, lifetime, ustref, &
+                                            soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
+                                            soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                            ht_opt, lt_opt, hw_opt, daily_maxt2m_2d(i,j), daily_mint2m_2d(i,j), &
+                                            daily_maxws10m_2d(i,j), &
+                                            modlays, 3, emi_sabi_3d(i,j,:))
+                                    end if
                                     !LIMO
-                                    call canopy_bio(zk, fafraczInt, hcmref, &
-                                        lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
-                                        ppfd_sun24_3d(i,j,:), ppfd_shade24_3d(i,j,:), &
-                                        tleaf_ave24_3d(i,j,:), ppfd_sun240_3d(i,j,:), ppfd_shade240_3d(i,j,:), &
-                                        tleaf_ave240_3d(i,j,:), tmp2mref, &
-                                        lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
-                                        leafage_opt, pastlai, currentlai, tsteplai,  &
-                                        loss_opt, loss_set, loss_ind, lifetime, ustref, &
-                                        soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
-                                        soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
-                                        ht_opt, lt_opt, hw_opt, daily_maxt2m_2d(i,j), daily_mint2m_2d(i,j), &
-                                        daily_maxws10m_2d(i,j), &
-                                        modlays, 4, emi_limo_3d(i,j,:))
+                                    if (biospec_opt == 0 .or. biospec_opt == 4) then
+                                        call canopy_bio(zk, fafraczInt, hcmref, &
+                                            lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
+                                            ppfd_sun24_3d(i,j,:), ppfd_shade24_3d(i,j,:), &
+                                            tleaf_ave24_3d(i,j,:), ppfd_sun240_3d(i,j,:), ppfd_shade240_3d(i,j,:), &
+                                            tleaf_ave240_3d(i,j,:), tmp2mref, &
+                                            lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
+                                            leafage_opt, pastlai, currentlai, tsteplai,  &
+                                            loss_opt, loss_set, loss_ind, lifetime, ustref, &
+                                            soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
+                                            soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                            ht_opt, lt_opt, hw_opt, daily_maxt2m_2d(i,j), daily_mint2m_2d(i,j), &
+                                            daily_maxws10m_2d(i,j), &
+                                            modlays, 4, emi_limo_3d(i,j,:))
+                                    end if
                                     !CARE
-                                    call canopy_bio(zk, fafraczInt, hcmref, &
-                                        lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
-                                        ppfd_sun24_3d(i,j,:), ppfd_shade24_3d(i,j,:), &
-                                        tleaf_ave24_3d(i,j,:), ppfd_sun240_3d(i,j,:), ppfd_shade240_3d(i,j,:), &
-                                        tleaf_ave240_3d(i,j,:), tmp2mref, &
-                                        lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
-                                        leafage_opt, pastlai, currentlai, tsteplai,  &
-                                        loss_opt, loss_set, loss_ind, lifetime, ustref, &
-                                        soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
-                                        soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
-                                        ht_opt, lt_opt, hw_opt, daily_maxt2m_2d(i,j), daily_mint2m_2d(i,j), &
-                                        daily_maxws10m_2d(i,j), &
-                                        modlays, 5, emi_care_3d(i,j,:))
+                                    if (biospec_opt == 0 .or. biospec_opt == 5) then
+                                        call canopy_bio(zk, fafraczInt, hcmref, &
+                                            lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
+                                            ppfd_sun24_3d(i,j,:), ppfd_shade24_3d(i,j,:), &
+                                            tleaf_ave24_3d(i,j,:), ppfd_sun240_3d(i,j,:), ppfd_shade240_3d(i,j,:), &
+                                            tleaf_ave240_3d(i,j,:), tmp2mref, &
+                                            lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
+                                            leafage_opt, pastlai, currentlai, tsteplai,  &
+                                            loss_opt, loss_set, loss_ind, lifetime, ustref, &
+                                            soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
+                                            soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                            ht_opt, lt_opt, hw_opt, daily_maxt2m_2d(i,j), daily_mint2m_2d(i,j), &
+                                            daily_maxws10m_2d(i,j), &
+                                            modlays, 5, emi_care_3d(i,j,:))
+                                    end if
                                     !OCIM
-                                    call canopy_bio(zk, fafraczInt, hcmref, &
-                                        lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
-                                        ppfd_sun24_3d(i,j,:), ppfd_shade24_3d(i,j,:), &
-                                        tleaf_ave24_3d(i,j,:), ppfd_sun240_3d(i,j,:), ppfd_shade240_3d(i,j,:), &
-                                        tleaf_ave240_3d(i,j,:), tmp2mref, &
-                                        lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
-                                        leafage_opt, pastlai, currentlai, tsteplai,  &
-                                        loss_opt, loss_set, loss_ind, lifetime, ustref, &
-                                        soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
-                                        soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
-                                        ht_opt, lt_opt, hw_opt, daily_maxt2m_2d(i,j), daily_mint2m_2d(i,j), &
-                                        daily_maxws10m_2d(i,j), &
-                                        modlays, 6, emi_ocim_3d(i,j,:))
+                                    if (biospec_opt == 0 .or. biospec_opt == 6) then
+                                        call canopy_bio(zk, fafraczInt, hcmref, &
+                                            lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
+                                            ppfd_sun24_3d(i,j,:), ppfd_shade24_3d(i,j,:), &
+                                            tleaf_ave24_3d(i,j,:), ppfd_sun240_3d(i,j,:), ppfd_shade240_3d(i,j,:), &
+                                            tleaf_ave240_3d(i,j,:), tmp2mref, &
+                                            lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
+                                            leafage_opt, pastlai, currentlai, tsteplai,  &
+                                            loss_opt, loss_set, loss_ind, lifetime, ustref, &
+                                            soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
+                                            soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                            ht_opt, lt_opt, hw_opt, daily_maxt2m_2d(i,j), daily_mint2m_2d(i,j), &
+                                            daily_maxws10m_2d(i,j), &
+                                            modlays, 6, emi_ocim_3d(i,j,:))
+                                    end if
                                     !BPIN
-                                    call canopy_bio(zk, fafraczInt, hcmref, &
-                                        lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
-                                        ppfd_sun24_3d(i,j,:), ppfd_shade24_3d(i,j,:), &
-                                        tleaf_ave24_3d(i,j,:), ppfd_sun240_3d(i,j,:), ppfd_shade240_3d(i,j,:), &
-                                        tleaf_ave240_3d(i,j,:), tmp2mref, &
-                                        lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
-                                        leafage_opt, pastlai, currentlai, tsteplai,  &
-                                        loss_opt, loss_set, loss_ind, lifetime, ustref, &
-                                        soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
-                                        soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
-                                        ht_opt, lt_opt, hw_opt, daily_maxt2m_2d(i,j), daily_mint2m_2d(i,j), &
-                                        daily_maxws10m_2d(i,j), &
-                                        modlays, 7, emi_bpin_3d(i,j,:))
+                                    if (biospec_opt == 0 .or. biospec_opt == 7) then
+                                        call canopy_bio(zk, fafraczInt, hcmref, &
+                                            lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
+                                            ppfd_sun24_3d(i,j,:), ppfd_shade24_3d(i,j,:), &
+                                            tleaf_ave24_3d(i,j,:), ppfd_sun240_3d(i,j,:), ppfd_shade240_3d(i,j,:), &
+                                            tleaf_ave240_3d(i,j,:), tmp2mref, &
+                                            lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
+                                            leafage_opt, pastlai, currentlai, tsteplai,  &
+                                            loss_opt, loss_set, loss_ind, lifetime, ustref, &
+                                            soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
+                                            soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                            ht_opt, lt_opt, hw_opt, daily_maxt2m_2d(i,j), daily_mint2m_2d(i,j), &
+                                            daily_maxws10m_2d(i,j), &
+                                            modlays, 7, emi_bpin_3d(i,j,:))
+                                    end if
                                     !APIN
-                                    call canopy_bio(zk, fafraczInt, hcmref, &
-                                        lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
-                                        ppfd_sun24_3d(i,j,:), ppfd_shade24_3d(i,j,:), &
-                                        tleaf_ave24_3d(i,j,:), ppfd_sun240_3d(i,j,:), ppfd_shade240_3d(i,j,:), &
-                                        tleaf_ave240_3d(i,j,:), tmp2mref, &
-                                        lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
-                                        leafage_opt, pastlai, currentlai, tsteplai,  &
-                                        loss_opt, loss_set, loss_ind, lifetime, ustref, &
-                                        soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
-                                        soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
-                                        ht_opt, lt_opt, hw_opt, daily_maxt2m_2d(i,j), daily_mint2m_2d(i,j), &
-                                        daily_maxws10m_2d(i,j), &
-                                        modlays, 8, emi_apin_3d(i,j,:))
+                                    if (biospec_opt == 0 .or. biospec_opt == 8) then
+                                        call canopy_bio(zk, fafraczInt, hcmref, &
+                                            lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
+                                            ppfd_sun24_3d(i,j,:), ppfd_shade24_3d(i,j,:), &
+                                            tleaf_ave24_3d(i,j,:), ppfd_sun240_3d(i,j,:), ppfd_shade240_3d(i,j,:), &
+                                            tleaf_ave240_3d(i,j,:), tmp2mref, &
+                                            lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
+                                            leafage_opt, pastlai, currentlai, tsteplai,  &
+                                            loss_opt, loss_set, loss_ind, lifetime, ustref, &
+                                            soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
+                                            soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                            ht_opt, lt_opt, hw_opt, daily_maxt2m_2d(i,j), daily_mint2m_2d(i,j), &
+                                            daily_maxws10m_2d(i,j), &
+                                            modlays, 8, emi_apin_3d(i,j,:))
+                                    end if
                                     !MONO
-                                    call canopy_bio(zk, fafraczInt, hcmref, &
-                                        lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
-                                        ppfd_sun24_3d(i,j,:), ppfd_shade24_3d(i,j,:), &
-                                        tleaf_ave24_3d(i,j,:), ppfd_sun240_3d(i,j,:), ppfd_shade240_3d(i,j,:), &
-                                        tleaf_ave240_3d(i,j,:), tmp2mref, &
-                                        lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
-                                        leafage_opt, pastlai, currentlai, tsteplai,  &
-                                        loss_opt, loss_set, loss_ind, lifetime, ustref, &
-                                        soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
-                                        soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
-                                        ht_opt, lt_opt, hw_opt, daily_maxt2m_2d(i,j), daily_mint2m_2d(i,j), &
-                                        daily_maxws10m_2d(i,j), &
-                                        modlays, 9, emi_mono_3d(i,j,:))
+                                    if (biospec_opt == 0 .or. biospec_opt == 9) then
+                                        call canopy_bio(zk, fafraczInt, hcmref, &
+                                            lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
+                                            ppfd_sun24_3d(i,j,:), ppfd_shade24_3d(i,j,:), &
+                                            tleaf_ave24_3d(i,j,:), ppfd_sun240_3d(i,j,:), ppfd_shade240_3d(i,j,:), &
+                                            tleaf_ave240_3d(i,j,:), tmp2mref, &
+                                            lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
+                                            leafage_opt, pastlai, currentlai, tsteplai,  &
+                                            loss_opt, loss_set, loss_ind, lifetime, ustref, &
+                                            soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
+                                            soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                            ht_opt, lt_opt, hw_opt, daily_maxt2m_2d(i,j), daily_mint2m_2d(i,j), &
+                                            daily_maxws10m_2d(i,j), &
+                                            modlays, 9, emi_mono_3d(i,j,:))
+                                    end if
                                     !FARN
-                                    call canopy_bio(zk, fafraczInt, hcmref, &
-                                        lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
-                                        ppfd_sun24_3d(i,j,:), ppfd_shade24_3d(i,j,:), &
-                                        tleaf_ave24_3d(i,j,:), ppfd_sun240_3d(i,j,:), ppfd_shade240_3d(i,j,:), &
-                                        tleaf_ave240_3d(i,j,:), tmp2mref, &
-                                        lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
-                                        leafage_opt, pastlai, currentlai, tsteplai,  &
-                                        loss_opt, loss_set, loss_ind, lifetime, ustref, &
-                                        soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
-                                        soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
-                                        ht_opt, lt_opt, hw_opt, daily_maxt2m_2d(i,j), daily_mint2m_2d(i,j), &
-                                        daily_maxws10m_2d(i,j), &
-                                        modlays, 10, emi_farn_3d(i,j,:))
+                                    if (biospec_opt == 0 .or. biospec_opt == 10) then
+                                        call canopy_bio(zk, fafraczInt, hcmref, &
+                                            lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
+                                            ppfd_sun24_3d(i,j,:), ppfd_shade24_3d(i,j,:), &
+                                            tleaf_ave24_3d(i,j,:), ppfd_sun240_3d(i,j,:), ppfd_shade240_3d(i,j,:), &
+                                            tleaf_ave240_3d(i,j,:), tmp2mref, &
+                                            lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
+                                            leafage_opt, pastlai, currentlai, tsteplai,  &
+                                            loss_opt, loss_set, loss_ind, lifetime, ustref, &
+                                            soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
+                                            soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                            ht_opt, lt_opt, hw_opt, daily_maxt2m_2d(i,j), daily_mint2m_2d(i,j), &
+                                            daily_maxws10m_2d(i,j), &
+                                            modlays, 10, emi_farn_3d(i,j,:))
+                                    end if
                                     !CARY
-                                    call canopy_bio(zk, fafraczInt, hcmref, &
-                                        lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
-                                        ppfd_sun24_3d(i,j,:), ppfd_shade24_3d(i,j,:), &
-                                        tleaf_ave24_3d(i,j,:), ppfd_sun240_3d(i,j,:), ppfd_shade240_3d(i,j,:), &
-                                        tleaf_ave240_3d(i,j,:), tmp2mref, &
-                                        lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
-                                        leafage_opt, pastlai, currentlai, tsteplai,  &
-                                        loss_opt, loss_set, loss_ind, lifetime, ustref, &
-                                        soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
-                                        soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
-                                        ht_opt, lt_opt, hw_opt, daily_maxt2m_2d(i,j), daily_mint2m_2d(i,j), &
-                                        daily_maxws10m_2d(i,j), &
-                                        modlays, 11, emi_cary_3d(i,j,:))
+                                    if (biospec_opt == 0 .or. biospec_opt == 11) then
+                                        call canopy_bio(zk, fafraczInt, hcmref, &
+                                            lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
+                                            ppfd_sun24_3d(i,j,:), ppfd_shade24_3d(i,j,:), &
+                                            tleaf_ave24_3d(i,j,:), ppfd_sun240_3d(i,j,:), ppfd_shade240_3d(i,j,:), &
+                                            tleaf_ave240_3d(i,j,:), tmp2mref, &
+                                            lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
+                                            leafage_opt, pastlai, currentlai, tsteplai,  &
+                                            loss_opt, loss_set, loss_ind, lifetime, ustref, &
+                                            soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
+                                            soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                            ht_opt, lt_opt, hw_opt, daily_maxt2m_2d(i,j), daily_mint2m_2d(i,j), &
+                                            daily_maxws10m_2d(i,j), &
+                                            modlays, 11, emi_cary_3d(i,j,:))
+                                    end if
                                     !SESQ
-                                    call canopy_bio(zk, fafraczInt, hcmref, &
-                                        lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
-                                        ppfd_sun24_3d(i,j,:), ppfd_shade24_3d(i,j,:), &
-                                        tleaf_ave24_3d(i,j,:), ppfd_sun240_3d(i,j,:), ppfd_shade240_3d(i,j,:), &
-                                        tleaf_ave240_3d(i,j,:), tmp2mref, &
-                                        lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
-                                        leafage_opt, pastlai, currentlai, tsteplai,  &
-                                        loss_opt, loss_set, loss_ind, lifetime, ustref, &
-                                        soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
-                                        soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
-                                        ht_opt, lt_opt, hw_opt, daily_maxt2m_2d(i,j), daily_mint2m_2d(i,j), &
-                                        daily_maxws10m_2d(i,j), &
-                                        modlays, 12, emi_sesq_3d(i,j,:))
+                                    if (biospec_opt == 0 .or. biospec_opt == 12) then
+                                        call canopy_bio(zk, fafraczInt, hcmref, &
+                                            lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
+                                            ppfd_sun24_3d(i,j,:), ppfd_shade24_3d(i,j,:), &
+                                            tleaf_ave24_3d(i,j,:), ppfd_sun240_3d(i,j,:), ppfd_shade240_3d(i,j,:), &
+                                            tleaf_ave240_3d(i,j,:), tmp2mref, &
+                                            lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
+                                            leafage_opt, pastlai, currentlai, tsteplai,  &
+                                            loss_opt, loss_set, loss_ind, lifetime, ustref, &
+                                            soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
+                                            soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                            ht_opt, lt_opt, hw_opt, daily_maxt2m_2d(i,j), daily_mint2m_2d(i,j), &
+                                            daily_maxws10m_2d(i,j), &
+                                            modlays, 12, emi_sesq_3d(i,j,:))
+                                    end if
                                     !MBOL
-                                    call canopy_bio(zk, fafraczInt, hcmref, &
-                                        lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
-                                        ppfd_sun24_3d(i,j,:), ppfd_shade24_3d(i,j,:), &
-                                        tleaf_ave24_3d(i,j,:), ppfd_sun240_3d(i,j,:), ppfd_shade240_3d(i,j,:), &
-                                        tleaf_ave240_3d(i,j,:), tmp2mref, &
-                                        lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
-                                        leafage_opt, pastlai, currentlai, tsteplai,  &
-                                        loss_opt, loss_set, loss_ind, lifetime, ustref, &
-                                        soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
-                                        soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
-                                        ht_opt, lt_opt, hw_opt, daily_maxt2m_2d(i,j), daily_mint2m_2d(i,j), &
-                                        daily_maxws10m_2d(i,j), &
-                                        modlays, 13, emi_mbol_3d(i,j,:))
+                                    if (biospec_opt == 0 .or. biospec_opt == 13) then
+                                        call canopy_bio(zk, fafraczInt, hcmref, &
+                                            lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
+                                            ppfd_sun24_3d(i,j,:), ppfd_shade24_3d(i,j,:), &
+                                            tleaf_ave24_3d(i,j,:), ppfd_sun240_3d(i,j,:), ppfd_shade240_3d(i,j,:), &
+                                            tleaf_ave240_3d(i,j,:), tmp2mref, &
+                                            lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
+                                            leafage_opt, pastlai, currentlai, tsteplai,  &
+                                            loss_opt, loss_set, loss_ind, lifetime, ustref, &
+                                            soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
+                                            soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                            ht_opt, lt_opt, hw_opt, daily_maxt2m_2d(i,j), daily_mint2m_2d(i,j), &
+                                            daily_maxws10m_2d(i,j), &
+                                            modlays, 13, emi_mbol_3d(i,j,:))
+                                    end if
                                     !METH
-                                    call canopy_bio(zk, fafraczInt, hcmref, &
-                                        lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
-                                        ppfd_sun24_3d(i,j,:), ppfd_shade24_3d(i,j,:), &
-                                        tleaf_ave24_3d(i,j,:), ppfd_sun240_3d(i,j,:), ppfd_shade240_3d(i,j,:), &
-                                        tleaf_ave240_3d(i,j,:), tmp2mref, &
-                                        lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
-                                        leafage_opt, pastlai, currentlai, tsteplai,  &
-                                        loss_opt, loss_set, loss_ind, lifetime, ustref, &
-                                        soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
-                                        soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
-                                        ht_opt, lt_opt, hw_opt, daily_maxt2m_2d(i,j), daily_mint2m_2d(i,j), &
-                                        daily_maxws10m_2d(i,j), &
-                                        modlays, 14, emi_meth_3d(i,j,:))
+                                    if (biospec_opt == 0 .or. biospec_opt == 14) then
+                                        call canopy_bio(zk, fafraczInt, hcmref, &
+                                            lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
+                                            ppfd_sun24_3d(i,j,:), ppfd_shade24_3d(i,j,:), &
+                                            tleaf_ave24_3d(i,j,:), ppfd_sun240_3d(i,j,:), ppfd_shade240_3d(i,j,:), &
+                                            tleaf_ave240_3d(i,j,:), tmp2mref, &
+                                            lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
+                                            leafage_opt, pastlai, currentlai, tsteplai,  &
+                                            loss_opt, loss_set, loss_ind, lifetime, ustref, &
+                                            soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
+                                            soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                            ht_opt, lt_opt, hw_opt, daily_maxt2m_2d(i,j), daily_mint2m_2d(i,j), &
+                                            daily_maxws10m_2d(i,j), &
+                                            modlays, 14, emi_meth_3d(i,j,:))
+                                    end if
                                     !ACET
-                                    call canopy_bio(zk, fafraczInt, hcmref, &
-                                        lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
-                                        ppfd_sun24_3d(i,j,:), ppfd_shade24_3d(i,j,:), &
-                                        tleaf_ave24_3d(i,j,:), ppfd_sun240_3d(i,j,:), ppfd_shade240_3d(i,j,:), &
-                                        tleaf_ave240_3d(i,j,:), tmp2mref, &
-                                        lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
-                                        leafage_opt, pastlai, currentlai, tsteplai,  &
-                                        loss_opt, loss_set, loss_ind, lifetime, ustref, &
-                                        soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
-                                        soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
-                                        ht_opt, lt_opt, hw_opt, daily_maxt2m_2d(i,j), daily_mint2m_2d(i,j), &
-                                        daily_maxws10m_2d(i,j), &
-                                        modlays, 15, emi_acet_3d(i,j,:))
+                                    if (biospec_opt == 0 .or. biospec_opt == 15) then
+                                        call canopy_bio(zk, fafraczInt, hcmref, &
+                                            lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
+                                            ppfd_sun24_3d(i,j,:), ppfd_shade24_3d(i,j,:), &
+                                            tleaf_ave24_3d(i,j,:), ppfd_sun240_3d(i,j,:), ppfd_shade240_3d(i,j,:), &
+                                            tleaf_ave240_3d(i,j,:), tmp2mref, &
+                                            lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
+                                            leafage_opt, pastlai, currentlai, tsteplai,  &
+                                            loss_opt, loss_set, loss_ind, lifetime, ustref, &
+                                            soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
+                                            soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                            ht_opt, lt_opt, hw_opt, daily_maxt2m_2d(i,j), daily_mint2m_2d(i,j), &
+                                            daily_maxws10m_2d(i,j), &
+                                            modlays, 15, emi_acet_3d(i,j,:))
+                                    end if
                                     !CO
-                                    call canopy_bio(zk, fafraczInt, hcmref, &
-                                        lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
-                                        ppfd_sun24_3d(i,j,:), ppfd_shade24_3d(i,j,:), &
-                                        tleaf_ave24_3d(i,j,:), ppfd_sun240_3d(i,j,:), ppfd_shade240_3d(i,j,:), &
-                                        tleaf_ave240_3d(i,j,:), tmp2mref, &
-                                        lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
-                                        leafage_opt, pastlai, currentlai, tsteplai,  &
-                                        loss_opt, loss_set, loss_ind, lifetime, ustref, &
-                                        soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
-                                        soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
-                                        ht_opt, lt_opt, hw_opt, daily_maxt2m_2d(i,j), daily_mint2m_2d(i,j), &
-                                        daily_maxws10m_2d(i,j), &
-                                        modlays, 16, emi_co_3d(i,j,:))
+                                    if (biospec_opt == 0 .or. biospec_opt == 16) then
+                                        call canopy_bio(zk, fafraczInt, hcmref, &
+                                            lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
+                                            ppfd_sun24_3d(i,j,:), ppfd_shade24_3d(i,j,:), &
+                                            tleaf_ave24_3d(i,j,:), ppfd_sun240_3d(i,j,:), ppfd_shade240_3d(i,j,:), &
+                                            tleaf_ave240_3d(i,j,:), tmp2mref, &
+                                            lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
+                                            leafage_opt, pastlai, currentlai, tsteplai,  &
+                                            loss_opt, loss_set, loss_ind, lifetime, ustref, &
+                                            soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
+                                            soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                            ht_opt, lt_opt, hw_opt, daily_maxt2m_2d(i,j), daily_mint2m_2d(i,j), &
+                                            daily_maxws10m_2d(i,j), &
+                                            modlays, 16, emi_co_3d(i,j,:))
+                                    end if
                                     !BIDI VOC
-                                    call canopy_bio(zk, fafraczInt, hcmref, &
-                                        lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
-                                        ppfd_sun24_3d(i,j,:), ppfd_shade24_3d(i,j,:), &
-                                        tleaf_ave24_3d(i,j,:), ppfd_sun240_3d(i,j,:), ppfd_shade240_3d(i,j,:), &
-                                        tleaf_ave240_3d(i,j,:), tmp2mref, &
-                                        lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
-                                        leafage_opt, pastlai, currentlai, tsteplai,  &
-                                        loss_opt, loss_set, loss_ind, lifetime, ustref, &
-                                        soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
-                                        soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
-                                        ht_opt, lt_opt, hw_opt, daily_maxt2m_2d(i,j), daily_mint2m_2d(i,j), &
-                                        daily_maxws10m_2d(i,j), &
-                                        modlays, 17, emi_bvoc_3d(i,j,:))
+                                    if (biospec_opt == 0 .or. biospec_opt == 17) then
+                                        call canopy_bio(zk, fafraczInt, hcmref, &
+                                            lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
+                                            ppfd_sun24_3d(i,j,:), ppfd_shade24_3d(i,j,:), &
+                                            tleaf_ave24_3d(i,j,:), ppfd_sun240_3d(i,j,:), ppfd_shade240_3d(i,j,:), &
+                                            tleaf_ave240_3d(i,j,:), tmp2mref, &
+                                            lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
+                                            leafage_opt, pastlai, currentlai, tsteplai,  &
+                                            loss_opt, loss_set, loss_ind, lifetime, ustref, &
+                                            soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
+                                            soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                            ht_opt, lt_opt, hw_opt, daily_maxt2m_2d(i,j), daily_mint2m_2d(i,j), &
+                                            daily_maxws10m_2d(i,j), &
+                                            modlays, 17, emi_bvoc_3d(i,j,:))
+                                    end if
                                     !Stress VOC
-                                    call canopy_bio(zk, fafraczInt, hcmref, &
-                                        lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
-                                        ppfd_sun24_3d(i,j,:), ppfd_shade24_3d(i,j,:), &
-                                        tleaf_ave24_3d(i,j,:), ppfd_sun240_3d(i,j,:), ppfd_shade240_3d(i,j,:), &
-                                        tleaf_ave240_3d(i,j,:), tmp2mref, &
-                                        lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
-                                        leafage_opt, pastlai, currentlai, tsteplai,  &
-                                        loss_opt, loss_set, loss_ind, lifetime, ustref, &
-                                        soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
-                                        soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
-                                        ht_opt, lt_opt, hw_opt, daily_maxt2m_2d(i,j), daily_mint2m_2d(i,j), &
-                                        daily_maxws10m_2d(i,j), &
-                                        modlays, 18, emi_svoc_3d(i,j,:))
+                                    if (biospec_opt == 0 .or. biospec_opt == 18) then
+                                        call canopy_bio(zk, fafraczInt, hcmref, &
+                                            lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
+                                            ppfd_sun24_3d(i,j,:), ppfd_shade24_3d(i,j,:), &
+                                            tleaf_ave24_3d(i,j,:), ppfd_sun240_3d(i,j,:), ppfd_shade240_3d(i,j,:), &
+                                            tleaf_ave240_3d(i,j,:), tmp2mref, &
+                                            lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
+                                            leafage_opt, pastlai, currentlai, tsteplai,  &
+                                            loss_opt, loss_set, loss_ind, lifetime, ustref, &
+                                            soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
+                                            soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                            ht_opt, lt_opt, hw_opt, daily_maxt2m_2d(i,j), daily_mint2m_2d(i,j), &
+                                            daily_maxws10m_2d(i,j), &
+                                            modlays, 18, emi_svoc_3d(i,j,:))
+                                    end if
                                     !Other VOC
-                                    call canopy_bio(zk, fafraczInt, hcmref, &
-                                        lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
-                                        ppfd_sun24_3d(i,j,:), ppfd_shade24_3d(i,j,:), &
-                                        tleaf_ave24_3d(i,j,:), ppfd_sun240_3d(i,j,:), ppfd_shade240_3d(i,j,:), &
-                                        tleaf_ave240_3d(i,j,:), tmp2mref, &
-                                        lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
-                                        leafage_opt, pastlai, currentlai, tsteplai,  &
-                                        loss_opt, loss_set, loss_ind, lifetime, ustref, &
-                                        soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
-                                        soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
-                                        ht_opt, lt_opt, hw_opt, daily_maxt2m_2d(i,j), daily_mint2m_2d(i,j), &
-                                        daily_maxws10m_2d(i,j), &
-                                        modlays, 19, emi_ovoc_3d(i,j,:))
+                                    if (biospec_opt == 0 .or. biospec_opt == 19) then
+                                        call canopy_bio(zk, fafraczInt, hcmref, &
+                                            lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
+                                            ppfd_sun24_3d(i,j,:), ppfd_shade24_3d(i,j,:), &
+                                            tleaf_ave24_3d(i,j,:), ppfd_sun240_3d(i,j,:), ppfd_shade240_3d(i,j,:), &
+                                            tleaf_ave240_3d(i,j,:), tmp2mref, &
+                                            lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
+                                            leafage_opt, pastlai, currentlai, tsteplai,  &
+                                            loss_opt, loss_set, loss_ind, lifetime, ustref, &
+                                            soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
+                                            soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                            ht_opt, lt_opt, hw_opt, daily_maxt2m_2d(i,j), daily_mint2m_2d(i,j), &
+                                            daily_maxws10m_2d(i,j), &
+                                            modlays, 19, emi_ovoc_3d(i,j,:))
+                                    end if
                                 end if
                             end if
 
@@ -1007,21 +1106,23 @@ SUBROUTINE canopy_calcs(nn)
                             doldfrac = 1.0_rk - dnewfrac
                             hnewfrac = time_intvl / ( tau_hours * 3600.0_rk )
                             holdfrac = 1.0_rk - hnewfrac
-                            !Track times for moving time window (running) average below
-                            ppfd_sun24_tmp(nn,loc,:)     = ppfd_sun
-                            ppfd_shade24_tmp(nn,loc,:)   = ppfd_shade
-                            tleaf_sun24_tmp(nn,loc,:)    = tleaf_sun
-                            tleaf_shade24_tmp(nn,loc,:)  = tleaf_shade
-                            tleaf_ave24_tmp(nn,loc,:)    = tleaf_ave
-                            ppfd_sun240_tmp(nn,loc,:)    = ppfd_sun
-                            ppfd_shade240_tmp(nn,loc,:)  = ppfd_shade
-                            tleaf_sun240_tmp(nn,loc,:)   = tleaf_sun
-                            tleaf_shade240_tmp(nn,loc,:) = tleaf_shade
-                            tleaf_ave240_tmp(nn,loc,:)   = tleaf_ave
-                            !Track times for daily maximum/minimum temperature and maximum wind speed calculation below
-                            tmp2mref_tmp(nn,loc)         = tmp2mref
-                            ubzref_tmp(nn,loc)           = ubzref
-                            if (nn .le. 24) then !TODO:  Restart capability needed to get past leaf temp and PAR if avaialble
+
+                            if (nn .le. 24) then
+                                !Track times for moving time window (running) average below
+                                ppfd_sun24_tmp(nn,loc,:)     = ppfd_sun
+                                ppfd_shade24_tmp(nn,loc,:)   = ppfd_shade
+                                tleaf_sun24_tmp(nn,loc,:)    = tleaf_sun
+                                tleaf_shade24_tmp(nn,loc,:)  = tleaf_shade
+                                tleaf_ave24_tmp(nn,loc,:)    = tleaf_ave
+                                ppfd_sun240_tmp(nn,loc,:)    = ppfd_sun
+                                ppfd_shade240_tmp(nn,loc,:)  = ppfd_shade
+                                tleaf_sun240_tmp(nn,loc,:)   = tleaf_sun
+                                tleaf_shade240_tmp(nn,loc,:) = tleaf_shade
+                                tleaf_ave240_tmp(nn,loc,:)   = tleaf_ave
+                                tmp2mref_tmp(nn,loc)         = tmp2mref
+                                ubzref_tmp(nn,loc)           = ubzref
+
+                                !TODO:  Restart capability needed to get past leaf temp and PAR if avaialble
                                 !For now, if <= 24 hours then use current instantaneous
                                 ppfd_sun24(loc,:)     = ppfd_sun
                                 ppfd_shade24(loc,:)   = ppfd_shade
@@ -1037,40 +1138,85 @@ SUBROUTINE canopy_calcs(nn)
                                 daily_maxt2m(loc)     = tmp2mref
                                 daily_mint2m(loc)     = tmp2mref
                                 daily_maxws10m(loc)   = ubzref
+
+                            else if (nn .le. 240) then
+                                !Drop nth value into end time slice
+                                ppfd_sun24_tmp(25,loc,:)     = ppfd_sun
+                                ppfd_shade24_tmp(25,loc,:)   = ppfd_shade
+                                tleaf_sun24_tmp(25,loc,:)    = tleaf_sun
+                                tleaf_shade24_tmp(25,loc,:)  = tleaf_shade
+                                tleaf_ave24_tmp(25,loc,:)    = tleaf_ave
+                                ppfd_sun240_tmp(nn,loc,:)    = ppfd_sun
+                                ppfd_shade240_tmp(nn,loc,:)  = ppfd_shade
+                                tleaf_sun240_tmp(nn,loc,:)   = tleaf_sun
+                                tleaf_shade240_tmp(nn,loc,:) = tleaf_shade
+                                tleaf_ave240_tmp(nn,loc,:)   = tleaf_ave
+                                tmp2mref_tmp(25,loc)         = tmp2mref
+                                ubzref_tmp(25,loc)           = ubzref
+
+                                !Calculate 24 and 240 hour averages
+                                ppfd_sun24(loc,:)     = sum(ppfd_sun24_tmp(1:24,loc,:),1)/24.0
+                                ppfd_shade24(loc,:)   = sum(ppfd_shade24_tmp(1:24,loc,:),1)/24.0
+                                tleaf_sun24(loc,:)    = sum(tleaf_sun24_tmp(1:24,loc,:),1)/24.0
+                                tleaf_shade24(loc,:)  = sum(tleaf_shade24_tmp(1:24,loc,:),1)/24.0
+                                tleaf_ave24(loc,:)    = sum(tleaf_ave24_tmp(1:24,loc,:),1)/24.0
+                                !Use 24 hour restarts until 240 restarts become available
+                                ppfd_sun240(loc,:)    = sum(ppfd_sun24_tmp(1:24,loc,:),1)/24.0
+                                ppfd_shade240(loc,:)  = sum(ppfd_shade24_tmp(1:24,loc,:),1)/24.0
+                                tleaf_sun240(loc,:)   = sum(tleaf_sun24_tmp(1:24,loc,:),1)/24.0
+                                tleaf_shade240(loc,:) = sum(tleaf_shade24_tmp(1:24,loc,:),1)/24.0
+                                tleaf_ave240(loc,:)   = sum(tleaf_ave24_tmp(1:24,loc,:),1)/24.0
+                                !Updated rolling 24 hour (hourly, short term) and 240 hour (daily, long-term) averages
+                                ppfd_sun24(loc,:)     = ( holdfrac * ppfd_sun24(loc,:) )     + ( hnewfrac * ppfd_sun )
+                                ppfd_shade24(loc,:)   = ( holdfrac * ppfd_shade24(loc,:) )   + ( hnewfrac * ppfd_shade )
+                                tleaf_sun24(loc,:)    = ( holdfrac * tleaf_sun24(loc,:) )    + ( hnewfrac * tleaf_sun )
+                                tleaf_shade24(loc,:)  = ( holdfrac * tleaf_shade24(loc,:) )  + ( hnewfrac * tleaf_shade )
+                                tleaf_ave24(loc,:)    = ( holdfrac * tleaf_ave24(loc,:) )    + ( hnewfrac * tleaf_ave )
+                                ppfd_sun240(loc,:)     = ( holdfrac * ppfd_sun24(loc,:) )     + ( hnewfrac * ppfd_sun )
+                                ppfd_shade240(loc,:)   = ( holdfrac * ppfd_shade24(loc,:) )   + ( hnewfrac * ppfd_shade )
+                                tleaf_sun240(loc,:)    = ( holdfrac * tleaf_sun24(loc,:) )    + ( hnewfrac * tleaf_sun )
+                                tleaf_shade240(loc,:)  = ( holdfrac * tleaf_shade24(loc,:) )  + ( hnewfrac * tleaf_shade )
+                                tleaf_ave240(loc,:)    = ( holdfrac * tleaf_ave24(loc,:) )    + ( hnewfrac * tleaf_ave )
+                                !Take daily max/min for temperature and daily max for wind speed
+                                daily_maxt2m(loc)        = maxval(tmp2mref_tmp(1:24,loc))
+                                daily_mint2m(loc)        = minval(tmp2mref_tmp(1:24,loc))
+                                daily_maxws10m(loc)      = maxval(ubzref_tmp(1:24,loc))
+
+                                !Shift time window to make room for new nth value
+                                ppfd_sun24_tmp(1:24,loc,:)     = ppfd_sun24_tmp(2:25,loc,:)
+                                ppfd_shade24_tmp(1:24,loc,:)   = ppfd_shade24_tmp(2:25,loc,:)
+                                tleaf_sun24_tmp(1:24,loc,:)    = tleaf_sun24_tmp(2:25,loc,:)
+                                tleaf_shade24_tmp(1:24,loc,:)  = tleaf_shade24_tmp(2:25,loc,:)
+                                tleaf_ave24_tmp(1:24,loc,:)    = tleaf_ave24_tmp(2:25,loc,:)
+                                tmp2mref_tmp(1:24,loc)         = tmp2mref_tmp(2:25,loc)
+                                ubzref_tmp(1:24,loc)           = ubzref_tmp(2:25,loc)
+
                             else
-                                ppfd_sun24(loc,:)     = 0.0_rk
-                                ppfd_shade24(loc,:)   = 0.0_rk
-                                tleaf_sun24(loc,:)    = 0.0_rk
-                                tleaf_shade24(loc,:)  = 0.0_rk
-                                tleaf_ave24(loc,:)    = 0.0_rk
-                                ppfd_sun240(loc,:)    = 0.0_rk
-                                ppfd_shade240(loc,:)  = 0.0_rk
-                                tleaf_sun240(loc,:)   = 0.0_rk
-                                tleaf_shade240(loc,:) = 0.0_rk
-                                tleaf_ave240(loc,:)   = 0.0_rk
-                                do t = nn-24, nn-1 !>24 hours sum previous 24 hour moving time window (i.e., running)
-                                    ppfd_sun24(loc,:)     = ppfd_sun24_tmp(t,loc,:) + ppfd_sun24(loc,:)
-                                    ppfd_shade24(loc,:)   = ppfd_shade24_tmp(t,loc,:) + ppfd_shade24(loc,:)
-                                    tleaf_sun24(loc,:)    = tleaf_sun24_tmp(t,loc,:) + tleaf_sun24(loc,:)
-                                    tleaf_shade24(loc,:)  = tleaf_shade24_tmp(t,loc,:) + tleaf_shade24(loc,:)
-                                    tleaf_ave24(loc,:)    = tleaf_ave24_tmp(t,loc,:) + tleaf_ave24(loc,:)
-                                    ppfd_sun240(loc,:)    = ppfd_sun240_tmp(t,loc,:) + ppfd_sun240(loc,:)
-                                    ppfd_shade240(loc,:)  = ppfd_shade240_tmp(t,loc,:) + ppfd_shade240(loc,:)
-                                    tleaf_sun240(loc,:)   = tleaf_sun240_tmp(t,loc,:) + tleaf_sun240(loc,:)
-                                    tleaf_shade240(loc,:) = tleaf_shade240_tmp(t,loc,:) + tleaf_sun240(loc,:)
-                                    tleaf_ave240(loc,:)   = tleaf_ave240_tmp(t,loc,:) + tleaf_ave240(loc,:)
-                                end do
-                                !average hours
-                                ppfd_sun24(loc,:)     = ppfd_sun24(loc,:)/24.0_rk
-                                ppfd_shade24(loc,:)   = ppfd_shade24(loc,:)/24.0_rk
-                                tleaf_sun24(loc,:)    = tleaf_sun24(loc,:)/24.0_rk
-                                tleaf_shade24(loc,:)  = tleaf_shade24(loc,:)/24.0_rk
-                                tleaf_ave24(loc,:)    = tleaf_ave24(loc,:)/24.0_rk
-                                ppfd_sun240(loc,:)    = ppfd_sun240(loc,:)/24.0_rk
-                                ppfd_shade240(loc,:)  = ppfd_shade240(loc,:)/24.0_rk
-                                tleaf_sun240(loc,:)   = tleaf_sun240(loc,:)/24.0_rk
-                                tleaf_shade240(loc,:) = tleaf_shade240(loc,:)/24.0_rk
-                                tleaf_ave240(loc,:)   = tleaf_ave240(loc,:)/24.0_rk
+                                !Drop nth value into end time slice
+                                ppfd_sun24_tmp(25,loc,:)     = ppfd_sun
+                                ppfd_shade24_tmp(25,loc,:)   = ppfd_shade
+                                tleaf_sun24_tmp(25,loc,:)    = tleaf_sun
+                                tleaf_shade24_tmp(25,loc,:)  = tleaf_shade
+                                tleaf_ave24_tmp(25,loc,:)    = tleaf_ave
+                                ppfd_sun240_tmp(241,loc,:)    = ppfd_sun
+                                ppfd_shade240_tmp(241,loc,:)  = ppfd_shade
+                                tleaf_sun240_tmp(241,loc,:)   = tleaf_sun
+                                tleaf_shade240_tmp(241,loc,:) = tleaf_shade
+                                tleaf_ave240_tmp(241,loc,:)   = tleaf_ave
+                                tmp2mref_tmp(25,loc)         = tmp2mref
+                                ubzref_tmp(25,loc)           = ubzref
+
+                                !Calculate 24 and 240 hour averages
+                                ppfd_sun24(loc,:)     = sum(ppfd_sun24_tmp(1:24,loc,:),1)/24.0
+                                ppfd_shade24(loc,:)   = sum(ppfd_shade24_tmp(1:24,loc,:),1)/24.0
+                                tleaf_sun24(loc,:)    = sum(tleaf_sun24_tmp(1:24,loc,:),1)/24.0
+                                tleaf_shade24(loc,:)  = sum(tleaf_shade24_tmp(1:24,loc,:),1)/24.0
+                                tleaf_ave24(loc,:)    = sum(tleaf_ave24_tmp(1:24,loc,:),1)/24.0
+                                ppfd_sun240(loc,:)    = sum(ppfd_sun240_tmp(1:240,loc,:),1)/240.0
+                                ppfd_shade240(loc,:)  = sum(ppfd_shade240_tmp(1:240,loc,:),1)/240.0
+                                tleaf_sun240(loc,:)   = sum(tleaf_sun240_tmp(1:240,loc,:),1)/240.0
+                                tleaf_shade240(loc,:) = sum(tleaf_shade240_tmp(1:240,loc,:),1)/240.0
+                                tleaf_ave240(loc,:)   = sum(tleaf_ave240_tmp(1:240,loc,:),1)/240.0
                                 !Updated rolling 24 hour (hourly, short term) and 240 hour (daily, long-term) averages
                                 ppfd_sun24(loc,:)     = ( holdfrac * ppfd_sun24(loc,:) )     + ( hnewfrac * ppfd_sun )
                                 ppfd_shade24(loc,:)   = ( holdfrac * ppfd_shade24(loc,:) )   + ( hnewfrac * ppfd_shade )
@@ -1083,9 +1229,23 @@ SUBROUTINE canopy_calcs(nn)
                                 tleaf_shade240(loc,:) = ( doldfrac * tleaf_shade240(loc,:) ) + ( dnewfrac * tleaf_shade )
                                 tleaf_ave240(loc,:)   = ( doldfrac * tleaf_ave240(loc,:) )   + ( dnewfrac * tleaf_ave )
                                 !Take daily max/min for temperature and daily max for wind speed
-                                daily_maxt2m(loc)        = maxval(tmp2mref_tmp(nn-24:nn-1,loc))
-                                daily_mint2m(loc)        = minval(tmp2mref_tmp(nn-24:nn-1,loc))
-                                daily_maxws10m(loc)      = maxval(ubzref_tmp(nn-24:nn-1,loc))
+                                daily_maxt2m(loc)        = maxval(tmp2mref_tmp(1:24,loc))
+                                daily_mint2m(loc)        = minval(tmp2mref_tmp(1:24,loc))
+                                daily_maxws10m(loc)      = maxval(ubzref_tmp(1:24,loc))
+
+                                !Shift time window to make room for new nth value
+                                ppfd_sun24_tmp(1:24,loc,:)     = ppfd_sun24_tmp(2:25,loc,:)
+                                ppfd_shade24_tmp(1:24,loc,:)   = ppfd_shade24_tmp(2:25,loc,:)
+                                tleaf_sun24_tmp(1:24,loc,:)    = tleaf_sun24_tmp(2:25,loc,:)
+                                tleaf_shade24_tmp(1:24,loc,:)  = tleaf_shade24_tmp(2:25,loc,:)
+                                tleaf_ave24_tmp(1:24,loc,:)    = tleaf_ave24_tmp(2:25,loc,:)
+                                ppfd_sun240_tmp(1:240,loc,:)    = ppfd_sun240_tmp(2:241,loc,:)
+                                ppfd_shade240_tmp(1:240,loc,:)  = ppfd_shade240_tmp(2:241,loc,:)
+                                tleaf_sun240_tmp(1:240,loc,:)   = tleaf_sun240_tmp(2:241,loc,:)
+                                tleaf_shade240_tmp(1:240,loc,:) = tleaf_shade240_tmp(2:241,loc,:)
+                                tleaf_ave240_tmp(1:240,loc,:)   = tleaf_ave240_tmp(2:241,loc,:)
+                                tmp2mref_tmp(1:24,loc)          = tmp2mref_tmp(2:25,loc)
+                                ubzref_tmp(1:24,loc)            = ubzref_tmp(2:25,loc)
                             end if
                         else
                             write(*,*) 'wrong HIST_OPT namelist option = ', hist_opt, 'only option = 0 or 1'
@@ -1096,271 +1256,309 @@ SUBROUTINE canopy_calcs(nn)
                             if (cszref .ge. 0.0_rk .and. dswrfref .gt. 0.0_rk &
                                 .and. cluref .gt. 0.0_rk) then
                                 !ISOP
-                                call canopy_bio(zk, fafraczInt, hcmref, &
-                                    lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
-                                    ppfd_sun24(loc,:), ppfd_shade24(loc,:), &
-                                    tleaf_ave24(loc,:), ppfd_sun240(loc,:), ppfd_shade240(loc,:), &
-                                    tleaf_ave240(loc,:), tmp2mref, &
-                                    lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
-                                    leafage_opt, pastlai, currentlai, tsteplai,  &
-                                    loss_opt, loss_set, loss_ind, lifetime, ustref, &
-                                    soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
-                                    soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
-                                    ht_opt, lt_opt, hw_opt, daily_maxt2m(loc), daily_mint2m(loc), &
-                                    daily_maxws10m(loc), &
-                                    modlays, 1, emi_isop(loc,:))
+                                if (biospec_opt == 0 .or. biospec_opt == 1) then
+                                    call canopy_bio(zk, fafraczInt, hcmref, &
+                                        lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
+                                        ppfd_sun24(loc,:), ppfd_shade24(loc,:), &
+                                        tleaf_ave24(loc,:), ppfd_sun240(loc,:), ppfd_shade240(loc,:), &
+                                        tleaf_ave240(loc,:), tmp2mref, &
+                                        lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
+                                        leafage_opt, pastlai, currentlai, tsteplai,  &
+                                        loss_opt, loss_set, loss_ind, lifetime, ustref, &
+                                        soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
+                                        soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                        ht_opt, lt_opt, hw_opt, daily_maxt2m(loc), daily_mint2m(loc), &
+                                        daily_maxws10m(loc), &
+                                        modlays, 1, emi_isop(loc,:))
+                                end if
                                 !MYRC
-                                call canopy_bio(zk, fafraczInt, hcmref, &
-                                    lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
-                                    ppfd_sun24(loc,:), ppfd_shade24(loc,:), &
-                                    tleaf_ave24(loc,:), ppfd_sun240(loc,:), ppfd_shade240(loc,:), &
-                                    tleaf_ave240(loc,:), tmp2mref, &
-                                    lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
-                                    leafage_opt, pastlai, currentlai, tsteplai,  &
-                                    loss_opt, loss_set, loss_ind, lifetime, ustref, &
-                                    soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
-                                    soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
-                                    ht_opt, lt_opt, hw_opt, daily_maxt2m(loc), daily_mint2m(loc), &
-                                    daily_maxws10m(loc), &
-                                    modlays, 2, emi_myrc(loc,:))
+                                if (biospec_opt == 0 .or. biospec_opt == 2) then
+                                    call canopy_bio(zk, fafraczInt, hcmref, &
+                                        lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
+                                        ppfd_sun24(loc,:), ppfd_shade24(loc,:), &
+                                        tleaf_ave24(loc,:), ppfd_sun240(loc,:), ppfd_shade240(loc,:), &
+                                        tleaf_ave240(loc,:), tmp2mref, &
+                                        lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
+                                        leafage_opt, pastlai, currentlai, tsteplai,  &
+                                        loss_opt, loss_set, loss_ind, lifetime, ustref, &
+                                        soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
+                                        soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                        ht_opt, lt_opt, hw_opt, daily_maxt2m(loc), daily_mint2m(loc), &
+                                        daily_maxws10m(loc), &
+                                        modlays, 2, emi_myrc(loc,:))
+                                end if
                                 !SABI
-                                call canopy_bio(zk, fafraczInt, hcmref, &
-                                    lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
-                                    ppfd_sun24(loc,:), ppfd_shade24(loc,:), &
-                                    tleaf_ave24(loc,:), ppfd_sun240(loc,:), ppfd_shade240(loc,:), &
-                                    tleaf_ave240(loc,:), tmp2mref, &
-                                    lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
-                                    leafage_opt, pastlai, currentlai, tsteplai,  &
-                                    loss_opt, loss_set, loss_ind, lifetime, ustref, &
-                                    soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
-                                    soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
-                                    ht_opt, lt_opt, hw_opt, daily_maxt2m(loc), daily_mint2m(loc), &
-                                    daily_maxws10m(loc), &
-                                    modlays, 3, emi_sabi(loc,:))
+                                if (biospec_opt == 0 .or. biospec_opt == 3) then
+                                    call canopy_bio(zk, fafraczInt, hcmref, &
+                                        lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
+                                        ppfd_sun24(loc,:), ppfd_shade24(loc,:), &
+                                        tleaf_ave24(loc,:), ppfd_sun240(loc,:), ppfd_shade240(loc,:), &
+                                        tleaf_ave240(loc,:), tmp2mref, &
+                                        lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
+                                        leafage_opt, pastlai, currentlai, tsteplai,  &
+                                        loss_opt, loss_set, loss_ind, lifetime, ustref, &
+                                        soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
+                                        soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                        ht_opt, lt_opt, hw_opt, daily_maxt2m(loc), daily_mint2m(loc), &
+                                        daily_maxws10m(loc), &
+                                        modlays, 3, emi_sabi(loc,:))
+                                end if
                                 !LIMO
-                                call canopy_bio(zk, fafraczInt, hcmref, &
-                                    lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
-                                    ppfd_sun24(loc,:), ppfd_shade24(loc,:), &
-                                    tleaf_ave24(loc,:), ppfd_sun240(loc,:), ppfd_shade240(loc,:), &
-                                    tleaf_ave240(loc,:), tmp2mref, &
-                                    lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
-                                    leafage_opt, pastlai, currentlai, tsteplai,  &
-                                    loss_opt, loss_set, loss_ind, lifetime, ustref, &
-                                    soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
-                                    soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
-                                    ht_opt, lt_opt, hw_opt, daily_maxt2m(loc), daily_mint2m(loc), &
-                                    daily_maxws10m(loc), &
-                                    modlays, 4, emi_limo(loc,:))
+                                if (biospec_opt == 0 .or. biospec_opt == 4) then
+                                    call canopy_bio(zk, fafraczInt, hcmref, &
+                                        lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
+                                        ppfd_sun24(loc,:), ppfd_shade24(loc,:), &
+                                        tleaf_ave24(loc,:), ppfd_sun240(loc,:), ppfd_shade240(loc,:), &
+                                        tleaf_ave240(loc,:), tmp2mref, &
+                                        lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
+                                        leafage_opt, pastlai, currentlai, tsteplai,  &
+                                        loss_opt, loss_set, loss_ind, lifetime, ustref, &
+                                        soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
+                                        soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                        ht_opt, lt_opt, hw_opt, daily_maxt2m(loc), daily_mint2m(loc), &
+                                        daily_maxws10m(loc), &
+                                        modlays, 4, emi_limo(loc,:))
+                                end if
                                 !CARE
-                                call canopy_bio(zk, fafraczInt, hcmref, &
-                                    lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
-                                    ppfd_sun24(loc,:), ppfd_shade24(loc,:), &
-                                    tleaf_ave24(loc,:), ppfd_sun240(loc,:), ppfd_shade240(loc,:), &
-                                    tleaf_ave240(loc,:), tmp2mref, &
-                                    lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
-                                    leafage_opt, pastlai, currentlai, tsteplai,  &
-                                    loss_opt, loss_set, loss_ind, lifetime, ustref, &
-                                    soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
-                                    soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
-                                    ht_opt, lt_opt, hw_opt, daily_maxt2m(loc), daily_mint2m(loc), &
-                                    daily_maxws10m(loc), &
-                                    modlays, 5, emi_care(loc,:))
+                                if (biospec_opt == 0 .or. biospec_opt == 5) then
+                                    call canopy_bio(zk, fafraczInt, hcmref, &
+                                        lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
+                                        ppfd_sun24(loc,:), ppfd_shade24(loc,:), &
+                                        tleaf_ave24(loc,:), ppfd_sun240(loc,:), ppfd_shade240(loc,:), &
+                                        tleaf_ave240(loc,:), tmp2mref, &
+                                        lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
+                                        leafage_opt, pastlai, currentlai, tsteplai,  &
+                                        loss_opt, loss_set, loss_ind, lifetime, ustref, &
+                                        soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
+                                        soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                        ht_opt, lt_opt, hw_opt, daily_maxt2m(loc), daily_mint2m(loc), &
+                                        daily_maxws10m(loc), &
+                                        modlays, 5, emi_care(loc,:))
+                                end if
                                 !OCIM
-                                call canopy_bio(zk, fafraczInt, hcmref, &
-                                    lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
-                                    ppfd_sun24(loc,:), ppfd_shade24(loc,:), &
-                                    tleaf_ave24(loc,:), ppfd_sun240(loc,:), ppfd_shade240(loc,:), &
-                                    tleaf_ave240(loc,:), tmp2mref, &
-                                    lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
-                                    leafage_opt, pastlai, currentlai, tsteplai,  &
-                                    loss_opt, loss_set, loss_ind, lifetime, ustref, &
-                                    soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
-                                    soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
-                                    ht_opt, lt_opt, hw_opt, daily_maxt2m(loc), daily_mint2m(loc), &
-                                    daily_maxws10m(loc), &
-                                    modlays, 6, emi_ocim(loc,:))
+                                if (biospec_opt == 0 .or. biospec_opt == 6) then
+                                    call canopy_bio(zk, fafraczInt, hcmref, &
+                                        lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
+                                        ppfd_sun24(loc,:), ppfd_shade24(loc,:), &
+                                        tleaf_ave24(loc,:), ppfd_sun240(loc,:), ppfd_shade240(loc,:), &
+                                        tleaf_ave240(loc,:), tmp2mref, &
+                                        lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
+                                        leafage_opt, pastlai, currentlai, tsteplai,  &
+                                        loss_opt, loss_set, loss_ind, lifetime, ustref, &
+                                        soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
+                                        soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                        ht_opt, lt_opt, hw_opt, daily_maxt2m(loc), daily_mint2m(loc), &
+                                        daily_maxws10m(loc), &
+                                        modlays, 6, emi_ocim(loc,:))
+                                end if
                                 !BPIN
-                                call canopy_bio(zk, fafraczInt, hcmref, &
-                                    lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
-                                    ppfd_sun24(loc,:), ppfd_shade24(loc,:), &
-                                    tleaf_ave24(loc,:), ppfd_sun240(loc,:), ppfd_shade240(loc,:), &
-                                    tleaf_ave240(loc,:), tmp2mref, &
-                                    lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
-                                    leafage_opt, pastlai, currentlai, tsteplai,  &
-                                    loss_opt, loss_set, loss_ind, lifetime, ustref, &
-                                    soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
-                                    soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
-                                    ht_opt, lt_opt, hw_opt, daily_maxt2m(loc), daily_mint2m(loc), &
-                                    daily_maxws10m(loc), &
-                                    modlays, 7, emi_bpin(loc,:))
+                                if (biospec_opt == 0 .or. biospec_opt == 7) then
+                                    call canopy_bio(zk, fafraczInt, hcmref, &
+                                        lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
+                                        ppfd_sun24(loc,:), ppfd_shade24(loc,:), &
+                                        tleaf_ave24(loc,:), ppfd_sun240(loc,:), ppfd_shade240(loc,:), &
+                                        tleaf_ave240(loc,:), tmp2mref, &
+                                        lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
+                                        leafage_opt, pastlai, currentlai, tsteplai,  &
+                                        loss_opt, loss_set, loss_ind, lifetime, ustref, &
+                                        soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
+                                        soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                        ht_opt, lt_opt, hw_opt, daily_maxt2m(loc), daily_mint2m(loc), &
+                                        daily_maxws10m(loc), &
+                                        modlays, 7, emi_bpin(loc,:))
+                                end if
                                 !APIN
-                                call canopy_bio(zk, fafraczInt, hcmref, &
-                                    lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
-                                    ppfd_sun24(loc,:), ppfd_shade24(loc,:), &
-                                    tleaf_ave24(loc,:), ppfd_sun240(loc,:), ppfd_shade240(loc,:), &
-                                    tleaf_ave240(loc,:), tmp2mref, &
-                                    lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
-                                    leafage_opt, pastlai, currentlai, tsteplai,  &
-                                    loss_opt, loss_set, loss_ind, lifetime, ustref, &
-                                    soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
-                                    soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
-                                    ht_opt, lt_opt, hw_opt, daily_maxt2m(loc), daily_mint2m(loc), &
-                                    daily_maxws10m(loc), &
-                                    modlays, 8, emi_apin(loc,:))
+                                if (biospec_opt == 0 .or. biospec_opt == 8) then
+                                    call canopy_bio(zk, fafraczInt, hcmref, &
+                                        lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
+                                        ppfd_sun24(loc,:), ppfd_shade24(loc,:), &
+                                        tleaf_ave24(loc,:), ppfd_sun240(loc,:), ppfd_shade240(loc,:), &
+                                        tleaf_ave240(loc,:), tmp2mref, &
+                                        lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
+                                        leafage_opt, pastlai, currentlai, tsteplai,  &
+                                        loss_opt, loss_set, loss_ind, lifetime, ustref, &
+                                        soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
+                                        soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                        ht_opt, lt_opt, hw_opt, daily_maxt2m(loc), daily_mint2m(loc), &
+                                        daily_maxws10m(loc), &
+                                        modlays, 8, emi_apin(loc,:))
+                                end if
                                 !MONO
-                                call canopy_bio(zk, fafraczInt, hcmref, &
-                                    lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
-                                    ppfd_sun24(loc,:), ppfd_shade24(loc,:), &
-                                    tleaf_ave24(loc,:), ppfd_sun240(loc,:), ppfd_shade240(loc,:), &
-                                    tleaf_ave240(loc,:), tmp2mref, &
-                                    lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
-                                    leafage_opt, pastlai, currentlai, tsteplai,  &
-                                    loss_opt, loss_set, loss_ind, lifetime, ustref, &
-                                    soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
-                                    soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
-                                    ht_opt, lt_opt, hw_opt, daily_maxt2m(loc), daily_mint2m(loc), &
-                                    daily_maxws10m(loc), &
-                                    modlays, 9, emi_mono(loc,:))
+                                if (biospec_opt == 0 .or. biospec_opt == 9) then
+                                    call canopy_bio(zk, fafraczInt, hcmref, &
+                                        lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
+                                        ppfd_sun24(loc,:), ppfd_shade24(loc,:), &
+                                        tleaf_ave24(loc,:), ppfd_sun240(loc,:), ppfd_shade240(loc,:), &
+                                        tleaf_ave240(loc,:), tmp2mref, &
+                                        lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
+                                        leafage_opt, pastlai, currentlai, tsteplai,  &
+                                        loss_opt, loss_set, loss_ind, lifetime, ustref, &
+                                        soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
+                                        soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                        ht_opt, lt_opt, hw_opt, daily_maxt2m(loc), daily_mint2m(loc), &
+                                        daily_maxws10m(loc), &
+                                        modlays, 9, emi_mono(loc,:))
+                                end if
                                 !FARN
-                                call canopy_bio(zk, fafraczInt, hcmref, &
-                                    lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
-                                    ppfd_sun24(loc,:), ppfd_shade24(loc,:), &
-                                    tleaf_ave24(loc,:), ppfd_sun240(loc,:), ppfd_shade240(loc,:), &
-                                    tleaf_ave240(loc,:), tmp2mref, &
-                                    lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
-                                    leafage_opt, pastlai, currentlai, tsteplai,  &
-                                    loss_opt, loss_set, loss_ind, lifetime, ustref, &
-                                    soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
-                                    soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
-                                    ht_opt, lt_opt, hw_opt, daily_maxt2m(loc), daily_mint2m(loc), &
-                                    daily_maxws10m(loc), &
-                                    modlays, 10, emi_farn(loc,:))
+                                if (biospec_opt == 0 .or. biospec_opt == 10) then
+                                    call canopy_bio(zk, fafraczInt, hcmref, &
+                                        lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
+                                        ppfd_sun24(loc,:), ppfd_shade24(loc,:), &
+                                        tleaf_ave24(loc,:), ppfd_sun240(loc,:), ppfd_shade240(loc,:), &
+                                        tleaf_ave240(loc,:), tmp2mref, &
+                                        lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
+                                        leafage_opt, pastlai, currentlai, tsteplai,  &
+                                        loss_opt, loss_set, loss_ind, lifetime, ustref, &
+                                        soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
+                                        soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                        ht_opt, lt_opt, hw_opt, daily_maxt2m(loc), daily_mint2m(loc), &
+                                        daily_maxws10m(loc), &
+                                        modlays, 10, emi_farn(loc,:))
+                                end if
                                 !CARY
-                                call canopy_bio(zk, fafraczInt, hcmref, &
-                                    lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
-                                    ppfd_sun24(loc,:), ppfd_shade24(loc,:), &
-                                    tleaf_ave24(loc,:), ppfd_sun240(loc,:), ppfd_shade240(loc,:), &
-                                    tleaf_ave240(loc,:), tmp2mref, &
-                                    lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
-                                    leafage_opt, pastlai, currentlai, tsteplai,  &
-                                    loss_opt, loss_set, loss_ind, lifetime, ustref, &
-                                    soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
-                                    soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
-                                    ht_opt, lt_opt, hw_opt, daily_maxt2m(loc), daily_mint2m(loc), &
-                                    daily_maxws10m(loc), &
-                                    modlays, 11, emi_cary(loc,:))
+                                if (biospec_opt == 0 .or. biospec_opt == 11) then
+                                    call canopy_bio(zk, fafraczInt, hcmref, &
+                                        lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
+                                        ppfd_sun24(loc,:), ppfd_shade24(loc,:), &
+                                        tleaf_ave24(loc,:), ppfd_sun240(loc,:), ppfd_shade240(loc,:), &
+                                        tleaf_ave240(loc,:), tmp2mref, &
+                                        lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
+                                        leafage_opt, pastlai, currentlai, tsteplai,  &
+                                        loss_opt, loss_set, loss_ind, lifetime, ustref, &
+                                        soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
+                                        soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                        ht_opt, lt_opt, hw_opt, daily_maxt2m(loc), daily_mint2m(loc), &
+                                        daily_maxws10m(loc), &
+                                        modlays, 11, emi_cary(loc,:))
+                                end if
                                 !SESQ
-                                call canopy_bio(zk, fafraczInt, hcmref, &
-                                    lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
-                                    ppfd_sun24(loc,:), ppfd_shade24(loc,:), &
-                                    tleaf_ave24(loc,:), ppfd_sun240(loc,:), ppfd_shade240(loc,:), &
-                                    tleaf_ave240(loc,:), tmp2mref, &
-                                    lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
-                                    leafage_opt, pastlai, currentlai, tsteplai,  &
-                                    loss_opt, loss_set, loss_ind, lifetime, ustref, &
-                                    soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
-                                    soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
-                                    ht_opt, lt_opt, hw_opt, daily_maxt2m(loc), daily_mint2m(loc), &
-                                    daily_maxws10m(loc), &
-                                    modlays, 12, emi_sesq(loc,:))
+                                if (biospec_opt == 0 .or. biospec_opt == 12) then
+                                    call canopy_bio(zk, fafraczInt, hcmref, &
+                                        lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
+                                        ppfd_sun24(loc,:), ppfd_shade24(loc,:), &
+                                        tleaf_ave24(loc,:), ppfd_sun240(loc,:), ppfd_shade240(loc,:), &
+                                        tleaf_ave240(loc,:), tmp2mref, &
+                                        lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
+                                        leafage_opt, pastlai, currentlai, tsteplai,  &
+                                        loss_opt, loss_set, loss_ind, lifetime, ustref, &
+                                        soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
+                                        soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                        ht_opt, lt_opt, hw_opt, daily_maxt2m(loc), daily_mint2m(loc), &
+                                        daily_maxws10m(loc), &
+                                        modlays, 12, emi_sesq(loc,:))
+                                end if
                                 !MBOL
-                                call canopy_bio(zk, fafraczInt, hcmref, &
-                                    lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
-                                    ppfd_sun24(loc,:), ppfd_shade24(loc,:), &
-                                    tleaf_ave24(loc,:), ppfd_sun240(loc,:), ppfd_shade240(loc,:), &
-                                    tleaf_ave240(loc,:), tmp2mref, &
-                                    lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
-                                    leafage_opt, pastlai, currentlai, tsteplai,  &
-                                    loss_opt, loss_set, loss_ind, lifetime, ustref, &
-                                    soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
-                                    soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
-                                    ht_opt, lt_opt, hw_opt, daily_maxt2m(loc), daily_mint2m(loc), &
-                                    daily_maxws10m(loc), &
-                                    modlays, 13, emi_mbol(loc,:))
+                                if (biospec_opt == 0 .or. biospec_opt == 13) then
+                                    call canopy_bio(zk, fafraczInt, hcmref, &
+                                        lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
+                                        ppfd_sun24(loc,:), ppfd_shade24(loc,:), &
+                                        tleaf_ave24(loc,:), ppfd_sun240(loc,:), ppfd_shade240(loc,:), &
+                                        tleaf_ave240(loc,:), tmp2mref, &
+                                        lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
+                                        leafage_opt, pastlai, currentlai, tsteplai,  &
+                                        loss_opt, loss_set, loss_ind, lifetime, ustref, &
+                                        soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
+                                        soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                        ht_opt, lt_opt, hw_opt, daily_maxt2m(loc), daily_mint2m(loc), &
+                                        daily_maxws10m(loc), &
+                                        modlays, 13, emi_mbol(loc,:))
+                                end if
                                 !METH
-                                call canopy_bio(zk, fafraczInt, hcmref, &
-                                    lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
-                                    ppfd_sun24(loc,:), ppfd_shade24(loc,:), &
-                                    tleaf_ave24(loc,:), ppfd_sun240(loc,:), ppfd_shade240(loc,:), &
-                                    tleaf_ave240(loc,:), tmp2mref, &
-                                    lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
-                                    leafage_opt, pastlai, currentlai, tsteplai,  &
-                                    loss_opt, loss_set, loss_ind, lifetime, ustref, &
-                                    soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
-                                    soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
-                                    ht_opt, lt_opt, hw_opt, daily_maxt2m(loc), daily_mint2m(loc), &
-                                    daily_maxws10m(loc), &
-                                    modlays, 14, emi_meth(loc,:))
+                                if (biospec_opt == 0 .or. biospec_opt == 14) then
+                                    call canopy_bio(zk, fafraczInt, hcmref, &
+                                        lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
+                                        ppfd_sun24(loc,:), ppfd_shade24(loc,:), &
+                                        tleaf_ave24(loc,:), ppfd_sun240(loc,:), ppfd_shade240(loc,:), &
+                                        tleaf_ave240(loc,:), tmp2mref, &
+                                        lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
+                                        leafage_opt, pastlai, currentlai, tsteplai,  &
+                                        loss_opt, loss_set, loss_ind, lifetime, ustref, &
+                                        soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
+                                        soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                        ht_opt, lt_opt, hw_opt, daily_maxt2m(loc), daily_mint2m(loc), &
+                                        daily_maxws10m(loc), &
+                                        modlays, 14, emi_meth(loc,:))
+                                end if
                                 !ACET
-                                call canopy_bio(zk, fafraczInt, hcmref, &
-                                    lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
-                                    ppfd_sun24(loc,:), ppfd_shade24(loc,:), &
-                                    tleaf_ave24(loc,:), ppfd_sun240(loc,:), ppfd_shade240(loc,:), &
-                                    tleaf_ave240(loc,:), tmp2mref, &
-                                    lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
-                                    leafage_opt, pastlai, currentlai, tsteplai,  &
-                                    loss_opt, loss_set, loss_ind, lifetime, ustref, &
-                                    soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
-                                    soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
-                                    ht_opt, lt_opt, hw_opt, daily_maxt2m(loc), daily_mint2m(loc), &
-                                    daily_maxws10m(loc), &
-                                    modlays, 15, emi_acet(loc,:))
+                                if (biospec_opt == 0 .or. biospec_opt == 15) then
+                                    call canopy_bio(zk, fafraczInt, hcmref, &
+                                        lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
+                                        ppfd_sun24(loc,:), ppfd_shade24(loc,:), &
+                                        tleaf_ave24(loc,:), ppfd_sun240(loc,:), ppfd_shade240(loc,:), &
+                                        tleaf_ave240(loc,:), tmp2mref, &
+                                        lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
+                                        leafage_opt, pastlai, currentlai, tsteplai,  &
+                                        loss_opt, loss_set, loss_ind, lifetime, ustref, &
+                                        soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
+                                        soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                        ht_opt, lt_opt, hw_opt, daily_maxt2m(loc), daily_mint2m(loc), &
+                                        daily_maxws10m(loc), &
+                                        modlays, 15, emi_acet(loc,:))
+                                end if
                                 !CO
-                                call canopy_bio(zk, fafraczInt, hcmref, &
-                                    lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
-                                    ppfd_sun24(loc,:), ppfd_shade24(loc,:), &
-                                    tleaf_ave24(loc,:), ppfd_sun240(loc,:), ppfd_shade240(loc,:), &
-                                    tleaf_ave240(loc,:), tmp2mref, &
-                                    lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
-                                    leafage_opt, pastlai, currentlai, tsteplai,  &
-                                    loss_opt, loss_set, loss_ind, lifetime, ustref, &
-                                    soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
-                                    soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
-                                    ht_opt, lt_opt, hw_opt, daily_maxt2m(loc), daily_mint2m(loc), &
-                                    daily_maxws10m(loc), &
-                                    modlays, 16, emi_co(loc,:))
+                                if (biospec_opt == 0 .or. biospec_opt == 16) then
+                                    call canopy_bio(zk, fafraczInt, hcmref, &
+                                        lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
+                                        ppfd_sun24(loc,:), ppfd_shade24(loc,:), &
+                                        tleaf_ave24(loc,:), ppfd_sun240(loc,:), ppfd_shade240(loc,:), &
+                                        tleaf_ave240(loc,:), tmp2mref, &
+                                        lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
+                                        leafage_opt, pastlai, currentlai, tsteplai,  &
+                                        loss_opt, loss_set, loss_ind, lifetime, ustref, &
+                                        soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
+                                        soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                        ht_opt, lt_opt, hw_opt, daily_maxt2m(loc), daily_mint2m(loc), &
+                                        daily_maxws10m(loc), &
+                                        modlays, 16, emi_co(loc,:))
+                                end if
                                 !BIDI VOC
-                                call canopy_bio(zk, fafraczInt, hcmref, &
-                                    lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
-                                    ppfd_sun24(loc,:), ppfd_shade24(loc,:), &
-                                    tleaf_ave24(loc,:), ppfd_sun240(loc,:), ppfd_shade240(loc,:), &
-                                    tleaf_ave240(loc,:), tmp2mref, &
-                                    lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
-                                    leafage_opt, pastlai, currentlai, tsteplai,  &
-                                    loss_opt, loss_set, loss_ind, lifetime, ustref, &
-                                    soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
-                                    soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
-                                    ht_opt, lt_opt, hw_opt, daily_maxt2m(loc), daily_mint2m(loc), &
-                                    daily_maxws10m(loc), &
-                                    modlays, 17, emi_bvoc(loc,:))
+                                if (biospec_opt == 0 .or. biospec_opt == 17) then
+                                    call canopy_bio(zk, fafraczInt, hcmref, &
+                                        lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
+                                        ppfd_sun24(loc,:), ppfd_shade24(loc,:), &
+                                        tleaf_ave24(loc,:), ppfd_sun240(loc,:), ppfd_shade240(loc,:), &
+                                        tleaf_ave240(loc,:), tmp2mref, &
+                                        lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
+                                        leafage_opt, pastlai, currentlai, tsteplai,  &
+                                        loss_opt, loss_set, loss_ind, lifetime, ustref, &
+                                        soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
+                                        soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                        ht_opt, lt_opt, hw_opt, daily_maxt2m(loc), daily_mint2m(loc), &
+                                        daily_maxws10m(loc), &
+                                        modlays, 17, emi_bvoc(loc,:))
+                                end if
                                 !Stress VOC
-                                call canopy_bio(zk, fafraczInt, hcmref, &
-                                    lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
-                                    ppfd_sun24(loc,:), ppfd_shade24(loc,:), &
-                                    tleaf_ave24(loc,:), ppfd_sun240(loc,:), ppfd_shade240(loc,:), &
-                                    tleaf_ave240(loc,:), tmp2mref, &
-                                    lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
-                                    leafage_opt, pastlai, currentlai, tsteplai,  &
-                                    loss_opt, loss_set, loss_ind, lifetime, ustref, &
-                                    soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
-                                    soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
-                                    ht_opt, lt_opt, hw_opt, daily_maxt2m(loc), daily_mint2m(loc), &
-                                    daily_maxws10m(loc), &
-                                    modlays, 18, emi_svoc(loc,:))
+                                if (biospec_opt == 0 .or. biospec_opt == 18) then
+                                    call canopy_bio(zk, fafraczInt, hcmref, &
+                                        lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
+                                        ppfd_sun24(loc,:), ppfd_shade24(loc,:), &
+                                        tleaf_ave24(loc,:), ppfd_sun240(loc,:), ppfd_shade240(loc,:), &
+                                        tleaf_ave240(loc,:), tmp2mref, &
+                                        lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
+                                        leafage_opt, pastlai, currentlai, tsteplai,  &
+                                        loss_opt, loss_set, loss_ind, lifetime, ustref, &
+                                        soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
+                                        soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                        ht_opt, lt_opt, hw_opt, daily_maxt2m(loc), daily_mint2m(loc), &
+                                        daily_maxws10m(loc), &
+                                        modlays, 18, emi_svoc(loc,:))
+                                end if
                                 !Other VOC
-                                call canopy_bio(zk, fafraczInt, hcmref, &
-                                    lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
-                                    ppfd_sun24(loc,:), ppfd_shade24(loc,:), &
-                                    tleaf_ave24(loc,:), ppfd_sun240(loc,:), ppfd_shade240(loc,:), &
-                                    tleaf_ave240(loc,:), tmp2mref, &
-                                    lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
-                                    leafage_opt, pastlai, currentlai, tsteplai,  &
-                                    loss_opt, loss_set, loss_ind, lifetime, ustref, &
-                                    soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
-                                    soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
-                                    ht_opt, lt_opt, hw_opt, daily_maxt2m(loc), daily_mint2m(loc), &
-                                    daily_maxws10m(loc), &
-                                    modlays, 19, emi_ovoc(loc,:))
+                                if (biospec_opt == 0 .or. biospec_opt == 19) then
+                                    call canopy_bio(zk, fafraczInt, hcmref, &
+                                        lairef, fsun, ppfd_sun, ppfd_shade, tleaf_sun, tleaf_shade,&
+                                        ppfd_sun24(loc,:), ppfd_shade24(loc,:), &
+                                        tleaf_ave24(loc,:), ppfd_sun240(loc,:), ppfd_shade240(loc,:), &
+                                        tleaf_ave240(loc,:), tmp2mref, &
+                                        lu_opt, vtyperef, modres, bio_cce, biovert_opt, co2_opt, co2_set, &
+                                        leafage_opt, pastlai, currentlai, tsteplai,  &
+                                        loss_opt, loss_set, loss_ind, lifetime, ustref, &
+                                        soim_opt, soilw1ref, soilw2ref, soilw3ref, soilw4ref, &
+                                        soild1, soild2, soild3, soild4, wiltref, aq_opt, w126_set, ozone_w126ref, &
+                                        ht_opt, lt_opt, hw_opt, daily_maxt2m(loc), daily_mint2m(loc), &
+                                        daily_maxws10m(loc), &
+                                        modlays, 19, emi_ovoc(loc,:))
+                                end if
                             end if
                         end if
 
