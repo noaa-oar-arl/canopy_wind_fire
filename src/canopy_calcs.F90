@@ -194,7 +194,7 @@ SUBROUTINE canopy_calcs(nn)
                             do k=1, modlays
                                 tka=CalcTemp(zk(k)*100.0_rk, 200.0_rk, tmp2mref-273.15_rk, tmpsfcref-273.15_rk) ! temp    [K]
                                 pressa=CalcPressure(zk(k)*100.0_rk, 200.0_rk, pressfcref*0.01_rk, &
-                                                    tmp2mref, tmpsfcref)    !                                     press   [mb]
+                                    tmp2mref, tmpsfcref)    !                                     press   [mb]
                                 relhuma=RelativeHumidity(tka,pressa,spfh2mref*1000.0_rk) !                        relhum  [%]
                                 spechuma=SpecificHumidity(relhuma,tka,pressa) !                                   spechum [g/kg]
                             end do
@@ -983,13 +983,13 @@ SUBROUTINE canopy_calcs(nn)
 
 ! ... calculate initial canopy temp/pressure/humidity/density profiles from first guess approximations (i.e., before leaf energy balance)
 
-                            do k=1, modlays
-                                tka=CalcTemp(zk(k)*100.0_rk, 200.0_rk, tmp2mref-273.15_rk, tmpsfcref-273.15_rk) ! temp    [K]
-                                pressa=CalcPressure(zk(k)*100.0_rk, 200.0_rk, pressfcref*0.01_rk, &
-                                                    tmp2mref, tmpsfcref)    !                                     press   [mb]
-                                relhuma=RelativeHumidity(tka,pressa,spfh2mref*1000.0_rk) !                        relhum  [%]
-                                spechuma=SpecificHumidity(relhuma,tka,pressa) !                                   spechum [g/kg]
-                            end do
+                        do k=1, modlays
+                            tka=CalcTemp(zk(k)*100.0_rk, 200.0_rk, tmp2mref-273.15_rk, tmpsfcref-273.15_rk) ! temp    [K]
+                            pressa=CalcPressure(zk(k)*100.0_rk, 200.0_rk, pressfcref*0.01_rk, &
+                                tmp2mref, tmpsfcref)    !                                     press   [mb]
+                            relhuma=RelativeHumidity(tka,pressa,spfh2mref*1000.0_rk) !                        relhum  [%]
+                            spechuma=SpecificHumidity(relhuma,tka,pressa) !                                   spechum [g/kg]
+                        end do
 
 
 ! ... calculate leaf area density profile from foliage shape function for output (m2/m3)
