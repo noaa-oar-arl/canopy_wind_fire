@@ -97,6 +97,15 @@ MODULE canopy_canvars_mod
     real(rk), allocatable :: canWIND_3d             ( : , : , : )          ! canopy wind speeds -- 3D (m/s)
     real(rk), allocatable :: lad                    ( : , : )              ! Leaf Area Density calculated from foliage shape function (m2/m3)
     real(rk), allocatable :: lad_3d                 ( : , : , : )          ! Leaf Area Density calculated from foliage shape function (m2/m3)
+    real(rk), allocatable :: tka                    ( : , : )              ! Ambient temperature within/above canopy (K)
+    real(rk), allocatable :: tka_3d                 ( : , : , : )          ! Ambient temperature within/above canopy (K)
+    real(rk), allocatable :: pressa                 ( : , : )              ! Ambient pressure within/above canopy (mb)
+    real(rk), allocatable :: pressa_3d              ( : , : , : )          ! Ambient pressure within/above canopy (mb)
+    real(rk), allocatable :: relhuma                ( : , : )              ! Ambient relative humidity within/above canopy (%)
+    real(rk), allocatable :: relhuma_3d             ( : , : , : )          ! Ambient relative humidity within/above canopy (%)
+    real(rk), allocatable :: spechuma               ( : , : )              ! Ambient specific humidity within/above canopy (g/kg)
+    real(rk), allocatable :: spechuma_3d            ( : , : , : )          ! Ambient specific humidity within/above canopy (g/kg)
+
     real(rk), allocatable :: dx                  ( : )          ! Model grid cell distance/resolution (m)
     real(rk), allocatable :: dx_2d               ( : , : )      ! Model grid cell distance/resolution -- 2D (m)
     real(rk), allocatable :: waf                 ( : )          ! Calculated Wind Adjustment Factor
