@@ -39,7 +39,6 @@ SUBROUTINE canopy_calcs(nn)
     !Other
     REAL(rk) :: lat2d(nlon,nlat), lon2d(nlon,nlat), lat1d(nlon*nlat), lon1d(nlon*nlat)
 
-    REAL(rk) :: tka,pressa,relhuma,spechuma   !TBD:  Add arrays (tka, tka_3d, etc.) to canopy-app output
     write(*,*)  'Calculating Canopy Parameters'
     write(*,*)  '-------------------------------'
 
@@ -189,14 +188,14 @@ SUBROUTINE canopy_calcs(nn)
                                 end if
                             end if
 
-! ... calculate initial canopy temp/pressure/humidity/density profiles from first guess approximations (i.e., before leaf energy balance)
+! ... calculate initial canopy temp/pressure/humidity/density profiles from first guess approximations (i.e., no leaf energy balance)
 
                             do k=1, modlays
-                                tka=CalcTemp(zk(k)*100.0_rk, 200.0_rk, tmp2mref-273.15_rk, tmpsfcref-273.15_rk) ! temp    [K]
-                                pressa=CalcPressure(zk(k)*100.0_rk, 200.0_rk, pressfcref*0.01_rk, &
-                                    tmp2mref, tmpsfcref)    !                                     press   [mb]
-                                relhuma=RelativeHumidity(tka,pressa,spfh2mref*1000.0_rk) !                        relhum  [%]
-                                spechuma=SpecificHumidity(relhuma,tka,pressa) !                                   spechum [g/kg]
+                                tka_3d(i,j,k)=CalcTemp(zk(k)*100.0_rk, 200.0_rk, tmp2mref-273.15_rk, tmpsfcref-273.15_rk) ! temp    [K]
+                                pressa_3d(i,j,k)=CalcPressure(zk(k)*100.0_rk, 200.0_rk, pressfcref*0.01_rk, &
+                                    tmp2mref, tmpsfcref)                                                                  ! press   [mb]
+                                relhuma_3d(i,j,k)=RelativeHumidity(tka_3d(i,j,k),pressa_3d(i,j,k),spfh2mref*1000.0_rk)    ! relhum  [%]
+                                spechuma_3d(i,j,k)=SpecificHumidity(relhuma_3d(i,j,k),tka_3d(i,j,k),pressa_3d(i,j,k))     ! spechum [g/kg]
                             end do
 
 ! ... calculate leaf area density profile from foliage shape function for output (m2/m3)
@@ -981,16 +980,15 @@ SUBROUTINE canopy_calcs(nn)
                             end if
                         end if
 
-! ... calculate initial canopy temp/pressure/humidity/density profiles from first guess approximations (i.e., before leaf energy balance)
+! ... calculate initial canopy temp/pressure/humidity/density profiles from first guess approximations (i.e., no leaf energy balance)
 
                         do k=1, modlays
-                            tka=CalcTemp(zk(k)*100.0_rk, 200.0_rk, tmp2mref-273.15_rk, tmpsfcref-273.15_rk) ! temp    [K]
-                            pressa=CalcPressure(zk(k)*100.0_rk, 200.0_rk, pressfcref*0.01_rk, &
-                                tmp2mref, tmpsfcref)    !                                     press   [mb]
-                            relhuma=RelativeHumidity(tka,pressa,spfh2mref*1000.0_rk) !                        relhum  [%]
-                            spechuma=SpecificHumidity(relhuma,tka,pressa) !                                   spechum [g/kg]
+                            tka(loc,k)=CalcTemp(zk(k)*100.0_rk, 200.0_rk, tmp2mref-273.15_rk, tmpsfcref-273.15_rk) ! temp    [K]
+                            pressa(loc,k)=CalcPressure(zk(k)*100.0_rk, 200.0_rk, pressfcref*0.01_rk, &
+                                tmp2mref, tmpsfcref)                                                               ! press   [mb]
+                            relhuma(loc,k)=RelativeHumidity(tka(loc,k),pressa(loc,k),spfh2mref*1000.0_rk)          ! relhum  [%]
+                            spechuma(loc,k)=SpecificHumidity(relhuma(loc,k),tka(loc,k),pressa(loc,k))              ! spechum [g/kg]
                         end do
-
 
 ! ... calculate leaf area density profile from foliage shape function for output (m2/m3)
                         do k=1, modlays
