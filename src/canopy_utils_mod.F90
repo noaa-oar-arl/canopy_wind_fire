@@ -9,7 +9,7 @@ module canopy_utils_mod
         CalcDX,CalcFlameH,GET_GAMMA_CO2,GET_GAMMA_LEAFAGE, &
         GET_GAMMA_SOIM,GET_GAMMA_AQ,GET_GAMMA_HT,GET_GAMMA_LT, &
         GET_GAMMA_HW,GET_CANLOSS_BIO,CalcTemp,CalcPressure,esat, &
-        RelativeHumidity,SpecificHumidity,CalcCair,Convert_qh_to_h2o
+        CalcRelHum,CalcSpecHum,CalcCair,Convert_qh_to_h2o
 
 contains
 
@@ -1128,15 +1128,15 @@ contains
 
 
     !**********************************************************************************************************************!
-! function RelativeHumidity - calculates the relative humidity from the
+! function CalcRelHum - calculates the relative humidity from the
 !                             supplied specific humidity, temperature and
 !                             pressure
 !**********************************************************************************************************************!
-    function RelativeHumidity(tki, pmbi, qhi)
+    function CalcRelHum(tki, pmbi, qhi)
         real(rk), intent(in) :: tki        ! air temperature (K)
         real(rk), intent(in) :: pmbi       ! air pressure (mb)
         real(rk), intent(in) :: qhi        ! specific humidity (g/kg)
-        real(rk)             :: RelativeHumidity  ! relative humidity (%)
+        real(rk)             :: CalcRelHum ! relative humidity (%)
         real(rk)             :: tc, e, es, qhd, pkpa, rhi
         real(rk), parameter  :: rhmin=0.1
         real(rk), parameter  :: rhmax=99.0
@@ -1146,30 +1146,30 @@ contains
         e = pkpa*qhd/(0.622+qhd)
         es = 0.6112*exp(17.67*tc/(tc+243.5)) !Rogers et al. (1989)
         rhi = max(rhmin, min(rhmax, 100.0*e/es))   ! bound RH to (rhmin, rhmax)
-        RelativeHumidity = rhi
+        CalcRelHum = rhi
         return
-    end function RelativeHumidity
+    end function CalcRelHum
 
 !**********************************************************************************************************************!
-! function SpecificHumidity - calculates specific humidity (g/kg) from the supplied relative humidity,
+! function CalcSpecHum - calculates specific humidity (g/kg) from the supplied relative humidity,
 !                             temperature, and pressure
 !**********************************************************************************************************************!
-    function SpecificHumidity(rhi, tki, pmbi)
+    function CalcSpecHum(rhi, tki, pmbi)
         real(rk), intent(in) :: rhi                 ! relative humidity (%)
         real(rk), intent(in) :: tki                 ! air temperature (K)
         real(rk), intent(in) :: pmbi                ! air pressure (mb)
-        real(rk)             :: SpecificHumidity    ! specific humidity (g/kg)
+        real(rk)             :: CalcSpecHum         ! specific humidity (g/kg)
         real(rk)             :: es                  ! saturation vapor pressure at tki (mb)
         real(rk)             :: e                   ! ambient vapor pressure (mb)
 
         es = esat(tki)*10.0            ! kPa -> mb
         e  = es*rhi*0.01               ! mb
 
-        SpecificHumidity = 622.0*e/(pmbi-0.378*e)
+        CalcSpecHum = 622.0*e/(pmbi-0.378*e)
 
         return
 
-    end function SpecificHumidity
+    end function CalcSpecHum
 
 !**********************************************************************************************************************!
 ! CalcCair ... compute cair at z
