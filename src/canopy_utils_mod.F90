@@ -1,6 +1,6 @@
 module canopy_utils_mod
 
-    use canopy_const_mod, ONLY: pi, rk, rearth    !constants for canopy models
+    use canopy_const_mod, ONLY: ntotal, pi, rk, rearth    !constants for canopy models
 
     implicit none
 
@@ -9,7 +9,8 @@ module canopy_utils_mod
         CalcDX,CalcFlameH,GET_GAMMA_CO2,GET_GAMMA_LEAFAGE, &
         GET_GAMMA_SOIM,GET_GAMMA_AQ,GET_GAMMA_HT,GET_GAMMA_LT, &
         GET_GAMMA_HW,GET_CANLOSS_BIO,CalcTemp,CalcPressure,esat, &
-        CalcRelHum,CalcSpecHum,CalcCair,Convert_qh_to_h2o
+        CalcRelHum,CalcSpecHum,CalcCair,Convert_qh_to_h2o, &
+        SetMolecDiffSTP,MolecDiff,rs_zhang_gas
 
 contains
 
@@ -1197,5 +1198,127 @@ contains
 
         return
     end function Convert_qh_to_h2o
+
+
+!=====================================================================================
+!function mdiffstp - set molecular diffusivity data (cm^2/s) for all species at
+!                           0 deg C and 1 atm
+!=====================================================================================
+    subroutine SetMolecDiffSTP(mdiffstp)
+        real(rk),dimension(ntotal),intent(out)  :: mdiffstp       !molecular diffusivities of species in air at 0degC and 1 atm [cm^2/s]
+!    real(kind = dp), parameter         :: mdiffstp_default = 0.100   !default value of mdiffstp (cm^2/s) with no reliable data
+!    integer(kind=i4)                   :: l                          !l is species
+
+!    do l=1,ntotal      !ntotal is total species in ACCESS based on chosen chemical mechanim, including transported species
+!        mdiffstp(l) = mdiffstp_default
+!    end do
+
+!Insert MolecDiffSTP Coefficients for RACM2_plus mechanism
+!species in array are:
+!         = (/NO,   NO2,    O3,  HONO,  HNO4,   HNO3,   N2O5,     CO,  H2O2,  CH4,
+!            MO2,   OP1,   MOH,   NO3,   O3P,    O1D,     HO,    HO2,  ORA1,  HAC,
+!            PAA, DHMOB, HPALD,  ISHP, IEPOX, PROPNN, ISOPNB, ISOPND, MACRN, MVKN,
+!           ISNP /)
+        mdiffstp =(/0.1802, 0.1361, 0.1444, 0.1349, 0.1041, 0.1041, 0.0808, 0.1807, 0.1300, 0.1952,  &
+            0.1297, 0.1200, 0.1297, 0.1153, 0.2773, 0.2773, 0.2543, 0.2000, 0.1340, 0.1060,  &
+            0.1040, 0.0892, 0.0845, 0.0837, 0.0837, 0.0834, 0.0750, 0.0750, 0.0745, 0.0745,  &
+            0.0712 /)
+!species (NO2, O3)
+!    mdiffstp =(/0.1361, 0.1444/)
+
+        return
+    end subroutine SetMolecDiffSTP
+
+!==========================================================================
+!function MolecDiff - calculate molecular diffusivities (cm^2/s) at a given
+!                     temperature and pressure
+!==========================================================================
+    function MolecDiff(ispec, tkx, pmbx)
+        integer, intent(in)         :: ispec     !dummy id for species
+        real(rk), intent(in)        :: tkx       !ambient temp [K]
+        real(rk), intent(in)        :: pmbx      !ambient press pmb]
+        real(rk)                    :: MolecDiff !cm2/s
+        real(rk),dimension(ntotal)  ::mdiffstp
+
+        call SetMolecDiffSTP(mdiffstp)
+        MolecDiff = mdiffstp(ispec)*(1013.25_rk/pmbx)*((tkx/298.15_rk)**1.81)
+
+        return
+    end function MolecDiff
+
+!=========================================================================
+!function mdiffh2o - calculate molecular diffusivity of water vapor in air
+!
+!source: Tracy (1980)
+!=========================================================================
+    function mdiffh2o(tki,pmbi)
+        real(rk), intent(in) :: tki
+        real(rk), intent(in) :: pmbi
+        real(rk)             :: mdiffh2o
+
+        mdiffh2o = 0.226_rk*((tki/273.15_rk)**1.81_rk)*(1000.0_rk/pmbi)
+
+        return
+    end function mdiffh2o
+
+!======================================================================
+!function rs_zhang_gas - calcualte stomatal resistance for trace species
+!
+!Source - Zhang et al., (2002 & 2003)
+!       - 'rsmin' by Wesely et al (1989)
+!       - 'bvpd' by Wolfe and Thornton (2011)
+!======================================================================
+    function rs_zhang_gas(mdiffl, tki, pmbi, ppfdi, srad, relhumi)
+        real(rk), intent(in) :: mdiffl            !molecular diffusivity of trace species in air (cm^2/s)
+        real(rk), intent(in) :: tki               !air temperature
+        real(rk), intent(in) :: pmbi              !air pressure (mb)
+        real(rk), intent(in) :: ppfdi             !photosynthetic photon flux (umol/m^2-s)
+        real(rk), intent(in) :: srad              !solar irradiation (W/m^2)
+        real(rk), intent(in) :: relhumi           !relative humidity (%)
+        real(rk)             :: rs_zhang_gas      !stomatal resistance (s/cm)
+        !TBD --- Make rs parameters vegtyp dependent -----
+        real(rk), parameter  :: rsmin =1.0        !minimum leaf stomatal resistance (s/cm) for deciduous forest
+        real(rk), parameter  :: rsmax =10000.     !maximum leaf stomatal resistance (s/cm) (stoma are closed)
+        real(rk), parameter  :: brsp = 196.5      !empirical constant (umol/m^2-s) for deciduous forest
+        real(rk), parameter  :: tmin = 0.0        !temperature correction parameter-deciduous forest
+        real(rk), parameter  :: tmax = 45.0       !temperature correction parameter-deciduous forest
+        real(rk), parameter  :: topt = 27.0       !temperature correction parameter-deciduous forest
+        real(rk), parameter  :: bvpd = 0.10       !empirical constant for VPD correction-deciduous forest
+        real(rk), parameter  :: phic1 = -1.9      !empirical constant for water stress correction-deciduous forest
+        real(rk), parameter  :: phic2 = -2.5      !empirical constant for water stress correction-deciduous forest
+        !TBD --- Make rs parameters vegtyp dependent -----
+        real(rk)             :: cft
+        real(rk)             :: cfvpd
+        real(rk)             :: cfphi
+        real(rk)             :: tcel
+        real(rk)             :: ft1
+        real(rk)             :: ft2
+        real(rk)             :: et
+        real(rk)             :: vpd
+        real(rk)             :: phi
+
+        !temperature correction
+        tcel = tki - 273.15
+        et   = (tmax-topt)/(topt-tmin)
+        ft1  =(tcel-tmin)/(topt-tmin)
+        ft2  = (tmax-tcel)/(tmax-topt)
+        cft  = ft1*(ft2**et)
+
+        !water vapor pressure defit correction
+        vpd  = esat(tki)*(1.0_rk - (relhumi/100.0_rk))
+        cfvpd= 1.0_rk - bvpd*vpd
+
+        !water stress correction
+        phi  = -0.72_rk - 0.0013_rk*srad
+        cfphi= (phi-phic2)/(phic1-phic2)
+
+        if (ppfdi >0.0) then
+            rs_zhang_gas = rsmin*(1.0_rk+brsp/ppfdi)*mdiffh2o(tki,pmbi)/(mdiffl*cft*cfvpd*cfphi)
+        else
+            rs_zhang_gas = rsmax                         !nighttime, stoma are closed
+        endif
+
+        return
+    end function rs_zhang_gas
 
 end module canopy_utils_mod

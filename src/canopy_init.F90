@@ -171,4 +171,5 @@ SUBROUTINE canopy_init
         if(allocated(emi_ovoc_3d))         emi_ovoc_3d(:,:,:) = fillreal
     end if
 
+    if(allocated(ddep_o3))             ddep_o3(:,:)      = fillreal
 END SUBROUTINE canopy_init

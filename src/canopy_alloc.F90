@@ -241,4 +241,6 @@ SUBROUTINE canopy_alloc
         end if
     end if
 
+    if(.not.allocated(ddep_o3))              allocate(ddep_o3(nlat*nlon,modlays))
+
 END SUBROUTINE canopy_alloc

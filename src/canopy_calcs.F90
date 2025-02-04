@@ -23,6 +23,7 @@ SUBROUTINE canopy_calcs(nn)
     use canopy_phot_mod
     use canopy_eddy_mod
     use canopy_bioemi_mod
+    use canopy_drydep_mod
 
     IMPLICIT NONE
 
@@ -1581,7 +1582,14 @@ SUBROUTINE canopy_calcs(nn)
                                 end if
                             end if
                         end if
+! ... user option to calculate in-canopy dry deposition velocity
+!                        if (ifcandrydepgas) then  TBD
 
+                        call canopy_gas_drydep_zhang(tka(loc,:), pressa(loc,:), relhuma(loc,:), &
+                            fsun, ppfd_sun, ppfd_shade, &
+                            dswrfref, 3, ddep_o3(loc,:))   !ozone test
+                        print*, 'rs_o3=', ddep_o3(loc,:)
+!                        end if
                     end if !Contiguous Canopy
 
                 else

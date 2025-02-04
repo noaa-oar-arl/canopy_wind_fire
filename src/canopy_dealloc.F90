@@ -189,6 +189,7 @@ SUBROUTINE canopy_dealloc
         if(allocated(emi_ovoc_3d))  deallocate(emi_ovoc_3d)
     end if
 
+    if(allocated(ddep_o3))      deallocate(ddep_o3)
 !-------------------------------------------------------------------------------
 !  Deallocate NetCDF data structures if used
 !-------------------------------------------------------------------------------

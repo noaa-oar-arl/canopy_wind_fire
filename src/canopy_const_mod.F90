@@ -24,6 +24,8 @@ MODULE canopy_const_mod
     INTEGER, PARAMETER :: rk = SELECTED_REAL_KIND(15, 307)
     REAL(rk),    PARAMETER :: fillreal  = -9.0e20  ! netCDF _FillValue
 
+
+    integer, parameter            :: ntotal = 31        !# of total species in ACCESS based on chosen chemical mechanim, including transported species
 ! Geometric Constants:
 
     ! pi  (single precision: 3.141593)
