@@ -188,6 +188,16 @@ SUBROUTINE canopy_calcs(nn)
                                 end if
                             end if
 
+! ... calculate initial canopy temp/pressure/humidity/density profiles from first guess approximations (i.e., no leaf energy balance)
+
+                            do k=1, modlays
+                                tka_3d(i,j,k)=CalcTemp(zk(k)*100.0_rk, 200.0_rk, tmp2mref-273.15_rk, tmpsfcref-273.15_rk) ! temp    [K]
+                                pressa_3d(i,j,k)=CalcPressure(zk(k)*100.0_rk, 200.0_rk, pressfcref*0.01_rk, &
+                                    tmp2mref, tmpsfcref)                                                                  ! press   [mb]
+                                relhuma_3d(i,j,k)=CalcRelHum(tka_3d(i,j,k),pressa_3d(i,j,k),spfh2mref*1000.0_rk)    ! relhum  [%]
+                                spechuma_3d(i,j,k)=CalcSpecHum(relhuma_3d(i,j,k),tka_3d(i,j,k),pressa_3d(i,j,k))     ! spechum [g/kg]
+                            end do
+
 ! ... calculate leaf area density profile from foliage shape function for output (m2/m3)
                             do k=1, modlays
                                 if (zk(k) .gt. 0.0 .and. zk(k) .le. hcmref) then ! above ground level and at/below canopy top
@@ -969,6 +979,16 @@ SUBROUTINE canopy_calcs(nn)
                                     fafraczInt)
                             end if
                         end if
+
+! ... calculate initial canopy temp/pressure/humidity/density profiles from first guess approximations (i.e., no leaf energy balance)
+
+                        do k=1, modlays
+                            tka(loc,k)=CalcTemp(zk(k)*100.0_rk, 200.0_rk, tmp2mref-273.15_rk, tmpsfcref-273.15_rk) ! temp    [K]
+                            pressa(loc,k)=CalcPressure(zk(k)*100.0_rk, 200.0_rk, pressfcref*0.01_rk, &
+                                tmp2mref, tmpsfcref)                                                               ! press   [mb]
+                            relhuma(loc,k)=CalcRelHum(tka(loc,k),pressa(loc,k),spfh2mref*1000.0_rk)          ! relhum  [%]
+                            spechuma(loc,k)=CalcSpecHum(relhuma(loc,k),tka(loc,k),pressa(loc,k))              ! spechum [g/kg]
+                        end do
 
 ! ... calculate leaf area density profile from foliage shape function for output (m2/m3)
                         do k=1, modlays

@@ -30,6 +30,14 @@ SUBROUTINE canopy_init
     if(allocated(ppfd_ave))           ppfd_ave(:)            = fillreal
     if(allocated(lad))                lad(:,:)               = fillreal
     if(allocated(lad_3d))             lad_3d(:,:,:)          = fillreal
+    if(allocated(tka))                tka(:,:)               = fillreal
+    if(allocated(tka_3d))             tka_3d(:,:,:)          = fillreal
+    if(allocated(pressa))             pressa(:,:)            = fillreal
+    if(allocated(pressa_3d))          pressa_3d(:,:,:)       = fillreal
+    if(allocated(relhuma))            relhuma(:,:)           = fillreal
+    if(allocated(relhuma_3d))         relhuma_3d(:,:,:)      = fillreal
+    if(allocated(spechuma))           spechuma(:,:)          = fillreal
+    if(allocated(spechuma_3d))        spechuma_3d(:,:,:)     = fillreal
 
     if(allocated(tleaf_sun24_tmp))    tleaf_sun24_tmp(:,:,:)     = 0.0_rk
     if(allocated(tleaf_shade24_tmp))  tleaf_shade24_tmp(:,:,:)   =  0.0_rk

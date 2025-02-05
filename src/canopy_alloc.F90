@@ -45,6 +45,14 @@ SUBROUTINE canopy_alloc
     if(.not.allocated(ppfd_ave))           allocate(ppfd_ave(modlays))
     if(.not.allocated(lad))                allocate(lad(nlat*nlon,modlays))
     if(.not.allocated(lad_3d))             allocate(lad_3d(nlon,nlat,modlays))
+    if(.not.allocated(tka))                allocate(tka(nlat*nlon,modlays))
+    if(.not.allocated(tka_3d))             allocate(tka_3d(nlon,nlat,modlays))
+    if(.not.allocated(pressa))             allocate(pressa(nlat*nlon,modlays))
+    if(.not.allocated(pressa_3d))          allocate(pressa_3d(nlon,nlat,modlays))
+    if(.not.allocated(relhuma))            allocate(relhuma(nlat*nlon,modlays))
+    if(.not.allocated(relhuma_3d))         allocate(relhuma_3d(nlon,nlat,modlays))
+    if(.not.allocated(spechuma))           allocate(spechuma(nlat*nlon,modlays))
+    if(.not.allocated(spechuma_3d))        allocate(spechuma_3d(nlon,nlat,modlays))
 
     if (hist_opt .eq. 1) then
         if(.not.allocated(tleaf_sun24_tmp))    allocate(tleaf_sun24_tmp(25,nlat*nlon,modlays))
