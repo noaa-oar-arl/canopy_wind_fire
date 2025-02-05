@@ -10,7 +10,9 @@ module canopy_utils_mod
         GET_GAMMA_SOIM,GET_GAMMA_AQ,GET_GAMMA_HT,GET_GAMMA_LT, &
         GET_GAMMA_HW,GET_CANLOSS_BIO,CalcTemp,CalcPressure,esat, &
         CalcRelHum,CalcSpecHum,CalcCair,Convert_qh_to_h2o, &
-        SetMolecDiffSTP,MolecDiff,rs_zhang_gas
+        SetMolecDiffSTP,MolecDiff,rs_zhang_gas,rbl,rcl,rml, &
+        SetEffHenrysLawCoeffs,SetReactivityParams,ReactivityParam, &
+        EffHenrysLawCoeff
 
 contains
 
@@ -1320,5 +1322,150 @@ contains
 
         return
     end function rs_zhang_gas
+
+!===================================================================
+!function rbl - calculate leaf boundary resistance for trace species
+!
+!Source - rb formulation from Wu et al., (2003)
+!       - ustar = 0.14*ubar from Weber (1999)
+!===================================================================
+    function rbl(mdiffl, ubari)
+        real(rk)               :: rbl            !leaf boundary layer resistance (s/cm)
+        real(rk), intent(in)   :: mdiffl         !molecular diffusivity of species in air (cm^2/s)
+        real(rk), intent(in)   :: ubari          !mean wind speed at layer i (cm/s)
+
+!    rbl = 10.53_rk/((mdiffl**0.666667_rk)*max(1.0D-10,ubari))
+        rbl = 10.53_rk/((mdiffl**0.666667_rk)*ubari)
+        return
+    end function rbl
+
+!===============================================================
+!function rcl - calculate cuticular resistance for trace species
+!
+!Source - Wesely (1989)
+!===============================================================
+    function rcl(hstarl,f01)
+        real(rk), intent(in)   :: hstarl         ! effective Henry's law coefficient (M/atm)
+        real(rk), intent(in)   :: f01            ! reactivity parameter (0-1)
+        real(rk)               :: rcl            ! cuticular resistance (s/cm)
+        real(rk), parameter    :: rcref=20.0     ! rc for ozone (s/cm) for deciduous forest
+
+        rcl = rcref/((hstarl*1.0D-05)+f01)
+
+        return
+    end function rcl
+
+
+!===============================================================
+!function rml - calculate mesophyll resistance for trace species
+!
+!Source - Wesely (1989)
+!===============================================================
+    function rml(hstarl,f01)
+        real(rk), intent(in)   :: hstarl          ! effective Henry's law coefficient (M/atm)
+        real(rk), intent(in)   :: f01             ! reactivity parameter (0-1)
+        real(rk)               :: rml             ! mesophyll resistance (s/cm)
+
+        rml = 1.0_rk/((hstarl/3000.0_rk)+100.0_rk*f01)
+
+        return
+    end function rml
+
+!========================================================================
+!function EffHenrysLawCoeff - calculate Henry's Law coefficient (M/atm)
+!                             have not include temperature dependence yet
+!========================================================================
+    function EffHenrysLawCoeff(ispec)
+        integer, intent(in)    :: ispec  !dummy id for species
+        real(rk)                   :: EffHenrysLawCoeff
+        real(rk),dimension(ntotal) :: hstar
+
+        call SetEffHenrysLawCoeffs(hstar)
+        EffHenrysLawCoeff = hstar(ispec)
+
+        return
+    end function EffHenrysLawCoeff
+
+!====================================================================
+!function hstar - set henry's law coefficient for all species (M/atm)
+!
+!source - Nguyen et al., (2015)
+!====================================================================
+    subroutine SetEffHenrysLawCoeffs(hstar)
+!    integer(kind=i4)                            :: l                  !l is species
+        real(rk),dimension(ntotal),intent(out) :: hstar
+!    real(kind=dp),parameter                     :: hstar_default = 1.000
+
+!    do l = 1,ntotal    !ntotal is total species in ACCESS based on chosen chemical mechanim, including transported species
+!        hstar(l) = hstar_default
+!    End do
+
+!Insert EffHenryLaw Coefficients for RACM2_plus mechanism
+!species in array are:
+!         = (/NO,   NO2,    O3, HONO,  HNO4,   HNO3,   N2O5,     CO,  H2O2,  CH4,
+!            MO2,   OP1,   MOH,  NO3,   O3P,    O1D,     HO,    HO2,  ORA1,  HAC,
+!            PAA, DHMOB, HPALD, ISHP, IEPOX, PROPNN, ISOPNB, ISOPND, MACRN, MVKN,
+!           ISNP /)
+
+!    hstar = (/0.0019, 0.0120, 0.0103, 2.6D+05, 1.0D+07, 3.2D+13, 1.0D+14, 9.8D-04, 8.4D+04, 1.4D-03,  &
+!             6.9D+02, 3.0D+02, 2.2D+02, 0.0380, 0.0380, 0.0380, 3.9D+01, 6.9D+02, 5.6D+03, 2.0D+03,  &
+!             5.2D+02, 2.0D+03, 4.0D+04, 7.0D+07, 7.0D+07, 1.0D+04, 5.0D+03, 5.0D+03, 6.0D+03, 6.0D+03,  &
+!             5.0D+03 /)
+
+        hstar = (/1.9D-03, 1.2D-02,1.03D-02, 2.6D+05, 1.0D+07, 3.2D+13, 1.0D+14, 9.8D-04, 8.4D+04, 1.4D-03,  &
+            6.9D+02, 3.0D+02, 2.2D+02, 3.8D-02, 3.8D-02, 3.8D-02, 3.9D+01, 6.9D+02, 5.6D+03, 2.0D+03,  &
+            5.2D+02, 2.0D+03, 4.0D+04, 7.0D+07, 7.0D+07, 1.0D+04, 5.0D+03, 5.0D+03, 6.0D+03, 6.0D+03,  &
+            5.0D+03 /)
+
+!species (NO2, O3)
+!    hstar = (/0.0120, 0.0103/)
+
+        return
+    end subroutine SetEffHenrysLawCoeffs
+
+!==========================================================================
+!function ReactivityParam - calculate reactivity parameters (dimensionless)
+!==========================================================================
+    function ReactivityParam(ispec)
+        integer, intent(in)        :: ispec   !dummy id for species
+        real(rk)                   :: ReactivityParam
+        real(rk),dimension(ntotal) :: f0
+
+        call SetReactivityParams(f0)
+        ReactivityParam = f0(ispec)
+
+        return
+    end function ReactivityParam
+
+!========================================================
+!function f0 - set reactivity parameters for all species
+!
+!source - Wesely et al., (1989) and Nguyen et al., (2015)
+!========================================================
+    subroutine SetReactivityParams(f0)
+!    integer(kind=i4)                              :: l               !l is species
+        real(rk),dimension(ntotal),intent(out) :: f0
+!    real(kind=dp),parameter                       :: f0_default = 0.0
+
+!    do l=1,ntotal     !ntotal is total species in ACCESS based on chosen chemical mechanim, including transported species
+!        f0(l) = f0_default
+!    end do
+
+!Insert ReactivityParams Coefficients for RACM2_plus mechanism
+!species in array are:
+!         = (/NO,   NO2,    O3,  HONO,  HNO4,   HNO3,   N2O5,     CO,  H2O2,  CH4,
+!            MO2,   OP1,   MOH,   NO3,   O3P,    O1D,     HO,    HO2,  ORA1,  HAC,
+!            PAA, DHMOB, HPALD,  ISHP, IEPOX, PROPNN, ISOPNB, ISOPND, MACRN, MVKN,
+!           ISNP /)
+        f0 = (/0.0, 0.1, 1.0, 0.1, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0,  &
+            0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.1, 0.1, 0.0, 0.0,  &
+            0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,  &
+            0.0 /)
+
+!species (NO2, O3)
+!    f0 = (/0.1, 1.0 /)
+
+        return
+    end subroutine SetReactivityParams
 
 end module canopy_utils_mod
