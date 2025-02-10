@@ -369,6 +369,30 @@ CONTAINS
         c_canheight%iend(1) = nlon
         c_canheight%iend(2) = nlat
 
+        c_dh%fld = fillreal
+        c_dh%fldname = 'dh'
+        c_dh%long_name = 'zero-plane displacement height (z/h)'
+        c_dh%units = 'm'
+        c_dh%fillvalue = fillreal
+        c_dh%dimnames(1) = 'nlon'
+        c_dh%dimnames(2) = 'nlat'
+        c_dh%istart(1) = 1
+        c_dh%istart(2) = 1
+        c_dh%iend(1) = nlon
+        c_dh%iend(2) = nlat
+
+        c_zoh%fld = fillreal
+        c_zoh%fldname = 'z0h'
+        c_zoh%long_name = 'surface roughness length (z/h)'
+        c_zoh%units = 'm'
+        c_zoh%fillvalue = fillreal
+        c_zoh%dimnames(1) = 'nlon'
+        c_zoh%dimnames(2) = 'nlat'
+        c_zoh%istart(1) = 1
+        c_zoh%istart(2) = 1
+        c_zoh%iend(1) = nlon
+        c_zoh%iend(2) = nlat
+
         if (ifcanwind .or. ifcanwaf) then
             c_waf%fld = fillreal
             c_waf%fldname = 'waf'
@@ -861,7 +885,9 @@ CONTAINS
 
         nfld2dxyt = 0
 
-        nfld2dxyt = nfld2dxyt +1  ! canopy height
+        nfld2dxyt = nfld2dxyt + 1  ! canopy height
+        nfld2dxyt = nfld2dxyt + 1  ! d_h
+        nfld2dxyt = nfld2dxyt + 1  ! zo_h
 
         if (ifcanwind .or. ifcanwaf) then
             nfld2dxyt = nfld2dxyt + 1  !WAF
@@ -876,6 +902,10 @@ CONTAINS
 
         set_index = 1
         c_canheight => fld2dxyt( set_index )
+        set_index = set_index + 1
+        c_dh => fld2dxyt( set_index )
+        set_index = set_index + 1
+        c_zoh => fld2dxyt( set_index )
         if (ifcanwind .or. ifcanwaf) then
             set_index = set_index + 1
             c_waf       => fld2dxyt( set_index )
@@ -2000,6 +2030,8 @@ CONTAINS
             ! Time-varying 2d fields at cell centers.
             !-------------------------------------------------------------------------------
             c_canheight%fld = variables_2d%ch
+            c_dh%fld = dh_2d
+            c_zoh%fld = zoh_2d
             if (ifcanwind .or. ifcanwaf) then
                 c_waf%fld = waf_2d
                 c_flameh%fld = flameh_2d
