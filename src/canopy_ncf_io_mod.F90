@@ -372,7 +372,7 @@ CONTAINS
         c_dh%fld = fillreal
         c_dh%fldname = 'dh'
         c_dh%long_name = 'zero-plane displacement height (z/h)'
-        c_dh%units = 'm'
+        c_dh%units = '1'
         c_dh%fillvalue = fillreal
         c_dh%dimnames(1) = 'nlon'
         c_dh%dimnames(2) = 'nlat'
@@ -384,7 +384,7 @@ CONTAINS
         c_zoh%fld = fillreal
         c_zoh%fldname = 'z0h'
         c_zoh%long_name = 'surface roughness length (z/h)'
-        c_zoh%units = 'm'
+        c_zoh%units = '1'
         c_zoh%fillvalue = fillreal
         c_zoh%dimnames(1) = 'nlon'
         c_zoh%dimnames(2) = 'nlat'
