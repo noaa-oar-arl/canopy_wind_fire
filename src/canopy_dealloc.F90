@@ -195,6 +195,7 @@ SUBROUTINE canopy_dealloc
 
     if (ifcanddepgas) then
         if(allocated(ddep_o3))      deallocate(ddep_o3)
+        if(allocated(ddep_o3_3d))   deallocate(ddep_o3_3d)
     end if
 !-------------------------------------------------------------------------------
 !  Deallocate NetCDF data structures if used

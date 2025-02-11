@@ -156,6 +156,7 @@ MODULE canopy_canvars_mod
     real(rk), allocatable :: emi_ovoc_3d         ( : , : , : )  ! Other VOC biogenic emissions (kg/m2 s) -- 3D
 
     real(rk), allocatable :: ddep_o3             ( :, : )       ! Dry Deposition velocity for O3 (m/s)
+    real(rk), allocatable :: ddep_o3_3d          ( : , : , : )  ! Dry Deposition velocity for O3 (m/s) -- 3D
 !-------------------------------------------------------------------------------
 ! Canopy-App Program and version descriptors.
 !-------------------------------------------------------------------------------

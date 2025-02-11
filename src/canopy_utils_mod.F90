@@ -1272,13 +1272,13 @@ contains
 !======================================================================
     function rs_zhang_gas(mdiffl, tki, pmbi, ppfdi, srad, relhumi)
         real(rk), intent(in) :: mdiffl            !molecular diffusivity of trace species in air (cm^2/s)
-        real(rk), intent(in) :: tki               !air temperature
+        real(rk), intent(in) :: tki               !air temperature (K)
         real(rk), intent(in) :: pmbi              !air pressure (mb)
         real(rk), intent(in) :: ppfdi             !photosynthetic photon flux (umol/m^2-s)
         real(rk), intent(in) :: srad              !solar irradiation (W/m^2)
         real(rk), intent(in) :: relhumi           !relative humidity (%)
         real(rk)             :: rs_zhang_gas      !stomatal resistance (s/cm)
-        !TBD --- Make rs parameters vegtyp dependent -----
+        !TODO --- Make rs parameters vegtyp dependent -----
         real(rk), parameter  :: rsmin =1.0        !minimum leaf stomatal resistance (s/cm) for deciduous forest
         real(rk), parameter  :: rsmax =10000.     !maximum leaf stomatal resistance (s/cm) (stoma are closed)
         real(rk), parameter  :: brsp = 196.5      !empirical constant (umol/m^2-s) for deciduous forest
@@ -1288,7 +1288,7 @@ contains
         real(rk), parameter  :: bvpd = 0.10       !empirical constant for VPD correction-deciduous forest
         real(rk), parameter  :: phic1 = -1.9      !empirical constant for water stress correction-deciduous forest
         real(rk), parameter  :: phic2 = -2.5      !empirical constant for water stress correction-deciduous forest
-        !TBD --- Make rs parameters vegtyp dependent -----
+        !TODO --- Make rs parameters vegtyp dependent -----
         real(rk)             :: cft
         real(rk)             :: cfvpd
         real(rk)             :: cfphi
@@ -1300,7 +1300,7 @@ contains
         real(rk)             :: phi
 
         !temperature correction
-        tcel = tki - 273.15
+        tcel = min(tki - 273.15_rk,tmax-0.1_rk) !convert to degrees C and restrict tcell > 44.9 C
         et   = (tmax-topt)/(topt-tmin)
         ft1  =(tcel-tmin)/(topt-tmin)
         ft2  = (tmax-tcel)/(tmax-topt)

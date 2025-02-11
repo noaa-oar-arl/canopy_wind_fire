@@ -247,6 +247,7 @@ SUBROUTINE canopy_alloc
 
     if (ifcanddepgas) then
         if(.not.allocated(ddep_o3))              allocate(ddep_o3(nlat*nlon,modlays))
+        if(.not.allocated(ddep_o3_3d))           allocate(ddep_o3_3d(nlon,nlat,modlays))
     end if
 
 END SUBROUTINE canopy_alloc

@@ -792,6 +792,22 @@ SUBROUTINE canopy_calcs(nn)
                                 end if
                             end if
 
+! ... user option to calculate in-canopy dry deposition velocity
+                            if (ifcanddepgas ) then
+                                if (ifcanwind) then   !ubar needed for rbl
+                                    !if(ddepspec_opt == 0 .or. ddepspec_opt == 3) then TBD for all species =
+                                    call canopy_gas_drydep_zhang(zk, hcmref, tka_3d(i,j,:), pressa_3d(i,j,:), &
+                                        relhuma_3d(i,j,:), fsun, ppfd_sun, ppfd_shade, canWIND_3d(i,j,:),  &
+                                        dswrfref, 3, ddep_o3_3d(i,j,:))   ! [cm/s]
+                                    !endif
+                                    !print*,ddep_o3_3d(i,j,:)
+                                else
+                                    write(*,*)  'Wrong IfCanWind choice of ', ifcanwind, ' in namelist...exiting'
+                                    write(*,*)  'Set IfCanwind to True to use IfCanDDepGas'
+                                    call exit(2)
+                                end if
+                            end if
+
                         end if !Contiguous Canopy
 
                     else
@@ -1591,7 +1607,6 @@ SUBROUTINE canopy_calcs(nn)
                                     relhuma(loc,:), fsun, ppfd_sun, ppfd_shade, canWIND(loc,:),  &
                                     dswrfref, 3, ddep_o3(loc,:))   ! [cm/s]
                                 !endif
-                                print*,ddep_o3(loc,:)
                             else
                                 write(*,*)  'Wrong IfCanWind choice of ', ifcanwind, ' in namelist...exiting'
                                 write(*,*)  'Set IfCanwind to True to use IfCanDDepGas'

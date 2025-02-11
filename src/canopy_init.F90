@@ -177,6 +177,7 @@ SUBROUTINE canopy_init
 
     if (ifcanddepgas) then
         if(allocated(ddep_o3))             ddep_o3(:,:)      = fillreal
+        if(allocated(ddep_o3_3d))          ddep_o3_3d(:,:,:) = fillreal
     end if
 
 END SUBROUTINE canopy_init
