@@ -370,8 +370,8 @@ CONTAINS
         c_canheight%iend(2) = nlat
 
         c_dh%fld = fillreal
-        c_dh%fldname = 'dh'
-        c_dh%long_name = 'zero-plane displacement height (z/h)'
+        c_dh%fldname = 'd_h'
+        c_dh%long_name = 'ratio of zero-plane displacement height to canopy height (d/h)'
         c_dh%units = '1'
         c_dh%fillvalue = fillreal
         c_dh%dimnames(1) = 'nlon'
@@ -382,8 +382,8 @@ CONTAINS
         c_dh%iend(2) = nlat
 
         c_zoh%fld = fillreal
-        c_zoh%fldname = 'z0h'
-        c_zoh%long_name = 'surface roughness length (z/h)'
+        c_zoh%fldname = 'z0_h'
+        c_zoh%long_name = 'ratio of surface roughness length to canopy height (z/h)'
         c_zoh%units = '1'
         c_zoh%fillvalue = fillreal
         c_zoh%dimnames(1) = 'nlon'
@@ -2030,8 +2030,8 @@ CONTAINS
             ! Time-varying 2d fields at cell centers.
             !-------------------------------------------------------------------------------
             c_canheight%fld = variables_2d%ch
-            c_dh%fld = dh_2d
-            c_zoh%fld = zoh_2d
+            c_dh%fld = d_h_2d
+            c_zoh%fld = zo_h_2d
             if (ifcanwind .or. ifcanwaf) then
                 c_waf%fld = waf_2d
                 c_flameh%fld = flameh_2d

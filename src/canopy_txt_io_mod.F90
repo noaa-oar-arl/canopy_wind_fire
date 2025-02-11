@@ -107,10 +107,11 @@ CONTAINS
                 write(11, '(a15, a24)') 'time stamp: ', TIMENOW
                 write(11, '(a30, f6.1, a2)') 'reference height, h: ', href_set, 'm'
                 write(11, '(a30, i6)') 'number of model layers: ', modlays
-                write(11, '(a8, a9, a19, a19, a11)') 'lat', 'lon', 'canheight (m)', 'flameh (m)', 'waf (1)'
+                write(11, '(a8, a9, a19, a19, a19, a19, a11)') 'lat', 'lon', 'canheight (m)', &
+                        'd_h (1)', 'z0_h (1)', 'flameh (m)', 'waf (1)'
                 do loc=1, nlat*nlon
-                    write(11, '(f8.2, f9.2, f19.2, f19.2, es15.7)')  variables(loc)%lat, variables(loc)%lon, &
-                        variables(loc)%ch, flameh(loc), waf(loc)
+                    write(11, '(f8.2, f9.2, f19.2, f19.2, f19.2, f19.2, es15.7)')  variables(loc)%lat, variables(loc)%lon, &
+                        variables(loc)%ch, d_h(loc), zo_h(loc), flameh(loc), waf(loc)
                 end do
             end if
 

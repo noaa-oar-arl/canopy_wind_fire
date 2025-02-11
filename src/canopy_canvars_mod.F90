@@ -109,9 +109,9 @@ MODULE canopy_canvars_mod
     real(rk), allocatable :: waf                 ( : )          ! Calculated Wind Adjustment Factor
     real(rk), allocatable :: waf_2d              ( : , : )      ! Calculated Wind Adjustment Factor -- 2D
     real(rk), allocatable :: d_h                 ( : )          ! Zero plane displacement heights (z/h)
-    real(rk), allocatable :: dh_2d               ( : , : )      ! Zero plane displacement heights (z/h) -- 2D
+    real(rk), allocatable :: d_h_2d              ( : , : )      ! Zero plane displacement heights (z/h) -- 2D
     real(rk), allocatable :: zo_h                ( : )          ! Surface (soil+veg) roughness lengths (z/h)
-    real(rk), allocatable :: zoh_2d              ( : , : )      ! Surface (soil+veg) roughness lengths (z/h) -- 2D
+    real(rk), allocatable :: zo_h_2d             ( : , : )      ! Surface (soil+veg) roughness lengths (z/h) -- 2D
     real(rk), allocatable :: Kz                  ( :, : )       ! Eddy Diffusivities (m2/s)
     real(rk), allocatable :: Kz_3d               ( : , : , : )  ! Eddy Diffusivities -- 3D (m2/s)
     real(rk), allocatable :: rjcf                ( :, : )       ! Photolysis Attenuation Correction Factors
