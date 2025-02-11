@@ -24,8 +24,8 @@ SUBROUTINE canopy_readnml
         nlat, nlon, modlays, modres, href_opt, href_set, z0ghc, lambdars, &
         var3d_opt, var3d_set, pavd_opt, pavd_set, &
         flameh_opt, flameh_cal, flameh_set, frp_fac, ifcanwind, &
-        ifcanwaf, ifcaneddy, ifcanphot, ifcanbio, pai_opt, pai_set, lu_opt, z0_opt, &
-        dx_opt, dx_set, lai_thresh, cf_thresh, ch_thresh, rsl_opt, bio_cce, &
+        ifcanwaf, ifcaneddy, ifcanphot, ifcanbio, ifcanddepgas, pai_opt, pai_set, lu_opt, &
+        z0_opt, dx_opt, dx_set, lai_thresh, cf_thresh, ch_thresh, rsl_opt, bio_cce, &
         biospec_opt, biovert_opt, ssg_opt, ssg_set, crop_opt, crop_set, co2_opt, co2_set, &
         leafage_opt, lai_tstep, soim_opt, soild1, soild2, soild3, soild4, aq_opt, w126_set, &
         ht_opt, lt_opt, hw_opt, hist_opt, loss_opt, loss_set, loss_ind, lifetime
@@ -184,6 +184,11 @@ SUBROUTINE canopy_readnml
 !-------------------------------------------------------------------------------
 ! Set default logical for canopy biogenic emissions (default = .FALSE.)
     ifcanbio = .FALSE.
+!-------------------------------------------------------------------------------
+
+!-------------------------------------------------------------------------------
+! Set default logical for canopy gas dry deposition (default = .FALSE.)
+    ifcanddepgas = .FALSE.
 !-------------------------------------------------------------------------------
 
 !-------------------------------------------------------------------------------

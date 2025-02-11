@@ -241,6 +241,12 @@ SUBROUTINE canopy_alloc
         end if
     end if
 
-    if(.not.allocated(ddep_o3))              allocate(ddep_o3(nlat*nlon,modlays))
+!-------------------------------------------------------------------------------
+! Allocate arrays for Canopy Gas Dry Deposition Outputs
+!-------------------------------------------------------------------------------
+
+    if (ifcanddepgas) then
+        if(.not.allocated(ddep_o3))              allocate(ddep_o3(nlat*nlon,modlays))
+    end if
 
 END SUBROUTINE canopy_alloc
