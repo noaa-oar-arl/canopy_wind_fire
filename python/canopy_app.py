@@ -516,7 +516,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     cases = config_cases(
-        file_vars="../input/point_file_20220701.sfcf000.txt",
+        file_vars="../input/point_file_20220701.sfcf00.txt",
         infmt_opt=1,
         ntime=1,
         nlat=1,
