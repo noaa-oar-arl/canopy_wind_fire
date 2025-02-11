@@ -515,4 +515,4 @@ if __name__ == "__main__":
         lambdars=[1.0, 1.25],
         product=True,
     )
-    ds = run_config_sens(cases)
+    ds = run_config_sens(cases, verbose=True)
