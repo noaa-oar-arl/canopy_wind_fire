@@ -36,7 +36,7 @@ jobs:
           environment-file: python/environment.yml
           cache-environment: true
           create-args: |
-            python=3.10
+            python=3.11
 
       - name: Check that default input is nc
         run: |
