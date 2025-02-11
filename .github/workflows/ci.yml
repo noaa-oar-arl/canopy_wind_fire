@@ -66,7 +66,6 @@ jobs:
         run: |
           cd python
           python canopy_app.py
-          cd -
 
       - name: Run Python example nbs
         run: |
@@ -74,7 +73,6 @@ jobs:
           for f in *.ipynb; do
             jupyter nbconvert --to notebook --execute $f || exit 1
           done
-          cd -
 
       - name: Non-debug compile and run
         run: |
