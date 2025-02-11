@@ -505,6 +505,16 @@ def config_cases(*, product: bool = False, **kwargs) -> list[dict[str, Any]]:
 
 
 if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--verbose",
+        action="store_true",
+        help="print more info (including messages from the canopy-app run)",
+    )
+    args = parser.parse_args()
+
     cases = config_cases(
         file_vars="../input/point_file_20220701.sfcf000.txt",
         infmt_opt=1,
@@ -515,4 +525,4 @@ if __name__ == "__main__":
         lambdars=[1.0, 1.25],
         product=True,
     )
-    ds = run_config_sens(cases, verbose=True)
+    ds = run_config_sens(cases, verbose=args.verbose)

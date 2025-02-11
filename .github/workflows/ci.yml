@@ -65,7 +65,7 @@ jobs:
       - name: Run Python module as script
         run: |
           cd python
-          python canopy_app.py
+          python canopy_app.py --verbose
 
       - name: Run Python example nbs
         run: |
