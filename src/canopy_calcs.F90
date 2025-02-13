@@ -213,7 +213,7 @@ SUBROUTINE canopy_calcs(nn)
 ! ... calculate zero-plane displacement height/hc and surface (soil+veg) roughness lengths/hc
                             call canopy_zpd(zhc(1:cansublays), fafraczInt(1:cansublays), &
                                 ubzref, z0ghc, lambdars, cdrag, pai, hcmref, hgtref, &
-                                z0ref, vtyperef, lu_opt, z0_opt, d_h, zo_h)
+                                z0ref, vtyperef, lu_opt, z0_opt, d_h_2d(i,j), zo_h_2d(i,j))
 
 ! ... calculate canopy radiation (sunlit and shade) profile
 
@@ -235,7 +235,7 @@ SUBROUTINE canopy_calcs(nn)
                                 if (rsl_opt .eq. 0) then
                                     do k=1, modlays
                                         call canopy_wind_most(hcmref, zk(k), fafraczInt(k), ubzref, &
-                                            z0ghc, cdrag, pai, hgtref, d_h, zo_h, &
+                                            z0ghc, cdrag, pai, hgtref, d_h_2d(i,j), zo_h_2d(i,j), &
                                             lambdars, canBOT(k), canTOP(k), canWIND_3d(i,j,k))
                                     end do
                                 else
@@ -251,7 +251,7 @@ SUBROUTINE canopy_calcs(nn)
                                     if (flameh_2d(i,j) .gt. 0.0) then !flameh must be > 0
                                         if (flameh_2d(i,j) .le. hcmref) then !only calculate when flameh <= FCH
                                             call canopy_waf(hcmref, lambdars, hgtref, flameh_2d(i,j), &
-                                                firetype, d_h, zo_h, canBOT(midflamepoint), &
+                                                firetype, d_h_2d(i,j), zo_h_2d(i,j), canBOT(midflamepoint), &
                                                 canTOP(midflamepoint), waf_2d(i,j))
                                         else
                                             write(*,*) 'warning...sub-canopy type fire, but flameh > FCH, setting WAF=1'
@@ -261,7 +261,7 @@ SUBROUTINE canopy_calcs(nn)
                                 else  !grass/crops, above-canopy firetype
                                     if (flameh_2d(i,j) .gt. 0.0) then !flameh still must be > 0
                                         call canopy_waf(hcmref, lambdars, hgtref, flameh_2d(i,j), &
-                                            firetype, d_h, zo_h, canBOT(midflamepoint), &
+                                            firetype, d_h_2d(i,j), zo_h_2d(i,j), canBOT(midflamepoint), &
                                             canTOP(midflamepoint), waf_2d(i,j))
                                     end if
                                 end if
@@ -1007,7 +1007,7 @@ SUBROUTINE canopy_calcs(nn)
 
                         call canopy_zpd(zhc(1:cansublays), fafraczInt(1:cansublays), &
                             ubzref, z0ghc, lambdars, cdrag, pai, hcmref, hgtref, &
-                            z0ref, vtyperef, lu_opt, z0_opt, d_h, zo_h)
+                            z0ref, vtyperef, lu_opt, z0_opt, d_h(loc), zo_h(loc))
 
 ! ... calculate canopy radiation (sunlit and shade) profile
 
@@ -1029,7 +1029,7 @@ SUBROUTINE canopy_calcs(nn)
                             if (rsl_opt .eq. 0) then
                                 do k=1, modlays
                                     call canopy_wind_most(hcmref, zk(k), fafraczInt(k), ubzref, &
-                                        z0ghc, cdrag, pai, hgtref, d_h, zo_h, &
+                                        z0ghc, cdrag, pai, hgtref, d_h(loc), zo_h(loc), &
                                         lambdars, canBOT(k), canTOP(k), canWIND(loc,k))
                                 end do
                             else
@@ -1045,7 +1045,7 @@ SUBROUTINE canopy_calcs(nn)
                                 if (flameh(loc) .gt. 0.0) then !flameh must be > 0
                                     if (flameh(loc) .le. hcmref) then !only calculate when flameh <= FCH
                                         call canopy_waf(hcmref, lambdars, hgtref, flameh(loc), &
-                                            firetype, d_h, zo_h, canBOT(midflamepoint), &
+                                            firetype, d_h(loc), zo_h(loc), canBOT(midflamepoint), &
                                             canTOP(midflamepoint), waf(loc))
                                     else
                                         write(*,*) 'warning...sub-canopy type fire, but flameh > FCH, setting WAF=1'
@@ -1055,7 +1055,7 @@ SUBROUTINE canopy_calcs(nn)
                             else  !grass/crops, above-canopy firetype
                                 if (flameh(loc) .gt. 0.0) then !flameh still must be > 0
                                     call canopy_waf(hcmref, lambdars, hgtref, flameh(loc), &
-                                        firetype, d_h, zo_h, canBOT(midflamepoint), &
+                                        firetype, d_h(loc), zo_h(loc), canBOT(midflamepoint), &
                                         canTOP(midflamepoint), waf(loc))
                                 end if
                             end if
