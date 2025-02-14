@@ -14,6 +14,7 @@ jobs:
   build:
     name: Build and test
     runs-on: ubuntu-22.04
+    if: github.repository == 'noaa-oar-arl/canopy-app'
     strategy:
       matrix:
         compiler: [gfortran-9, gfortran-10, gfortran-11]
@@ -25,9 +26,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install libnetcdff-dev
+        run: sudo apt-get update && sudo apt-get install libnetcdff-dev
 
       - name: Set up Python (micromamba)
         uses: mamba-org/setup-micromamba@v1
@@ -35,7 +34,7 @@ jobs:
           environment-file: python/environment.yml
           cache-environment: true
           create-args: |
-            python=3.10
+            python=3.11
 
       - name: Check that default input is nc
         run: |
@@ -64,8 +63,7 @@ jobs:
       - name: Run Python module as script
         run: |
           cd python
-          python canopy_app.py
-          cd -
+          python canopy_app.py --verbose
 
       - name: Run Python example nbs
         run: |
@@ -73,7 +71,6 @@ jobs:
           for f in *.ipynb; do
             jupyter nbconvert --to notebook --execute $f || exit 1
           done
-          cd -
 
       - name: Non-debug compile and run
         run: |

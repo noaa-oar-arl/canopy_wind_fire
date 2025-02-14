@@ -21,8 +21,6 @@ MODULE canopy_canvars_mod
     real(rk)       ::    zcanmax       !Height of maximum foliage area density (z/h) (nondimensional)
     real(rk)       ::    sigmau        !Standard deviation of shape function above zcanmax (z/h)
     real(rk)       ::    sigma1        !Standard deviation of shape function below zcanmax (z/h)
-    real(rk)       ::    d_h           !Zero plane displacement heights (z/h)
-    real(rk)       ::    zo_h          !Surface (soil+veg) roughness lengths (z/h)
 
 !-------------------------------------------------------------------------------
 ! Allocatable canopy variable arrays
@@ -97,10 +95,23 @@ MODULE canopy_canvars_mod
     real(rk), allocatable :: canWIND_3d             ( : , : , : )          ! canopy wind speeds -- 3D (m/s)
     real(rk), allocatable :: lad                    ( : , : )              ! Leaf Area Density calculated from foliage shape function (m2/m3)
     real(rk), allocatable :: lad_3d                 ( : , : , : )          ! Leaf Area Density calculated from foliage shape function (m2/m3)
+    real(rk), allocatable :: tka                    ( : , : )              ! Ambient temperature within/above canopy (K)
+    real(rk), allocatable :: tka_3d                 ( : , : , : )          ! Ambient temperature within/above canopy (K)
+    real(rk), allocatable :: pressa                 ( : , : )              ! Ambient pressure within/above canopy (mb)
+    real(rk), allocatable :: pressa_3d              ( : , : , : )          ! Ambient pressure within/above canopy (mb)
+    real(rk), allocatable :: relhuma                ( : , : )              ! Ambient relative humidity within/above canopy (%)
+    real(rk), allocatable :: relhuma_3d             ( : , : , : )          ! Ambient relative humidity within/above canopy (%)
+    real(rk), allocatable :: spechuma               ( : , : )              ! Ambient specific humidity within/above canopy (g/kg)
+    real(rk), allocatable :: spechuma_3d            ( : , : , : )          ! Ambient specific humidity within/above canopy (g/kg)
+
     real(rk), allocatable :: dx                  ( : )          ! Model grid cell distance/resolution (m)
     real(rk), allocatable :: dx_2d               ( : , : )      ! Model grid cell distance/resolution -- 2D (m)
     real(rk), allocatable :: waf                 ( : )          ! Calculated Wind Adjustment Factor
     real(rk), allocatable :: waf_2d              ( : , : )      ! Calculated Wind Adjustment Factor -- 2D
+    real(rk), allocatable :: d_h                 ( : )          ! Zero plane displacement heights (z/h)
+    real(rk), allocatable :: d_h_2d              ( : , : )      ! Zero plane displacement heights (z/h) -- 2D
+    real(rk), allocatable :: zo_h                ( : )          ! Surface (soil+veg) roughness lengths (z/h)
+    real(rk), allocatable :: zo_h_2d             ( : , : )      ! Surface (soil+veg) roughness lengths (z/h) -- 2D
     real(rk), allocatable :: Kz                  ( :, : )       ! Eddy Diffusivities (m2/s)
     real(rk), allocatable :: Kz_3d               ( : , : , : )  ! Eddy Diffusivities -- 3D (m2/s)
     real(rk), allocatable :: rjcf                ( :, : )       ! Photolysis Attenuation Correction Factors
@@ -246,6 +257,8 @@ MODULE canopy_canvars_mod
     TYPE(fld2ddata), POINTER     :: c_waf
     TYPE(fld2ddata), POINTER     :: c_flameh
     TYPE(fld2ddata), POINTER     :: c_canheight
+    TYPE(fld2ddata), POINTER     :: c_dh
+    TYPE(fld2ddata), POINTER     :: c_zoh
 
 !-------------------------------------------------------------------------------
 ! Time-varying 3d fields at cell centers for output NETCDF

@@ -8,7 +8,8 @@ module canopy_utils_mod
     public IntegrateTrapezoid,interp_linear1_internal,CalcPAI, &
         CalcDX,CalcFlameH,GET_GAMMA_CO2,GET_GAMMA_LEAFAGE, &
         GET_GAMMA_SOIM,GET_GAMMA_AQ,GET_GAMMA_HT,GET_GAMMA_LT, &
-        GET_GAMMA_HW,GET_CANLOSS_BIO
+        GET_GAMMA_HW,GET_CANLOSS_BIO,CalcTemp,CalcPressure,esat, &
+        CalcRelHum,CalcSpecHum,CalcCair,Convert_qh_to_h2o
 
 contains
 
@@ -1066,5 +1067,135 @@ contains
 
     end function GET_GAMMA_HW
 !-----------------------------------------------------------------------
+
+!Initial guesses for canopy profile air temp, pressure, and humidity based on ACCESS
+!**********************************************************************************************************************!
+! CalcTemp ... compute air temperature (K) at z
+!
+!**********************************************************************************************************************!
+    function CalcTemp(zk, zref, taref, tsref)
+        real(rk), intent(in)  :: zk        ! current z (cm)
+        real(rk), intent(in)  :: zref      ! reference z (cm) (e.g., = 200 cm if using 2-m temp)
+        real(rk), intent(in)  :: taref     ! air temperature at zref (C)  (e.g., 2-m temperature)
+        real(rk), intent(in)  :: tsref     ! surface temperature (C) (use model sfc layer or measured skin temp reference)
+        real(rk)              :: dtmp      ! temperature gradient (C/cm)
+        real(rk)              :: CalcTemp  ! air temp (K) at z
+
+        ! zref and zn must be same units!!!
+
+        dtmp = (taref-tsref)/zref
+        CalcTemp = (tsref + dtmp*zk) + 273.15
+
+        return
+    end function CalcTemp
+
+!**********************************************************************************************************************!
+! CalcPressure ... compute air pressure (mb) at z
+!
+!**********************************************************************************************************************!
+    function CalcPressure(zk, zref, pmbzref, tref, t0)
+        real(rk), intent(in)  :: zk        ! current z (cm)
+        real(rk), intent(in)  :: zref      ! zref (cm)      (=200 cm if using 2-m temperature)
+        real(rk), intent(in)  :: pmbzref   ! air pressure at zref (mb)  (e.g., surface pressure from model, assume = to 2-m)
+        real(rk), intent(in)  :: tref      ! temperature at zref (K)  (=sfc_temp if  using press_sfc)
+        real(rk), intent(in)  :: t0        ! temperature at z0 (K) (e.g., use top soil layer temperature)
+        real(rk), parameter   :: a0=3.42D-04   ! Mg/R (K/cm)
+        real(rk)              :: CalcPressure  ! air pressure at current z (mb)
+
+        CalcPressure = pmbzref*exp(-a0*(zk-zref)/(0.5*(tref+t0)))
+
+        return
+    end function CalcPressure
+
+!**********************************************************************************************************************!
+! function esat - calculate the saturation vapor pressure of water at a
+!                 given temperature
+!
+!    Rogers, R. R., and Yau, M. K. (1989) A Short Course in Cloud Physics,
+!    3rd Ed., Butterworth-Heinemann, Burlington, MA. (p16)
+!    Valid over -30C <= T <= 35C
+!
+!**********************************************************************************************************************!
+    function esat(tki)
+        real(rk), intent(in) :: tki     ! temperature (K)
+        real(rk)             :: esat    ! saturation vapor pressure (kPa)
+        real(rk)             :: tc      ! temperature (C)
+
+        tc = tki - 273.15
+        esat = 0.6112*exp(17.67*tc/(tc+243.5))
+        return
+    end function esat
+
+
+    !**********************************************************************************************************************!
+! function CalcRelHum - calculates the relative humidity from the
+!                             supplied specific humidity, temperature and
+!                             pressure
+!**********************************************************************************************************************!
+    function CalcRelHum(tki, pmbi, qhi)
+        real(rk), intent(in) :: tki        ! air temperature (K)
+        real(rk), intent(in) :: pmbi       ! air pressure (mb)
+        real(rk), intent(in) :: qhi        ! specific humidity (g/kg)
+        real(rk)             :: CalcRelHum ! relative humidity (%)
+        real(rk)             :: tc, e, es, qhd, pkpa, rhi
+        real(rk), parameter  :: rhmin=0.1
+        real(rk), parameter  :: rhmax=99.0
+        qhd=0.001*qhi
+        pkpa=0.1*pmbi
+        tc = tki - 273.15
+        e = pkpa*qhd/(0.622+qhd)
+        es = 0.6112*exp(17.67*tc/(tc+243.5)) !Rogers et al. (1989)
+        rhi = max(rhmin, min(rhmax, 100.0*e/es))   ! bound RH to (rhmin, rhmax)
+        CalcRelHum = rhi
+        return
+    end function CalcRelHum
+
+!**********************************************************************************************************************!
+! function CalcSpecHum - calculates specific humidity (g/kg) from the supplied relative humidity,
+!                             temperature, and pressure
+!**********************************************************************************************************************!
+    function CalcSpecHum(rhi, tki, pmbi)
+        real(rk), intent(in) :: rhi                 ! relative humidity (%)
+        real(rk), intent(in) :: tki                 ! air temperature (K)
+        real(rk), intent(in) :: pmbi                ! air pressure (mb)
+        real(rk)             :: CalcSpecHum         ! specific humidity (g/kg)
+        real(rk)             :: es                  ! saturation vapor pressure at tki (mb)
+        real(rk)             :: e                   ! ambient vapor pressure (mb)
+
+        es = esat(tki)*10.0            ! kPa -> mb
+        e  = es*rhi*0.01               ! mb
+
+        CalcSpecHum = 622.0*e/(pmbi-0.378*e)
+
+        return
+
+    end function CalcSpecHum
+
+!**********************************************************************************************************************!
+! CalcCair ... compute cair at z
+!
+!**********************************************************************************************************************!
+    function CalcCair(pmbi, tki)
+        real(rk), intent(in)  :: pmbi       ! air pressure at current z (mb)
+        real(rk), intent(in)  :: tki        ! air temperature at current z (K)
+        real(rk)              :: CalcCair   ! air concentration (molec/cm3)
+
+        CalcCair  = pmbi*7.2428D+18/tki
+        return
+    end function CalcCair
+
+!**********************************************************************************************************************!
+! function Convert_qh_to_h2o - convert qh (g/kg) to h2o (molecs/cm3)
+!
+!**********************************************************************************************************************!
+    function Convert_qh_to_h2o(qhi, cairi)
+        real(rk), intent(in) :: qhi                   ! specific humidity at i (g/kg)
+        real(rk), intent(in) :: cairi                 ! air concentration at i (molecs/cm3)
+        real(rk)             :: Convert_qh_to_h2o     ! h2o concentration (molecs/cm3)
+
+        Convert_qh_to_h2o = 0.001611*qhi*cairi
+
+        return
+    end function Convert_qh_to_h2o
 
 end module canopy_utils_mod
