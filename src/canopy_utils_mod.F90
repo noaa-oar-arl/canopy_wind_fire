@@ -1300,16 +1300,21 @@ contains
         real(rk)             :: phi
 
         !temperature correction
-        tcel = min(tki - 273.15_rk,tmax-0.1_rk) !convert to degrees C and restrict tcell > 44.9 C
+        tcel = tki - 273.15_rk !convert to degrees C
+        if (tcel .ge. tmax) then  !restrict tcell < tmax
+            tcel = tmax-0.1_rk
+        else if (tcel .le. tmin) then !restrict tcell > tmin
+            tcel = tmin+0.1_rk
+        else
+            tcel = tcel
+        end if
         et   = (tmax-topt)/(topt-tmin)
         ft1  =(tcel-tmin)/(topt-tmin)
         ft2  = (tmax-tcel)/(tmax-topt)
         cft  = ft1*(ft2**et)
-
         !water vapor pressure defit correction
         vpd  = esat(tki)*(1.0_rk - (relhumi/100.0_rk))
         cfvpd= 1.0_rk - bvpd*vpd
-
         !water stress correction
         phi  = -0.72_rk - 0.0013_rk*srad
         cfphi= (phi-phic2)/(phic1-phic2)
