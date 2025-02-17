@@ -808,7 +808,24 @@ CONTAINS
                 c_emi_ovoc%iend(2) = nlat
                 c_emi_ovoc%iend(3) = modlays
             end if
-
+        end if
+        if (ifcanddepgas) then
+!            if (ddepspec_opt == 0 .or. ddepspec_opt == 3) then
+            c_ddep_o3%fld = fillreal
+            c_ddep_o3%fldname = 'ddep_o3'
+            c_ddep_o3%long_name = 'ozone dry deposition rate'
+            c_ddep_o3%units = 'cm s-1'
+            c_ddep_o3%fillvalue = fillreal
+            c_ddep_o3%dimnames(1) = 'nlon'
+            c_ddep_o3%dimnames(2) = 'nlat'
+            c_ddep_o3%dimnames(3) = 'nlays'
+            c_ddep_o3%istart(1) = 1
+            c_ddep_o3%istart(2) = 1
+            c_ddep_o3%istart(3) = 1
+            c_ddep_o3%iend(1) = nlon
+            c_ddep_o3%iend(2) = nlat
+            c_ddep_o3%iend(3) = modlays
+!            end if
         end if
 
     END SUBROUTINE canopy_outncf_init
@@ -958,6 +975,13 @@ CONTAINS
                 nfld3dxyzt = nfld3dxyzt + 1 !EMI_SPEC
             end if
         end if
+        if (ifcanddepgas) then
+!            if (ddepspec_opt == 0) then
+            nfld3dxyzt = nfld3dxyzt + 1 !DDEP_O3
+!             else
+            nfld3dxyzt = nfld3dxyzt + 1 !DDEP_SPEC
+!            end if
+        end if
 
         if(.not.allocated(fld3dxyzt)) ALLOCATE ( fld3dxyzt ( nfld3dxyzt ) )
 
@@ -1062,6 +1086,13 @@ CONTAINS
                 set_index = set_index + 1
                 c_emi_ovoc   => fld3dxyzt( set_index )
             end if
+        end if
+
+        if (ifcanddepgas) then
+!            if (ddepspec_opt == 0 .or. ddepspec_opt == 3) then
+            set_index = set_index + 1
+            c_ddep_o3   => fld3dxyzt( set_index )
+!            end if
         end if
 
     END SUBROUTINE canopy_outncf_alloc
@@ -2108,6 +2139,11 @@ CONTAINS
                 if (biospec_opt == 0 .or. biospec_opt == 19) then
                     c_emi_ovoc%fld = emi_ovoc_3d
                 end if
+            end if
+            if (ifcanddepgas) then
+!                if (ddepspec_opt == 0 .or. ddepspec_opt == 3) then
+                c_ddep_o3%fld = ddep_o3_3d
+!                end if
             end if
 
             !-------------------------------------------------------------------------------

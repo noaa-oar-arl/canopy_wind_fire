@@ -290,5 +290,6 @@ MODULE canopy_canvars_mod
     TYPE(fld3ddata), POINTER     :: c_emi_bvoc
     TYPE(fld3ddata), POINTER     :: c_emi_svoc
     TYPE(fld3ddata), POINTER     :: c_emi_ovoc
+    TYPE(fld3ddata), POINTER     :: c_ddep_o3
 
 END MODULE canopy_canvars_mod

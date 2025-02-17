@@ -179,6 +179,34 @@ CONTAINS
                     end do
                 end do
             end if
+            if (ifcanddepgas) then
+                write(*,*)  'Writing dry deposition rate gas'
+                write(*,*)  '-------------------------------'
+! ... save as text file
+                open(14, file=TRIM(TXTPREFX)//'_ddep_gas.txt')
+                write(14, '(a15, a24)') 'time stamp: ', TIMENOW
+                write(14, '(a30, f6.1, a2)') 'reference height, h: ', href_set, 'm'
+                write(14, '(a30, i6)') 'number of model layers: ', modlays
+                write(14, '(a8, a9, a12, a14, a28)') 'lat', 'lon', 'height (m)', 'LAD (m2 m-3)', &
+                    'ddep_o3 (cm s-1)'!, 'emi_myrc (kg m-3 s-1)', 'emi_sabi (kg m-3 s-1)', &
+!                    'emi_limo (kg m-3 s-1)', 'emi_care (kg m-3 s-1)', 'emi_ocim (kg m-3 s-1)', &
+!                    'emi_bpin (kg m-3 s-1)', 'emi_apin (kg m-3 s-1)', 'emi_mono (kg m-3 s-1)', &
+!                    'emi_farn (kg m-3 s-1)', 'emi_cary (kg m-3 s-1)', 'emi_sesq (kg m-3 s-1)', &
+!                    'emi_mbol (kg m-3 s-1)', 'emi_meth (kg m-3 s-1)', 'emi_acet (kg m-3 s-1)', &
+!                    'emi_co (kg m-3 s-1)',   'emi_bvoc (kg m-3 s-1)', 'emi_svoc (kg m-3 s-1)', &
+!                    'emi_ovoc (kg m-3 s-1)'
+                do loc=1, nlat*nlon
+                    do k=1, modlays
+                        write(14, '(f8.2, f9.2, f12.2, f12.2, es15.7)')  &
+                            variables(loc)%lat, variables(loc)%lon, zk(k), &
+                            lad(loc,k), ddep_o3(loc,k)!, emi_myrc(loc,k), emi_sabi(loc,k), emi_limo(loc,k), &
+!                            emi_care(loc,k), emi_ocim(loc,k), emi_bpin(loc,k), emi_apin(loc,k),        &
+!                            emi_mono(loc,k), emi_farn(loc,k), emi_cary(loc,k), emi_sesq(loc,k),        &
+!                            emi_mbol(loc,k), emi_meth(loc,k), emi_acet(loc,k), emi_co(loc,k),          &
+!                            emi_bvoc(loc,k), emi_svoc(loc,k), emi_ovoc(loc,k)
+                    end do
+                end do
+            end if
         end if
 
     END SUBROUTINE write_txt

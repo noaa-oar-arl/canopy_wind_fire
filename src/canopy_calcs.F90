@@ -800,7 +800,6 @@ SUBROUTINE canopy_calcs(nn)
                                         relhuma_3d(i,j,:), fsun, ppfd_sun, ppfd_shade, canWIND_3d(i,j,:),  &
                                         dswrfref, 3, ddep_o3_3d(i,j,:))   ! [cm/s]
                                     !endif
-                                    !print*,ddep_o3_3d(i,j,:)
                                 else
                                     write(*,*)  'Wrong IfCanWind choice of ', ifcanwind, ' in namelist...exiting'
                                     write(*,*)  'Set IfCanwind to True to use IfCanDDepGas'
