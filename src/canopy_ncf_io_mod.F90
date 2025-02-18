@@ -979,7 +979,7 @@ CONTAINS
 !            if (ddepspec_opt == 0) then
             nfld3dxyzt = nfld3dxyzt + 1 !DDEP_O3
 !             else
-            nfld3dxyzt = nfld3dxyzt + 1 !DDEP_SPEC
+!            nfld3dxyzt = nfld3dxyzt + 1 !DDEP_SPEC
 !            end if
         end if
 
