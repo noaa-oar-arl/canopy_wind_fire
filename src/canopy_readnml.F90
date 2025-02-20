@@ -28,7 +28,8 @@ SUBROUTINE canopy_readnml
         z0_opt, dx_opt, dx_set, lai_thresh, cf_thresh, ch_thresh, rsl_opt, bio_cce, &
         biospec_opt, biovert_opt, ssg_opt, ssg_set, crop_opt, crop_set, co2_opt, co2_set, &
         leafage_opt, lai_tstep, soim_opt, soild1, soild2, soild3, soild4, aq_opt, w126_set, &
-        ht_opt, lt_opt, hw_opt, hist_opt, loss_opt, loss_set, loss_ind, lifetime
+        ht_opt, lt_opt, hw_opt, hist_opt, loss_opt, loss_set, loss_ind, lifetime, &
+        ddepspecgas_opt
 
 
 !-------------------------------------------------------------------------------
@@ -371,6 +372,11 @@ SUBROUTINE canopy_readnml
 !------------------------------------------------------------------------------
 ! Set default integer for using high wind stress gamma for biogenic emissions (default=1; Off)
     hw_opt = 1
+!-------------------------------------------------------------------------------
+
+!-------------------------------------------------------------------------------
+! Set default integer value to select species for drydep gas output (0, all)
+    ddepspecgas_opt = 0
 !-------------------------------------------------------------------------------
 
 !-------------------------------------------------------------------------------

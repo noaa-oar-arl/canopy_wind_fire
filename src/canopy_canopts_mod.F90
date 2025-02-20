@@ -64,4 +64,5 @@ MODULE canopy_canopts_mod
     integer             ::    ht_opt       !Set default integer for high temperature stress index for gamma_ht in biogenic emissions
     integer             ::    lt_opt       !Set default integer for low temperature stress index for gamma_lt in biogenic emissions
     integer             ::    hw_opt       !Set default integer for high wind stress index for gamma_hw in biogenic emissions
+    integer             ::    ddepspecgas_opt  !Set default integer for species output option (default = 0, all)
 END MODULE canopy_canopts_mod

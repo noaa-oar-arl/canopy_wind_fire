@@ -91,4 +91,5 @@
   hw_opt      =  1
 !Canopy gas dry deposition-specific options
   ifcanddepgas    = .TRUE.
+  ddepspecgas_opt = 0
 /

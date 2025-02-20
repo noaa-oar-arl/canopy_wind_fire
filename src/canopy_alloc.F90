@@ -252,8 +252,10 @@ SUBROUTINE canopy_alloc
     if (ifcanddepgas) then
         write(*,*)  'Canopy gas dry deposition option selected'
         write(*,*)  '-------------------------------'
-        if(.not.allocated(ddep_o3))              allocate(ddep_o3(nlat*nlon,modlays))
-        if(.not.allocated(ddep_o3_3d))           allocate(ddep_o3_3d(nlon,nlat,modlays))
+        if (ddepspecgas_opt == 0 .or. ddepspecgas_opt == 3) then
+            if(.not.allocated(ddep_o3))              allocate(ddep_o3(nlat*nlon,modlays))
+            if(.not.allocated(ddep_o3_3d))           allocate(ddep_o3_3d(nlon,nlat,modlays))
+        end if
     end if
 
 END SUBROUTINE canopy_alloc
