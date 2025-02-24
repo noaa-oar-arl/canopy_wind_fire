@@ -235,21 +235,22 @@ for inputtime in timelist:
                 "--no-check-certificate",
                 "--no-proxy",
                 "-O",
-                path + "/gfs.t12z." + date + ".sfcf" + forecast_hour + ".nc",
+                path + "/gfs.t12z." + YY + MM + DD + ".sfcf" + FH + ".nc",
                 "https://noaa-oar-arl-nacc-pds.s3.amazonaws.com/inputs/"
-                + date
+                + YY
+                + MM
+                + DD
                 + "/gfs.t12z.sfcf"
-                + forecast_hour
+                + FH
                 + ".nc",
             ]
         )
-        if os.path.isfile(f_met) == True:
+        if os.path.isfile(f_met) is True:
             os.chmod(f_met, 0o0755)
             print("---- Met file downloaded!")
         else:
             print("---- No available met data. Terminated!")
             exit()
-
 
     # can file
     if os.path.isfile(f_can) is True:
