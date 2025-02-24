@@ -980,8 +980,9 @@ CONTAINS
             end if
         end if
         if (ifcanddepgas) then
-            if (ddepspecgas_opt > 31) then !Only 31 species
-                write(*,*)  'Error, only 31 ddepgas species available'
+!            if (chemmech_opt == 0) then !RACM2
+            if (ddepspecgas_opt > 31) then !Check for only 31 RACM2 transported species
+                write(*,*)  'Error, only 31 chem gas species available for RACM2'
                 CALL exit (2)
             end if
             if (ddepspecgas_opt == 0) then
@@ -989,6 +990,9 @@ CONTAINS
             else
                 nfld3dxyzt = nfld3dxyzt + 1 !DDEP_SPEC
             end if
+            !    else
+            !    other gas mechs.
+            !    end if
         end if
 
         if(.not.allocated(fld3dxyzt)) ALLOCATE ( fld3dxyzt ( nfld3dxyzt ) )

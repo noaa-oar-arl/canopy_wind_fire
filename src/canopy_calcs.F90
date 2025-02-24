@@ -795,11 +795,18 @@ SUBROUTINE canopy_calcs(nn)
 ! ... user option to calculate in-canopy dry deposition velocity
                             if (ifcanddepgas ) then
                                 if (ifcanwind) then   !ubar needed for rbl
-                                    if (ddepspecgas_opt == 0 .or. ddepspecgas_opt == 3) then
-                                        call canopy_gas_drydep_zhang(zk, hcmref, tka_3d(i,j,:), pressa_3d(i,j,:), &
-                                            relhuma_3d(i,j,:), fsun, ppfd_sun, ppfd_shade, canWIND_3d(i,j,:),  &
-                                            dswrfref, 3, ddep_o3_3d(i,j,:))   ! [cm/s]
-                                    endif
+                                    if (chemmechgas_opt .eq. 0) then   !RACM2
+                                        if (ddepspecgas_opt == 0 .or. ddepspecgas_opt == 3) then
+                                            call canopy_gas_drydep_zhang(chemmechgas_opt,chemmechgas_tot, &
+                                                zk, hcmref, tka_3d(i,j,:), pressa_3d(i,j,:), &
+                                                relhuma_3d(i,j,:), fsun, ppfd_sun, ppfd_shade, canWIND_3d(i,j,:),  &
+                                                dswrfref, 3, ddep_o3_3d(i,j,:))   ! [cm/s]
+                                        endif
+                                    else
+                                        write(*,*)  'Wrong chemical mechanism option of ', chemmechgas_opt, ' in namelist...exiting'
+                                        write(*,*)  'Set chemmechgas_opt to only 0 (RACM2) for now'
+                                        call exit(2)
+                                    end if
                                 else
                                     write(*,*)  'Wrong IfCanWind choice of ', ifcanwind, ' in namelist...exiting'
                                     write(*,*)  'Set IfCanwind to True to use IfCanDDepGas'
@@ -1601,11 +1608,18 @@ SUBROUTINE canopy_calcs(nn)
 ! ... user option to calculate in-canopy dry deposition velocity
                         if (ifcanddepgas ) then
                             if (ifcanwind) then   !ubar needed for rbl
-                                !if(ddepspec_opt == 0 .or. ddepspec_opt == 3) then TBD for all species =
-                                call canopy_gas_drydep_zhang(zk, hcmref, tka(loc,:), pressa(loc,:), &
-                                    relhuma(loc,:), fsun, ppfd_sun, ppfd_shade, canWIND(loc,:),  &
-                                    dswrfref, 3, ddep_o3(loc,:))   ! [cm/s]
-                                !endif
+                                if (chemmechgas_opt .eq. 0) then   !RACM2
+                                    if (ddepspecgas_opt == 0 .or. ddepspecgas_opt == 3) then
+                                        call canopy_gas_drydep_zhang(chemmechgas_opt,chemmechgas_tot, &
+                                            zk, hcmref, tka(loc,:), pressa(loc,:), &
+                                            relhuma(loc,:), fsun, ppfd_sun, ppfd_shade, canWIND(loc,:),  &
+                                            dswrfref, 3, ddep_o3(loc,:))   ! [cm/s]
+                                    endif
+                                else
+                                    write(*,*)  'Wrong chemical mechanism option of ', chemmechgas_opt, ' in namelist...exiting'
+                                    write(*,*)  'Set chemmechgas_opt to only 0 (RACM2) for now'
+                                    call exit(2)
+                                end if
                             else
                                 write(*,*)  'Wrong IfCanWind choice of ', ifcanwind, ' in namelist...exiting'
                                 write(*,*)  'Set IfCanwind to True to use IfCanDDepGas'

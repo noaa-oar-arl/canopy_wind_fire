@@ -252,9 +252,135 @@ SUBROUTINE canopy_alloc
     if (ifcanddepgas) then
         write(*,*)  'Canopy gas dry deposition option selected'
         write(*,*)  '-------------------------------'
-        if (ddepspecgas_opt == 0 .or. ddepspecgas_opt == 3) then
-            if(.not.allocated(ddep_o3))              allocate(ddep_o3(nlat*nlon,modlays))
-            if(.not.allocated(ddep_o3_3d))           allocate(ddep_o3_3d(nlon,nlat,modlays))
+        if (chemmechgas_opt == 0) then !RACM2
+!        if (ddepspecgas_opt == 0 .or. ddepspecgas_opt == 1) then
+!            if(.not.allocated(ddep_no))              allocate(ddep_no(nlat*nlon,modlays))
+!            if(.not.allocated(ddep_no_3d))           allocate(ddep_no_3d(nlon,nlat,modlays))
+!        end if
+!        if (ddepspecgas_opt == 0 .or. ddepspecgas_opt == 2) then
+!            if(.not.allocated(ddep_no2))              allocate(ddep_no2(nlat*nlon,modlays))
+!            if(.not.allocated(ddep_no2_3d))           allocate(ddep_no2_3d(nlon,nlat,modlays))
+!        end if
+            if (ddepspecgas_opt == 0 .or. ddepspecgas_opt == 3) then
+                if(.not.allocated(ddep_o3))              allocate(ddep_o3(nlat*nlon,modlays))
+                if(.not.allocated(ddep_o3_3d))           allocate(ddep_o3_3d(nlon,nlat,modlays))
+            end if
+!        if (ddepspecgas_opt == 0 .or. ddepspecgas_opt == 4) then
+!            if(.not.allocated(ddep_hono))              allocate(ddep_hono(nlat*nlon,modlays))
+!            if(.not.allocated(ddep_hono_3d))           allocate(ddep_hono_3d(nlon,nlat,modlays))
+!        end if
+!        if (ddepspecgas_opt == 0 .or. ddepspecgas_opt == 5) then
+!            if(.not.allocated(ddep_hono4))              allocate(ddep_hono4(nlat*nlon,modlays))
+!            if(.not.allocated(ddep_hono4_3d))           allocate(ddep_hono4_3d(nlon,nlat,modlays))
+!        end if
+!        if (ddepspecgas_opt == 0 .or. ddepspecgas_opt == 6) then
+!            if(.not.allocated(ddep_hono3))              allocate(ddep_hono3(nlat*nlon,modlays))
+!            if(.not.allocated(ddep_hono3_3d))           allocate(ddep_hono3_3d(nlon,nlat,modlays))
+!        end if
+!        if (ddepspecgas_opt == 0 .or. ddepspecgas_opt == 7) then
+!            if(.not.allocated(ddep_n2o5))              allocate(ddep_n2o5(nlat*nlon,modlays))
+!            if(.not.allocated(ddep_n2o5_3d))           allocate(ddep_n2o5_3d(nlon,nlat,modlays))
+!        end if
+!        if (ddepspecgas_opt == 0 .or. ddepspecgas_opt == 8) then
+!            if(.not.allocated(ddep_co))              allocate(ddep_co(nlat*nlon,modlays))
+!            if(.not.allocated(ddep_co_3d))           allocate(ddep_co_3d(nlon,nlat,modlays))
+!        end if
+!        if (ddepspecgas_opt == 0 .or. ddepspecgas_opt == 9) then
+!            if(.not.allocated(ddep_h2o2))              allocate(ddep_h2o2(nlat*nlon,modlays))
+!            if(.not.allocated(ddep_h2o2_3d))           allocate(ddep_h2o2_3d(nlon,nlat,modlays))
+!        end if
+!        if (ddepspecgas_opt == 0 .or. ddepspecgas_opt == 10) then
+!            if(.not.allocated(ddep_ch4))              allocate(ddep_ch4(nlat*nlon,modlays))
+!            if(.not.allocated(ddep_ch4_3d))           allocate(ddep_ch4_3d(nlon,nlat,modlays))
+!        end if
+!        if (ddepspecgas_opt == 0 .or. ddepspecgas_opt == 11) then
+!            if(.not.allocated(ddep_mo2))              allocate(ddep_mo2(nlat*nlon,modlays))
+!            if(.not.allocated(ddep_mo2_3d))           allocate(ddep_mo2_3d(nlon,nlat,modlays))
+!        end if
+!        if (ddepspecgas_opt == 0 .or. ddepspecgas_opt == 12) then
+!            if(.not.allocated(ddep_op1))              allocate(ddep_op1(nlat*nlon,modlays))
+!            if(.not.allocated(ddep_op1_3d))           allocate(ddep_op1_3d(nlon,nlat,modlays))
+!        end if
+!        if (ddepspecgas_opt == 0 .or. ddepspecgas_opt == 13) then
+!            if(.not.allocated(ddep_moh))              allocate(ddep_moh(nlat*nlon,modlays))
+!            if(.not.allocated(ddep_moh_3d))           allocate(ddep_moh_3d(nlon,nlat,modlays))
+!        end if
+!        if (ddepspecgas_opt == 0 .or. ddepspecgas_opt == 14) then
+!            if(.not.allocated(ddep_no3))              allocate(ddep_no3(nlat*nlon,modlays))
+!            if(.not.allocated(ddep_no3_3d))           allocate(ddep_no3_3d(nlon,nlat,modlays))
+!        end if
+!        if (ddepspecgas_opt == 0 .or. ddepspecgas_opt == 15) then
+!            if(.not.allocated(ddep_o3p))              allocate(ddep_o3p(nlat*nlon,modlays))
+!            if(.not.allocated(ddep_o3p_3d))           allocate(ddep_o3p_3d(nlon,nlat,modlays))
+!        end if
+!        if (ddepspecgas_opt == 0 .or. ddepspecgas_opt == 16) then
+!            if(.not.allocated(ddep_o1d))              allocate(ddep_o1d(nlat*nlon,modlays))
+!            if(.not.allocated(ddep_o1d_3d))           allocate(ddep_o1d_3d(nlon,nlat,modlays))
+!        end if
+!        if (ddepspecgas_opt == 0 .or. ddepspecgas_opt == 17) then
+!            if(.not.allocated(ddep_ho))              allocate(ddep_ho(nlat*nlon,modlays))
+!            if(.not.allocated(ddep_ho_3d))           allocate(ddep_ho_3d(nlon,nlat,modlays))
+!        end if
+!        if (ddepspecgas_opt == 0 .or. ddepspecgas_opt == 18) then
+!            if(.not.allocated(ddep_ho2))              allocate(ddep_ho2(nlat*nlon,modlays))
+!            if(.not.allocated(ddep_ho2_3d))           allocate(ddep_ho2_3d(nlon,nlat,modlays))
+!        end if
+!        if (ddepspecgas_opt == 0 .or. ddepspecgas_opt == 19) then
+!            if(.not.allocated(ddep_ora1))              allocate(ddep_ora1(nlat*nlon,modlays))
+!            if(.not.allocated(ddep_ora1_3d))           allocate(ddep_ora1_3d(nlon,nlat,modlays))
+!        end if
+!        if (ddepspecgas_opt == 0 .or. ddepspecgas_opt == 20) then
+!            if(.not.allocated(ddep_hac))              allocate(ddep_hac(nlat*nlon,modlays))
+!            if(.not.allocated(ddep_hac_3d))           allocate(ddep_hac_3d(nlon,nlat,modlays))
+!        end if
+!        if (ddepspecgas_opt == 0 .or. ddepspecgas_opt == 21) then
+!            if(.not.allocated(ddep_paa))              allocate(ddep_paa(nlat*nlon,modlays))
+!            if(.not.allocated(ddep_paa_3d))           allocate(ddep_paa_3d(nlon,nlat,modlays))
+!        end if
+!        if (ddepspecgas_opt == 0 .or. ddepspecgas_opt == 22) then
+!            if(.not.allocated(ddep_dhmob))              allocate(ddep_dhmob(nlat*nlon,modlays))
+!            if(.not.allocated(ddep_dhmob_3d))           allocate(ddep_dhmob_3d(nlon,nlat,modlays))
+!        end if
+!        if (ddepspecgas_opt == 0 .or. ddepspecgas_opt == 23) then
+!            if(.not.allocated(ddep_hpald))              allocate(ddep_hpald(nlat*nlon,modlays))
+!            if(.not.allocated(ddep_hpald_3d))           allocate(ddep_hpald_3d(nlon,nlat,modlays))
+!        end if
+!        if (ddepspecgas_opt == 0 .or. ddepspecgas_opt == 24) then
+!            if(.not.allocated(ddep_ishp))              allocate(ddep_ishp(nlat*nlon,modlays))
+!            if(.not.allocated(ddep_ishp_3d))           allocate(ddep_ishp_3d(nlon,nlat,modlays))
+!        end if
+!        if (ddepspecgas_opt == 0 .or. ddepspecgas_opt == 25) then
+!            if(.not.allocated(ddep_iepox))              allocate(ddep_iepox(nlat*nlon,modlays))
+!            if(.not.allocated(ddep_iepox_3d))           allocate(ddep_iepox_3d(nlon,nlat,modlays))
+!        end if
+!        if (ddepspecgas_opt == 0 .or. ddepspecgas_opt == 26) then
+!            if(.not.allocated(ddep_propnn))              allocate(ddep_propnn(nlat*nlon,modlays))
+!            if(.not.allocated(ddep_propnn_3d))           allocate(ddep_propnn_3d(nlon,nlat,modlays))
+!        end if
+!        if (ddepspecgas_opt == 0 .or. ddepspecgas_opt == 27) then
+!            if(.not.allocated(ddep_isopnb))              allocate(ddep_isopnb(nlat*nlon,modlays))
+!            if(.not.allocated(ddep_isopnb_3d))           allocate(ddep_isopnb_3d(nlon,nlat,modlays))
+!        end if
+!        if (ddepspecgas_opt == 0 .or. ddepspecgas_opt == 28) then
+!            if(.not.allocated(ddep_isopnd))              allocate(ddep_isopnd(nlat*nlon,modlays))
+!            if(.not.allocated(ddep_idopnd_3d))           allocate(ddep_isopnd_3d(nlon,nlat,modlays))
+!        end if
+!        if (ddepspecgas_opt == 0 .or. ddepspecgas_opt == 29) then
+!            if(.not.allocated(ddep_macrn))              allocate(ddep_macrn(nlat*nlon,modlays))
+!            if(.not.allocated(ddep_macrn_3d))           allocate(ddep_macrn_3d(nlon,nlat,modlays))
+!        end if
+!        if (ddepspecgas_opt == 0 .or. ddepspecgas_opt == 30) then
+!            if(.not.allocated(ddep_mvkn))              allocate(ddep_mvkn(nlat*nlon,modlays))
+!            if(.not.allocated(ddep_mvkn_3d))           allocate(ddep_mvkn_3d(nlon,nlat,modlays))
+!        end if
+!        if (ddepspecgas_opt == 0 .or. ddepspecgas_opt == 31) then
+!            if(.not.allocated(ddep_isnp))              allocate(ddep_isnp(nlat*nlon,modlays))
+!            if(.not.allocated(ddep_isnp_3d))           allocate(ddep_isnp_3d(nlon,nlat,modlays))
+!        end if
+        else
+            write(*,*)  'Wrong chemical mechanism option of ', chemmechgas_opt, ' in namelist...exiting'
+            write(*,*)  'Set chemmechgas_opt to only 0 (RACM2) for now'
+            call exit(2)
         end if
     end if
 

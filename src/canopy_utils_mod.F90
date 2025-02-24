@@ -1,6 +1,7 @@
 module canopy_utils_mod
 
-    use canopy_const_mod, ONLY: ntotal, pi, rk, rearth    !constants for canopy models
+!    use canopy_const_mod, ONLY: ntotal, pi, rk, rearth    !constants for canopy models
+    use canopy_const_mod, ONLY: pi, rk, rearth
 
     implicit none
 
@@ -1206,25 +1207,34 @@ contains
 !function mdiffstp - set molecular diffusivity data (cm^2/s) for all species at
 !                           0 deg C and 1 atm
 !=====================================================================================
-    subroutine SetMolecDiffSTP(mdiffstp)
-        real(rk),dimension(ntotal),intent(out)  :: mdiffstp       !molecular diffusivities of species in air at 0degC and 1 atm [cm^2/s]
+    subroutine SetMolecDiffSTP(chemmechgas_opt,chemmechgas_tot,mdiffstp)
+        integer, intent(in)  :: chemmechgas_opt, chemmechgas_tot      !chemical mechanism and total gas species including transported
+        real(rk),dimension(chemmechgas_tot),intent(out)  :: mdiffstp       !molecular diffusivities of species in air at 0degC and 1 atm [cm^2/s]
 !    real(kind = dp), parameter         :: mdiffstp_default = 0.100   !default value of mdiffstp (cm^2/s) with no reliable data
 !    integer(kind=i4)                   :: l                          !l is species
 
-!    do l=1,ntotal      !ntotal is total species in ACCESS based on chosen chemical mechanim, including transported species
-!        mdiffstp(l) = mdiffstp_default
-!    end do
-
-!Insert MolecDiffSTP Coefficients for RACM2_plus mechanism
-!species in array are:
-!         = (/NO,   NO2,    O3,  HONO,  HNO4,   HNO3,   N2O5,     CO,  H2O2,  CH4,
-!            MO2,   OP1,   MOH,   NO3,   O3P,    O1D,     HO,    HO2,  ORA1,  HAC,
-!            PAA, DHMOB, HPALD,  ISHP, IEPOX, PROPNN, ISOPNB, ISOPND, MACRN, MVKN,
-!           ISNP /)
-        mdiffstp =(/0.1802, 0.1361, 0.1444, 0.1349, 0.1041, 0.1041, 0.0808, 0.1807, 0.1300, 0.1952,  &
-            0.1297, 0.1200, 0.1297, 0.1153, 0.2773, 0.2773, 0.2543, 0.2000, 0.1340, 0.1060,  &
-            0.1040, 0.0892, 0.0845, 0.0837, 0.0837, 0.0834, 0.0750, 0.0750, 0.0745, 0.0745,  &
-            0.0712 /)
+        if (chemmechgas_opt .eq. 0) then !RACM2
+            !Insert MolecDiffSTP Coefficients for RACM2_plus mechanism
+            !species in array are:
+            != (/NO,   NO2,    O3,  HONO,  HNO4,   HNO3,   N2O5,     CO,  H2O2,  CH4,
+            !MO2,   OP1,   MOH,   NO3,   O3P,    O1D,     HO,    HO2,  ORA1,  HAC,
+            !PAA, DHMOB, HPALD,  ISHP, IEPOX, PROPNN, ISOPNB, ISOPND, MACRN, MVKN,
+            !ISNP /)
+            if (chemmechgas_tot .gt. 31) then ! too many species defined
+                write(*,*)  'Too many species of ', chemmechgas_tot, ' in namelist for this chemmechgas_opt....exiting'
+                write(*,*)  'Set chemmechgas_tot < 31'
+                call exit(2)
+            else
+                mdiffstp =(/0.1802, 0.1361, 0.1444, 0.1349, 0.1041, 0.1041, 0.0808, 0.1807, 0.1300, 0.1952,  &
+                    0.1297, 0.1200, 0.1297, 0.1153, 0.2773, 0.2773, 0.2543, 0.2000, 0.1340, 0.1060,  &
+                    0.1040, 0.0892, 0.0845, 0.0837, 0.0837, 0.0834, 0.0750, 0.0750, 0.0745, 0.0745,  &
+                    0.0712 /)
+            end if
+        else
+            write(*,*)  'Wrong chemical mechanism option of ', chemmechgas_opt, ' in namelist...exiting'
+            write(*,*)  'Set chemmechgas_opt to only 0 (RACM2) for now'
+            call exit(2)
+        end if
 !species (NO2, O3)
 !    mdiffstp =(/0.1361, 0.1444/)
 
@@ -1235,14 +1245,15 @@ contains
 !function MolecDiff - calculate molecular diffusivities (cm^2/s) at a given
 !                     temperature and pressure
 !==========================================================================
-    function MolecDiff(ispec, tkx, pmbx)
+    function MolecDiff(chemmechgas_opt, chemmechgas_tot,ispec, tkx, pmbx)
+        integer, intent(in)  :: chemmechgas_opt, chemmechgas_tot      !chemical mechanism and total gas species including transported
         integer, intent(in)         :: ispec     !dummy id for species
         real(rk), intent(in)        :: tkx       !ambient temp [K]
         real(rk), intent(in)        :: pmbx      !ambient press pmb]
         real(rk)                    :: MolecDiff !cm2/s
-        real(rk),dimension(ntotal)  ::mdiffstp
+        real(rk),dimension(chemmechgas_tot)  ::mdiffstp
 
-        call SetMolecDiffSTP(mdiffstp)
+        call SetMolecDiffSTP(chemmechgas_opt,chemmechgas_tot,mdiffstp)
         MolecDiff = mdiffstp(ispec)*(1013.25_rk/pmbx)*((tkx/298.15_rk)**1.81)
 
         return
@@ -1380,12 +1391,13 @@ contains
 !function EffHenrysLawCoeff - calculate Henry's Law coefficient (M/atm)
 !                             have not include temperature dependence yet
 !========================================================================
-    function EffHenrysLawCoeff(ispec)
-        integer, intent(in)    :: ispec  !dummy id for species
-        real(rk)                   :: EffHenrysLawCoeff
-        real(rk),dimension(ntotal) :: hstar
+    function EffHenrysLawCoeff(chemmechgas_opt,chemmechgas_tot,ispec)
+        integer, intent(in)         :: chemmechgas_opt,chemmechgas_tot ! chemical mechanism and total gas species including transported
+        integer, intent(in)         :: ispec  !dummy id for species
+        real(rk)                    :: EffHenrysLawCoeff
+        real(rk),dimension(chemmechgas_tot) :: hstar
 
-        call SetEffHenrysLawCoeffs(hstar)
+        call SetEffHenrysLawCoeffs(chemmechgas_opt,chemmechgas_tot,hstar)
         EffHenrysLawCoeff = hstar(ispec)
 
         return
@@ -1396,34 +1408,32 @@ contains
 !
 !source - Nguyen et al., (2015)
 !====================================================================
-    subroutine SetEffHenrysLawCoeffs(hstar)
-!    integer(kind=i4)                            :: l                  !l is species
-        real(rk),dimension(ntotal),intent(out) :: hstar
-!    real(kind=dp),parameter                     :: hstar_default = 1.000
+    subroutine SetEffHenrysLawCoeffs(chemmechgas_opt,chemmechgas_tot,hstar)
+        integer, intent(in)                             :: chemmechgas_opt,chemmechgas_tot ! chemical mechanism and total gas species including transported
+        real(rk),dimension(chemmechgas_tot),intent(out) :: hstar
 
-!    do l = 1,ntotal    !ntotal is total species in ACCESS based on chosen chemical mechanim, including transported species
-!        hstar(l) = hstar_default
-!    End do
-
-!Insert EffHenryLaw Coefficients for RACM2_plus mechanism
-!species in array are:
-!         = (/NO,   NO2,    O3, HONO,  HNO4,   HNO3,   N2O5,     CO,  H2O2,  CH4,
-!            MO2,   OP1,   MOH,  NO3,   O3P,    O1D,     HO,    HO2,  ORA1,  HAC,
-!            PAA, DHMOB, HPALD, ISHP, IEPOX, PROPNN, ISOPNB, ISOPND, MACRN, MVKN,
-!           ISNP /)
-
-!    hstar = (/0.0019, 0.0120, 0.0103, 2.6D+05, 1.0D+07, 3.2D+13, 1.0D+14, 9.8D-04, 8.4D+04, 1.4D-03,  &
-!             6.9D+02, 3.0D+02, 2.2D+02, 0.0380, 0.0380, 0.0380, 3.9D+01, 6.9D+02, 5.6D+03, 2.0D+03,  &
-!             5.2D+02, 2.0D+03, 4.0D+04, 7.0D+07, 7.0D+07, 1.0D+04, 5.0D+03, 5.0D+03, 6.0D+03, 6.0D+03,  &
-!             5.0D+03 /)
-
-        hstar = (/1.9D-03, 1.2D-02,1.03D-02, 2.6D+05, 1.0D+07, 3.2D+13, 1.0D+14, 9.8D-04, 8.4D+04, 1.4D-03,  &
-            6.9D+02, 3.0D+02, 2.2D+02, 3.8D-02, 3.8D-02, 3.8D-02, 3.9D+01, 6.9D+02, 5.6D+03, 2.0D+03,  &
-            5.2D+02, 2.0D+03, 4.0D+04, 7.0D+07, 7.0D+07, 1.0D+04, 5.0D+03, 5.0D+03, 6.0D+03, 6.0D+03,  &
-            5.0D+03 /)
-
-!species (NO2, O3)
-!    hstar = (/0.0120, 0.0103/)
+        if (chemmechgas_opt .eq. 0) then !RACM2
+            !Insert MolecDiffSTP Coefficients for RACM2_plus mechanism
+            !species in array are:
+            != (/NO,   NO2,    O3,  HONO,  HNO4,   HNO3,   N2O5,     CO,  H2O2,  CH4,
+            !MO2,   OP1,   MOH,   NO3,   O3P,    O1D,     HO,    HO2,  ORA1,  HAC,
+            !PAA, DHMOB, HPALD,  ISHP, IEPOX, PROPNN, ISOPNB, ISOPND, MACRN, MVKN,
+            !ISNP /)
+            if (chemmechgas_tot .gt. 31) then ! too many species defined
+                write(*,*)  'Too many species of ', chemmechgas_tot, ' in namelist for this chemmechgas_opt...exiting'
+                write(*,*)  'Set chemmechgas_tot < 31'
+                call exit(2)
+            else
+                hstar = (/1.9D-03, 1.2D-02,1.03D-02, 2.6D+05, 1.0D+07, 3.2D+13, 1.0D+14, 9.8D-04, 8.4D+04, 1.4D-03,  &
+                    6.9D+02, 3.0D+02, 2.2D+02, 3.8D-02, 3.8D-02, 3.8D-02, 3.9D+01, 6.9D+02, 5.6D+03, 2.0D+03,  &
+                    5.2D+02, 2.0D+03, 4.0D+04, 7.0D+07, 7.0D+07, 1.0D+04, 5.0D+03, 5.0D+03, 6.0D+03, 6.0D+03,  &
+                    5.0D+03 /)
+            end if
+        else
+            write(*,*)  'Wrong chemical mechanism option of ', chemmechgas_opt, ' in namelist...exiting'
+            write(*,*)  'Set chemmechgas_opt to only 0 (RACM2) for now'
+            call exit(2)
+        end if
 
         return
     end subroutine SetEffHenrysLawCoeffs
@@ -1431,12 +1441,13 @@ contains
 !==========================================================================
 !function ReactivityParam - calculate reactivity parameters (dimensionless)
 !==========================================================================
-    function ReactivityParam(ispec)
+    function ReactivityParam(chemmechgas_opt,chemmechgas_tot,ispec)
+        integer, intent(in)                             :: chemmechgas_opt,chemmechgas_tot ! chemical mechanism and total gas species including transported
         integer, intent(in)        :: ispec   !dummy id for species
         real(rk)                   :: ReactivityParam
-        real(rk),dimension(ntotal) :: f0
+        real(rk),dimension(chemmechgas_tot) :: f0
 
-        call SetReactivityParams(f0)
+        call SetReactivityParams(chemmechgas_opt,chemmechgas_tot,f0)
         ReactivityParam = f0(ispec)
 
         return
@@ -1447,29 +1458,33 @@ contains
 !
 !source - Wesely et al., (1989) and Nguyen et al., (2015)
 !========================================================
-    subroutine SetReactivityParams(f0)
+    subroutine SetReactivityParams(chemmechgas_opt,chemmechgas_tot,f0)
 !    integer(kind=i4)                              :: l               !l is species
-        real(rk),dimension(ntotal),intent(out) :: f0
-!    real(kind=dp),parameter                       :: f0_default = 0.0
+        integer, intent(in)                             :: chemmechgas_opt,chemmechgas_tot ! chemical mechanism and total gas species including transported
+        real(rk),dimension(chemmechgas_tot),intent(out) :: f0
 
-!    do l=1,ntotal     !ntotal is total species in ACCESS based on chosen chemical mechanim, including transported species
-!        f0(l) = f0_default
-!    end do
-
-!Insert ReactivityParams Coefficients for RACM2_plus mechanism
-!species in array are:
-!         = (/NO,   NO2,    O3,  HONO,  HNO4,   HNO3,   N2O5,     CO,  H2O2,  CH4,
-!            MO2,   OP1,   MOH,   NO3,   O3P,    O1D,     HO,    HO2,  ORA1,  HAC,
-!            PAA, DHMOB, HPALD,  ISHP, IEPOX, PROPNN, ISOPNB, ISOPND, MACRN, MVKN,
-!           ISNP /)
-        f0 = (/0.0, 0.1, 1.0, 0.1, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0,  &
-            0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.1, 0.1, 0.0, 0.0,  &
-            0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,  &
-            0.0 /)
-
-!species (NO2, O3)
-!    f0 = (/0.1, 1.0 /)
-
+        if (chemmechgas_opt .eq. 0) then !RACM2
+            !Insert MolecDiffSTP Coefficients for RACM2_plus mechanism
+            !species in array are:
+            != (/NO,   NO2,    O3,  HONO,  HNO4,   HNO3,   N2O5,     CO,  H2O2,  CH4,
+            !MO2,   OP1,   MOH,   NO3,   O3P,    O1D,     HO,    HO2,  ORA1,  HAC,
+            !PAA, DHMOB, HPALD,  ISHP, IEPOX, PROPNN, ISOPNB, ISOPND, MACRN, MVKN,
+            !ISNP /)
+            if (chemmechgas_tot .gt. 31) then ! too many species defined
+                write(*,*)  'Too many species of ', chemmechgas_tot, ' in namelist for this chemmechgas_opt....exiting'
+                write(*,*)  'Set chemmechgas_tot < 31'
+                call exit(2)
+            else
+                f0 = (/0.0, 0.1, 1.0, 0.1, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0,  &
+                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.1, 0.1, 0.0, 0.0,  &
+                    0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,  &
+                    0.0 /)
+            end if
+        else
+            write(*,*)  'Wrong chemical mechanism option of ', chemmechgas_opt, ' in namelist...exiting'
+            write(*,*)  'Set chemmechgas_opt to only 0 (RACM2) for now'
+            call exit(2)
+        end if
         return
     end subroutine SetReactivityParams
 

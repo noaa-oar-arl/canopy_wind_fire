@@ -5,7 +5,8 @@ module canopy_drydep_mod
 contains
 
 !:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-    SUBROUTINE CANOPY_GAS_DRYDEP_ZHANG( ZK, FCH, TEMPA, PRESSA, &
+    SUBROUTINE CANOPY_GAS_DRYDEP_ZHANG( CHEMMECHGAS_OPT,CHEMMECHGAS_TOT, &
+        ZK, FCH, TEMPA, PRESSA, &
         RELHUMA, FSUN, PPFD_SUN, PPFD_SHADE, UBAR, &
         SRAD, DEP_IND, DEP_OUT)
 
@@ -36,6 +37,8 @@ contains
 
 ! Arguments:
 !     IN/OUT
+        INTEGER,     INTENT( IN )       :: CHEMMECHGAS_OPT    ! Select chemical mechanism
+        INTEGER,     INTENT( IN )       :: CHEMMECHGAS_TOT    ! Select chemical mechanism gas species list
         REAL(RK),    INTENT( IN )       :: ZK(:)              ! Model heights (m)
         REAL(RK),    INTENT( IN )       :: FCH                ! Canopy height (m)
         REAL(RK),    INTENT( IN )       :: FSUN(:)            ! Sunlit/Shaded fraction from photolysis correction factor
@@ -65,11 +68,11 @@ contains
         PPFD = (PPFD_SUN*FSUN) + (PPFD_SHADE*(1.0-FSUN)) ! average = sum sun and shade weighted by sunlit fraction
 
 !! Calculate molecular diffusivity (cm^2/s) and resistances (cm/s) of species l using from DEP_IND
-        hstarl  = EffHenrysLawCoeff(DEP_IND)
-        f01     = ReactivityParam(DEP_IND)
+        hstarl  = EffHenrysLawCoeff(CHEMMECHGAS_OPT,CHEMMECHGAS_TOT,DEP_IND)
+        f01     = ReactivityParam(CHEMMECHGAS_OPT,CHEMMECHGAS_TOT,DEP_IND)
         do i=1, SIZE(ZK)
             if (ZK(i) .gt. 0.0 .and. ZK(i) .le. FCH) then           ! above ground level and at/below canopy top
-                mdiffl(i)  = MolecDiff(DEP_IND,TEMPA(i),PRESSA(i))
+                mdiffl(i)  = MolecDiff(CHEMMECHGAS_OPT,CHEMMECHGAS_TOT,DEP_IND,TEMPA(i),PRESSA(i))
                 rs(i)      = rs_zhang_gas(mdiffl(i),TEMPA(i),PRESSA(i),PPFD(i),SRAD,RELHUMA(i)) !stomatal resistance (s/cm)
                 rb(i)      = rbl(mdiffl(i), UBAR(i)*100.0_rk) !leaf boundary layer resistance (s/cm)
                 rc(i)      = rcl(hstarl, f01)                              !leaf cuticular resistance (s/cm)
