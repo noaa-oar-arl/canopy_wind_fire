@@ -10,8 +10,8 @@ Author: Wei-Ting Hung
 """
 
 import os
-import sys
 import subprocess
+import sys
 from datetime import datetime, timedelta, timezone
 
 import monet  # noqa: F401
@@ -77,7 +77,18 @@ metlist = [
     "hpbl",
     "prate_ave",
 ]
-canlist = ["lai", "clu", "canfrac", "ch", "pavd", "ozone_w126", "mol", "csz", "frp", "href"]
+canlist = [
+    "lai",
+    "clu",
+    "canfrac",
+    "ch",
+    "pavd",
+    "ozone_w126",
+    "mol",
+    "csz",
+    "frp",
+    "href",
+]
 
 
 # constants
@@ -218,7 +229,21 @@ for inputtime in timelist:
     if os.path.isfile(f_met) is True:
         print("---- Met file found!")
     else:
-        subprocess.run(["wget", "--no-check-certificate", "--no-proxy", "-O", path + "/gfs.t12z." + date + ".sfcf" + forecast_hour + ".nc", "https://noaa-oar-arl-nacc-pds.s3.amazonaws.com/inputs/" + date + "/gfs.t12z.sfcf" + forecast_hour + ".nc"])
+        subprocess.run(
+            [
+                "wget",
+                "--no-check-certificate",
+                "--no-proxy",
+                "-O",
+                path + "/gfs.t12z." + date + ".sfcf" + forecast_hour + ".nc",
+                "https://noaa-oar-arl-nacc-pds.s3.amazonaws.com/inputs/"
+                + date
+                +
+                "/gfs.t12z.sfcf"
+                + forecast_hour
+                + ".nc",
+            ]
+        )
         if os.path.isfile(f_met) == True:
             os.chmod(f_met, 0o0755)
             print("---- Met file downloaded!")
@@ -318,8 +343,8 @@ for inputtime in timelist:
 
         elif varname == "ozone_w126":
             ATTNAME = ["long_name", "units", "missing_value"]
-            ATT     = ["Ozone W126 index", "ppm-hours", fill_value]
-            DATA    = read_gfs_climatology(f_can, basefile, "ozone_w126")
+            ATT = ["Ozone W126 index", "ppm-hours", fill_value]
+            DATA = read_gfs_climatology(f_can, basefile, "ozone_w126")
 
         elif varname == "mol":
             # Reference:
