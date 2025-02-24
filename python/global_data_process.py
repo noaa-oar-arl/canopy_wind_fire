@@ -238,8 +238,7 @@ for inputtime in timelist:
                 path + "/gfs.t12z." + date + ".sfcf" + forecast_hour + ".nc",
                 "https://noaa-oar-arl-nacc-pds.s3.amazonaws.com/inputs/"
                 + date
-                +
-                "/gfs.t12z.sfcf"
+                + "/gfs.t12z.sfcf"
                 + forecast_hour
                 + ".nc",
             ]
