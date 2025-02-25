@@ -157,8 +157,70 @@ MODULE canopy_canvars_mod
     real(rk), allocatable :: emi_ovoc            ( :, : )       ! Other VOC biogenic emissions (kg/m2 s)
     real(rk), allocatable :: emi_ovoc_3d         ( : , : , : )  ! Other VOC biogenic emissions (kg/m2 s) -- 3D
 
+
+    real(rk), allocatable :: ddep_no             ( :, : )       ! Dry Deposition velocity for NO (m/s)
+    real(rk), allocatable :: ddep_no_3d          ( : , : , : )  ! Dry Deposition velocity for NO (m/s) -- 3D
+    real(rk), allocatable :: ddep_no2            ( :, : )       ! Dry Deposition velocity for NO2 (m/s)
+    real(rk), allocatable :: ddep_no2_3d         ( : , : , : )  ! Dry Deposition velocity for NO2 (m/s) -- 3D
     real(rk), allocatable :: ddep_o3             ( :, : )       ! Dry Deposition velocity for O3 (m/s)
     real(rk), allocatable :: ddep_o3_3d          ( : , : , : )  ! Dry Deposition velocity for O3 (m/s) -- 3D
+    real(rk), allocatable :: ddep_hono           ( :, : )       ! Dry Deposition velocity for HONO (m/s)
+    real(rk), allocatable :: ddep_hono_3d        ( : , : , : )  ! Dry Deposition velocity for HONO (m/s) -- 3D
+    real(rk), allocatable :: ddep_hno4           ( :, : )       ! Dry Deposition velocity for HNO4 (m/s)
+    real(rk), allocatable :: ddep_hno4_3d        ( : , : , : )  ! Dry Deposition velocity for HNO4 (m/s) -- 3D
+    real(rk), allocatable :: ddep_hno3           ( :, : )       ! Dry Deposition velocity for HNO3 (m/s)
+    real(rk), allocatable :: ddep_hno3_3d        ( : , : , : )  ! Dry Deposition velocity for HNO3 (m/s) -- 3D
+    real(rk), allocatable :: ddep_n2o5           ( :, : )       ! Dry Deposition velocity for N2O5 (m/s)
+    real(rk), allocatable :: ddep_n2o5_3d        ( : , : , : )  ! Dry Deposition velocity for N2O5 (m/s) -- 3D
+    real(rk), allocatable :: ddep_co             ( :, : )       ! Dry Deposition velocity for CO (m/s)
+    real(rk), allocatable :: ddep_co_3d          ( : , : , : )  ! Dry Deposition velocity for CO (m/s) -- 3D
+    real(rk), allocatable :: ddep_h2o2           ( :, : )       ! Dry Deposition velocity for H2O2 (m/s)
+    real(rk), allocatable :: ddep_h2o2_3d        ( : , : , : )  ! Dry Deposition velocity for H2O2 (m/s) -- 3D
+    real(rk), allocatable :: ddep_ch4            ( :, : )       ! Dry Deposition velocity for CH4 (m/s)
+    real(rk), allocatable :: ddep_ch4_3d         ( : , : , : )  ! Dry Deposition velocity for CH4 (m/s) -- 3D
+    real(rk), allocatable :: ddep_mo2            ( :, : )       ! Dry Deposition velocity for MO2 (m/s)
+    real(rk), allocatable :: ddep_mo2_3d         ( : , : , : )  ! Dry Deposition velocity for MO2 (m/s) -- 3D
+    real(rk), allocatable :: ddep_op1            ( :, : )       ! Dry Deposition velocity for OP1 (m/s)
+    real(rk), allocatable :: ddep_op1_3d         ( : , : , : )  ! Dry Deposition velocity for OP1 (m/s) -- 3D
+    real(rk), allocatable :: ddep_moh            ( :, : )       ! Dry Deposition velocity for MOH (m/s)
+    real(rk), allocatable :: ddep_moh_3d         ( : , : , : )  ! Dry Deposition velocity for MOH (m/s) -- 3D
+    real(rk), allocatable :: ddep_no3            ( :, : )       ! Dry Deposition velocity for NO3 (m/s)
+    real(rk), allocatable :: ddep_no3_3d         ( : , : , : )  ! Dry Deposition velocity for NO3 (m/s) -- 3D
+    real(rk), allocatable :: ddep_o3p            ( :, : )       ! Dry Deposition velocity for O3P (m/s)
+    real(rk), allocatable :: ddep_o3p_3d         ( : , : , : )  ! Dry Deposition velocity for O3P (m/s) -- 3D
+    real(rk), allocatable :: ddep_o1d            ( :, : )       ! Dry Deposition velocity for O1D (m/s)
+    real(rk), allocatable :: ddep_o1d_3d         ( : , : , : )  ! Dry Deposition velocity for O1D (m/s) -- 3D
+    real(rk), allocatable :: ddep_ho             ( :, : )       ! Dry Deposition velocity for HO (m/s)
+    real(rk), allocatable :: ddep_ho_3d          ( : , : , : )  ! Dry Deposition velocity for HO (m/s) -- 3D
+    real(rk), allocatable :: ddep_ho2            ( :, : )       ! Dry Deposition velocity for HO2 (m/s)
+    real(rk), allocatable :: ddep_ho2_3d         ( : , : , : )  ! Dry Deposition velocity for HO2 (m/s) -- 3D
+    real(rk), allocatable :: ddep_ora1           ( :, : )       ! Dry Deposition velocity for ORA1 (m/s)
+    real(rk), allocatable :: ddep_ora1_3d        ( : , : , : )  ! Dry Deposition velocity for ORA1 (m/s) -- 3D
+    real(rk), allocatable :: ddep_hac            ( :, : )       ! Dry Deposition velocity for HAC (m/s)
+    real(rk), allocatable :: ddep_hac_3d         ( : , : , : )  ! Dry Deposition velocity for HAC (m/s) -- 3D
+    real(rk), allocatable :: ddep_paa            ( :, : )       ! Dry Deposition velocity for PAA (m/s)
+    real(rk), allocatable :: ddep_paa_3d         ( : , : , : )  ! Dry Deposition velocity for PAA (m/s) -- 3D
+    real(rk), allocatable :: ddep_dhmob          ( :, : )       ! Dry Deposition velocity for DHMOB (m/s)
+    real(rk), allocatable :: ddep_dhmob_3d       ( : , : , : )  ! Dry Deposition velocity for DHMOB (m/s) -- 3D
+    real(rk), allocatable :: ddep_hpald          ( :, : )       ! Dry Deposition velocity for HPALD (m/s)
+    real(rk), allocatable :: ddep_hpald_3d       ( : , : , : )  ! Dry Deposition velocity for HPALD (m/s) -- 3D
+    real(rk), allocatable :: ddep_ishp           ( :, : )       ! Dry Deposition velocity for ISHP (m/s)
+    real(rk), allocatable :: ddep_ishp_3d        ( : , : , : )  ! Dry Deposition velocity for ISHP (m/s) -- 3D
+    real(rk), allocatable :: ddep_iepox          ( :, : )       ! Dry Deposition velocity for IEPOX (m/s)
+    real(rk), allocatable :: ddep_iepox_3d       ( : , : , : )  ! Dry Deposition velocity for IEPOX (m/s) -- 3D
+    real(rk), allocatable :: ddep_propnn         ( :, : )       ! Dry Deposition velocity for PROPNN (m/s)
+    real(rk), allocatable :: ddep_propnn_3d      ( : , : , : )  ! Dry Deposition velocity for PROPNN (m/s) -- 3D
+    real(rk), allocatable :: ddep_isopnb         ( :, : )       ! Dry Deposition velocity for ISOPNB (m/s)
+    real(rk), allocatable :: ddep_isopnb_3d      ( : , : , : )  ! Dry Deposition velocity for ISOPNB (m/s) -- 3D
+    real(rk), allocatable :: ddep_isopnd         ( :, : )       ! Dry Deposition velocity for ISOPND (m/s)
+    real(rk), allocatable :: ddep_isopnd_3d      ( : , : , : )  ! Dry Deposition velocity for ISOPND (m/s) -- 3D
+    real(rk), allocatable :: ddep_macrn          ( :, : )       ! Dry Deposition velocity for MACRN (m/s)
+    real(rk), allocatable :: ddep_macrn_3d       ( : , : , : )  ! Dry Deposition velocity for MACRN (m/s) -- 3D
+    real(rk), allocatable :: ddep_mvkn           ( :, : )       ! Dry Deposition velocity for MVKN (m/s)
+    real(rk), allocatable :: ddep_mvkn_3d        ( : , : , : )  ! Dry Deposition velocity for MVKN (m/s) -- 3D
+    real(rk), allocatable :: ddep_isnp           ( :, : )       ! Dry Deposition velocity for ISNP (m/s)
+    real(rk), allocatable :: ddep_isnp_3d        ( : , : , : )  ! Dry Deposition velocity for ISNP (m/s) -- 3D
+
 !-------------------------------------------------------------------------------
 ! Canopy-App Program and version descriptors.
 !-------------------------------------------------------------------------------
@@ -290,6 +352,36 @@ MODULE canopy_canvars_mod
     TYPE(fld3ddata), POINTER     :: c_emi_bvoc
     TYPE(fld3ddata), POINTER     :: c_emi_svoc
     TYPE(fld3ddata), POINTER     :: c_emi_ovoc
+    TYPE(fld3ddata), POINTER     :: c_ddep_no
+    TYPE(fld3ddata), POINTER     :: c_ddep_no2
     TYPE(fld3ddata), POINTER     :: c_ddep_o3
+    TYPE(fld3ddata), POINTER     :: c_ddep_hono
+    TYPE(fld3ddata), POINTER     :: c_ddep_hno4
+    TYPE(fld3ddata), POINTER     :: c_ddep_hno3
+    TYPE(fld3ddata), POINTER     :: c_ddep_n2o5
+    TYPE(fld3ddata), POINTER     :: c_ddep_co
+    TYPE(fld3ddata), POINTER     :: c_ddep_h2o2
+    TYPE(fld3ddata), POINTER     :: c_ddep_ch4
+    TYPE(fld3ddata), POINTER     :: c_ddep_mo2
+    TYPE(fld3ddata), POINTER     :: c_ddep_op1
+    TYPE(fld3ddata), POINTER     :: c_ddep_moh
+    TYPE(fld3ddata), POINTER     :: c_ddep_no3
+    TYPE(fld3ddata), POINTER     :: c_ddep_o3p
+    TYPE(fld3ddata), POINTER     :: c_ddep_o1d
+    TYPE(fld3ddata), POINTER     :: c_ddep_ho
+    TYPE(fld3ddata), POINTER     :: c_ddep_ho2
+    TYPE(fld3ddata), POINTER     :: c_ddep_ora1
+    TYPE(fld3ddata), POINTER     :: c_ddep_hac
+    TYPE(fld3ddata), POINTER     :: c_ddep_paa
+    TYPE(fld3ddata), POINTER     :: c_ddep_dhmob
+    TYPE(fld3ddata), POINTER     :: c_ddep_hpald
+    TYPE(fld3ddata), POINTER     :: c_ddep_ishp
+    TYPE(fld3ddata), POINTER     :: c_ddep_iepox
+    TYPE(fld3ddata), POINTER     :: c_ddep_propnn
+    TYPE(fld3ddata), POINTER     :: c_ddep_isopnb
+    TYPE(fld3ddata), POINTER     :: c_ddep_isopnd
+    TYPE(fld3ddata), POINTER     :: c_ddep_macrn
+    TYPE(fld3ddata), POINTER     :: c_ddep_mvkn
+    TYPE(fld3ddata), POINTER     :: c_ddep_isnp
 
 END MODULE canopy_canvars_mod

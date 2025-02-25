@@ -1088,7 +1088,7 @@ contains
         ! zref and zn must be same units!!!
 
         dtmp = (taref-tsref)/zref
-        CalcTemp = (tsref + dtmp*zk) + 273.15
+        CalcTemp = (tsref + dtmp*zk) + 273.15_rk
 
         return
     end function CalcTemp
@@ -1106,7 +1106,7 @@ contains
         real(rk), parameter   :: a0=3.42D-04   ! Mg/R (K/cm)
         real(rk)              :: CalcPressure  ! air pressure at current z (mb)
 
-        CalcPressure = pmbzref*exp(-a0*(zk-zref)/(0.5*(tref+t0)))
+        CalcPressure = pmbzref*exp(-a0*(zk-zref)/(0.5_rk*(tref+t0)))
 
         return
     end function CalcPressure
@@ -1125,8 +1125,8 @@ contains
         real(rk)             :: esat    ! saturation vapor pressure (kPa)
         real(rk)             :: tc      ! temperature (C)
 
-        tc = tki - 273.15
-        esat = 0.6112*exp(17.67*tc/(tc+243.5))
+        tc = tki - 273.15_rk
+        esat = 0.6112_rk*exp(17.67_rk*tc/(tc+243.5_rk))
         return
     end function esat
 
@@ -1144,12 +1144,12 @@ contains
         real(rk)             :: tc, e, es, qhd, pkpa, rhi
         real(rk), parameter  :: rhmin=0.1
         real(rk), parameter  :: rhmax=99.0
-        qhd=0.001*qhi
-        pkpa=0.1*pmbi
-        tc = tki - 273.15
-        e = pkpa*qhd/(0.622+qhd)
-        es = 0.6112*exp(17.67*tc/(tc+243.5)) !Rogers et al. (1989)
-        rhi = max(rhmin, min(rhmax, 100.0*e/es))   ! bound RH to (rhmin, rhmax)
+        qhd=0.001_rk*qhi
+        pkpa=0.1_rk*pmbi
+        tc = tki - 273.15_rk
+        e = pkpa*qhd/(0.622_rk+qhd)
+        es = 0.6112_rk*exp(17.67_rk*tc/(tc+243.5_rk)) !Rogers et al. (1989)
+        rhi = max(rhmin, min(rhmax, 100.0_rk*e/es))   ! bound RH to (rhmin, rhmax)
         CalcRelHum = rhi
         return
     end function CalcRelHum
@@ -1166,10 +1166,10 @@ contains
         real(rk)             :: es                  ! saturation vapor pressure at tki (mb)
         real(rk)             :: e                   ! ambient vapor pressure (mb)
 
-        es = esat(tki)*10.0            ! kPa -> mb
-        e  = es*rhi*0.01               ! mb
+        es = esat(tki)*10.0_rk            ! kPa -> mb
+        e  = es*rhi*0.01_rk               ! mb
 
-        CalcSpecHum = 622.0*e/(pmbi-0.378*e)
+        CalcSpecHum = 622.0_rk*e/(pmbi-0.378_rk*e)
 
         return
 
@@ -1197,7 +1197,7 @@ contains
         real(rk), intent(in) :: cairi                 ! air concentration at i (molecs/cm3)
         real(rk)             :: Convert_qh_to_h2o     ! h2o concentration (molecs/cm3)
 
-        Convert_qh_to_h2o = 0.001611*qhi*cairi
+        Convert_qh_to_h2o = 0.001611_rk*qhi*cairi
 
         return
     end function Convert_qh_to_h2o
@@ -1291,7 +1291,7 @@ contains
         real(rk)             :: rs_zhang_gas      !stomatal resistance (s/cm)
         !TODO --- Make rs parameters vegtyp dependent -----
         real(rk), parameter  :: rsmin =1.0        !minimum leaf stomatal resistance (s/cm) for deciduous forest
-        real(rk), parameter  :: rsmax =10000.     !maximum leaf stomatal resistance (s/cm) (stoma are closed)
+        real(rk), parameter  :: rsmax =10000.0    !maximum leaf stomatal resistance (s/cm) (stoma are closed)
         real(rk), parameter  :: brsp = 196.5      !empirical constant (umol/m^2-s) for deciduous forest
         real(rk), parameter  :: tmin = 0.0        !temperature correction parameter-deciduous forest
         real(rk), parameter  :: tmax = 45.0       !temperature correction parameter-deciduous forest
