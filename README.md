@@ -83,6 +83,14 @@ Current Canopy-App components:
 
     - `canopy_bioemi_mod.F90`
 
+
+5.  In-Canopy leaf-level gas dry deposition emissions (cm s-1). Based on the revised parameterization for gaseous dry deposition from Zhang et al. (2003), and adapated from the Atmospheric Chemistry and Canopy Exchange Simulation System (ACCESS), Saylor (2013).
+
+Namelist Option : `ifcanddepgas`   Output Variables: see [Table 2](#table-2-canopy-app-gas-dry-deposition-output-variables-racm2) below for the Regional Atmospheric Chemistry Model, version 2 (RACM2) [Goliff et al., 2013](https://doi.org/10.1016/j.atmosenv.2012.11.038) gas phase chemical mechanism (currently only option) including transported species.
+
+    - `canopy_drydep_mod.F90`
+
+
 ## Outputs
 
 Namelist Option : `file_out`  Prefix string (e.g., `'test'`) used to name output file (Output is 1D txt when using input 1D data (i.e., `infmt_opt=1`), or is 2D NetCDF output when 2D NetCDF input is used (i.e., `infmt_opt=0`)).
@@ -117,6 +125,43 @@ Current 2D fields includes the Wind Adjustment Factor (`waf`), flame heights (`f
 | `emi_bvoc`    | Bi-Directional VOC emissions (5 compounds, Table 1 Guenther et al. (2012) | 17        |
 | `emi_svoc`    | Stress VOC emissions (15 compounds, Table 1 Guenther et al. (2012) | 18        |
 | `emi_ovoc`    | Other VOC emissions (49 compounds, Table 1 Guenther et al. (2012) | 19        |
+
+### Table 2. Canopy-App Gas Dry Deposition Output Variables RACM2
+
+| Variable Name | Variable Description (Units: kg m-3 s-1)  | ID Number |
+| ------------- | ----------------------------------------- | --------- |
+| `ddep_no`     | Nitric Oxide                                       | 1         |
+| `ddep_no2`    | Nitrogen Dioxide                                   | 2         |
+| `ddep_o3`     | Ozone                                              | 3         |
+| `ddep_hono`   | Nitrous Acid                                       | 4         |
+| `ddep_hno4`   | Peroxynitric Acid                                  | 5         |
+| `ddep_hno3`   | Nitric Acid                                        | 6         |
+| `ddep_n2o5`   | Dinitrogen Pentoxide                               | 7         |
+| `ddep_co`     | Carbon Monoxide                                    | 8         |
+| `ddep_h2o2`   | Hydrogen Peroxide                                  | 9         |
+| `ddep_ch4`    | Methane                                            | 10        |
+| `ddep_mo2`    | Methylperoxy Radical                               | 11        |
+| `ddep_op1`    | Methyl Hydrogen Peroxide                           | 12        |
+| `ddep_moh`    | Methanol                                           | 13        |
+| `ddep_no3`    | Nitrate Radical                                    | 14        |
+| `ddep_o3p`    | Ground State Oxygen Atoms                          | 15        |
+| `ddep_o1d`    | Excited State Oxygen Atoms                         | 16        |
+| `ddep_ho`     | Hydroxyl Radical                                   | 17        |
+| `ddep_ho2`    | Hydroperoxyl Radical                               | 18        |
+| `ddep_ora1`   | Formic Acid                                        | 19        |
+| `ddep_hac`    | Acetic Acid                                        | 20        |
+| `ddep_paa`    | Peroxyacetic Acid                                  | 21        |
+| `ddep_dhmob`  | Dihydroxy Carbonyl                                 | 22        |
+| `ddep_hpald`  | Hydroperoxymethyl-Butenals                         | 23        |
+| `ddep_ishp`   | Beta-Hydroxy Hydroperoxides from ISOP+HO2          | 24        |
+| `ddep_iepox`  | Isoprene Epoxydiol                                 | 25        |
+| `ddep_propnn` | Propanone Nitrate                                  | 26        |
+| `ddep_isopnb` | Beta-Hydroxy Isoprene Nitrates                     | 27        |
+| `ddep_isopnd` | Delta-Hydroxy Isoprene Nitrates                    | 28        |
+| `ddep_macrn`  | Methacrolein Nitrate                               | 29        |
+| `ddep_mvkn`   | Methylvinylketone Nitrate                          | 30        |
+| `ddep_isnp`   | ISNP                                               | 31        |
+
 
 ## Inputs and Settings
 
@@ -289,6 +334,10 @@ Otherwise, please contact Patrick.C.Campbell@noaa.gov for other GFSv16 data peri
 | `ht_opt`       | user-set options for applying a daily high temperature stress factor for biogenic emissions using daily maximum 2-meter input temperature (= `0`).  This is based on MEGAN3 and it is recommended that this option is only used when turning the historical option on (i.e., `hist_opt=1`) and running longer than 1-day simulations to obtain the daily max.   To turn off ht stress factor set `ht_opt=1` (set as default, Off)  |
 | `lt_opt`       | user-set options for applying a daily low temperature stress factor for biogenic emissions using daily minimum 2-meter input temperature (= `0`).  This is based on MEGAN3 and it is recommended that this option is only used when turning the historical option on (i.e., `hist_opt=1`) and running longer than 1-day simulations to obtain the daily min.   To turn off lt stress factor set `lt_opt=1` (set as default, Off) |
 | `hw_opt`       | user-set options for applying a daily high wind speed stress factor for biogenic emissions using daily maximum 10-meter input wind speed (= `0`).  This is based on MEGAN3 and it is recommended that this option is only used when turning the historical option on (i.e., `hist_opt=1`) and running longer than 1-day simulations to obtain the daily max.   To turn off hw stress factor set `hw_opt=1` (set as default, Off) |
+| `ifcanddepgas`  | logical canopy gas dry deposition option (default: `.FALSE.`)                      |
+| `ddepspecgas_opt`   | user set option to select species for NetCDF gas dry deposition emissions output (`0`: all species, or e.g., `1-31`: for one species selected according to ID number - Table 2 and the specific gas chemical mechanism (e.g., RACM2) (default: 0; ID number for single species selection only used if `infmt_opt=0`).  Note:  The single number species must match with chemical mechanism option (`chemmechgas_opt`) and not be greater than the total number of species within that gas chemical mechanism option used (`chemmechgas_tot`).         |
+| `chemmechgas_opt`   | user set option to select gas chemical mechanism and gas species mapping including transported species.  (`0`: Default, only option is RACM2 mechanism).
+| `chemmechgas_tot`   | user set option to define total gas species, including transported species, which pertains to the selected gas chemical mechanism above ( `chemmechgas_opt`).  (`31`: Default, only option is RACM2 mechanism).
 
 
 **\*\*** If `modres` >> `flameh` then some error in WAF calculation will be incurred.  Suggestion is to use relative fine `modres` (at least <= 0.5 m) compared to average flame heights (e.g., ~ 1.0 m) if WAF is required.
@@ -325,7 +374,11 @@ Otherwise, please contact Patrick.C.Campbell@noaa.gov for other GFSv16 data peri
 
 - Massman, W. J., J.M. Forthofer, and M.A. Finney. (2017). An improved canopy wind model for predicting wind adjustment factors and wildland fire behavior. Canadian Journal of Forest Research. 47(5): 594-603. https://doi.org/10.1139/cjfr-2016-0354
 
+- Saylor, R. D.: The Atmospheric Chemistry and Canopy Exchange Simulation System (ACCESS): model description and application to a temperate deciduous forest canopy, Atmos. Chem. Phys., 13, 693–715, https://doi.org/10.5194/acp-13-693-2013, 2013.
+
 - Silva, S. J., Heald, C. L., and Guenther, A. B.: Development of a reduced-complexity plant canopy physics surrogate model for use in chemical transport models: a case study with GEOS-Chem v12.3.0, Geosci. Model Dev., 13, 2569–2585, https://doi.org/10.5194/gmd-13-2569-2020, 2020.
+
+- Zhang, L., Brook, J. R., and Vet, R.: A revised parameterization for gaseous dry deposition in air-quality models, Atmos. Chem. Phys., 3, 2067–2082, https://doi.org/10.5194/acp-3-2067-2003, 2003.
 
 ## Development
 
