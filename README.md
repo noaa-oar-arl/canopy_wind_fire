@@ -84,12 +84,11 @@ Current Canopy-App components:
     - `canopy_bioemi_mod.F90`
 
 
-5.  In-Canopy leaf-level gas dry deposition emissions (cm s-1). Based on the revised parameterization for gaseous dry deposition from Zhang et al. (2003), and adapated from the Atmospheric Chemistry and Canopy Exchange Simulation System (ACCESS), Saylor (2013).
+5.  In-Canopy leaf-level gas dry deposition (cm s-1). Based on the revised parameterization for gaseous dry deposition from Zhang et al. (2003), and adapated from the Atmospheric Chemistry and Canopy Exchange Simulation System (ACCESS), Saylor (2013).
 
 Namelist Option : `ifcanddepgas`   Output Variables: see [Table 2](#table-2-canopy-app-gas-dry-deposition-output-variables-racm2) below for the Regional Atmospheric Chemistry Model, version 2 (RACM2) [Goliff et al., 2013](https://doi.org/10.1016/j.atmosenv.2012.11.038) gas phase chemical mechanism (currently only option) including transported species.
 
     - `canopy_drydep_mod.F90`
-
 
 ## Outputs
 
@@ -104,7 +103,7 @@ Current 2D fields includes the Wind Adjustment Factor (`waf`), flame heights (`f
 
 ### Table 1. Canopy-App Biogenic Emissions Output Variables
 
-| Variable Name | Variable Description (Units: kg m-3 s-1)  | ID Number |
+| Variable Name | Variable Description (Units: cm s-1)  | ID Number |
 | ------------- | ----------------------------------------- | --------- |
 | `emi_isop`    | Isoprene                                  | 1         |
 | `emi_myrc`    | Myrcene                                   | 2         |
@@ -334,10 +333,11 @@ Otherwise, please contact Patrick.C.Campbell@noaa.gov for other GFSv16 data peri
 | `ht_opt`       | user-set options for applying a daily high temperature stress factor for biogenic emissions using daily maximum 2-meter input temperature (= `0`).  This is based on MEGAN3 and it is recommended that this option is only used when turning the historical option on (i.e., `hist_opt=1`) and running longer than 1-day simulations to obtain the daily max.   To turn off ht stress factor set `ht_opt=1` (set as default, Off)  |
 | `lt_opt`       | user-set options for applying a daily low temperature stress factor for biogenic emissions using daily minimum 2-meter input temperature (= `0`).  This is based on MEGAN3 and it is recommended that this option is only used when turning the historical option on (i.e., `hist_opt=1`) and running longer than 1-day simulations to obtain the daily min.   To turn off lt stress factor set `lt_opt=1` (set as default, Off) |
 | `hw_opt`       | user-set options for applying a daily high wind speed stress factor for biogenic emissions using daily maximum 10-meter input wind speed (= `0`).  This is based on MEGAN3 and it is recommended that this option is only used when turning the historical option on (i.e., `hist_opt=1`) and running longer than 1-day simulations to obtain the daily max.   To turn off hw stress factor set `hw_opt=1` (set as default, Off) |
+|                 | **Canopy gas dry deposition-specific options**                                     |
 | `ifcanddepgas`  | logical canopy gas dry deposition option (default: `.FALSE.`)                      |
-| `ddepspecgas_opt`   | user set option to select species for NetCDF gas dry deposition emissions output (`0`: all species, or e.g., `1-31`: for one species selected according to ID number - Table 2 and the specific gas chemical mechanism (e.g., RACM2) (default: 0; ID number for single species selection only used if `infmt_opt=0`).  Note:  The single number species must match with chemical mechanism option (`chemmechgas_opt`) and not be greater than the total number of species within that gas chemical mechanism option used (`chemmechgas_tot`).         |
-| `chemmechgas_opt`   | user set option to select gas chemical mechanism and gas species mapping including transported species.  (`0`: Default, only option is RACM2 mechanism).
-| `chemmechgas_tot`   | user set option to define total gas species, including transported species, which pertains to the selected gas chemical mechanism above ( `chemmechgas_opt`).  (`31`: Default, only option is RACM2 mechanism).
+| `ddepspecgas_opt`   | user set option to select species for NetCDF gas dry deposition output (`0`: all species, or e.g., `1-31`: for one species selected according to ID number - Table 2 and the specific gas chemical mechanism (e.g., RACM2) (default: 0; ID number for single species selection only used if `infmt_opt=0`).  Note:  The single number species option should match that desired species from select chemical mechanism option (`chemmechgas_opt`), and not be greater than the total number of species within that gas chemical mechanism option used (`chemmechgas_tot`).         |
+| `chemmechgas_opt`   | user set option to select gas chemical mechanism and gas species mapping including transported species.  (`0`: Default = RACM2 mechanism; Only option currently).
+| `chemmechgas_tot`   | user set option to define total number of gas species in select gas chemical mechanism (`chemmechgas_opt`) including transported species.  (`31`: Default = RACM2 mechanism; Only option currently).
 
 
 **\*\*** If `modres` >> `flameh` then some error in WAF calculation will be incurred.  Suggestion is to use relative fine `modres` (at least <= 0.5 m) compared to average flame heights (e.g., ~ 1.0 m) if WAF is required.
