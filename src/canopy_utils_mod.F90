@@ -13,7 +13,7 @@ module canopy_utils_mod
         CalcRelHum,CalcSpecHum,CalcCair,Convert_qh_to_h2o, &
         SetMolecDiffSTP,MolecDiff,rs_zhang_gas,rbl,rcl,rml, &
         SetEffHenrysLawCoeffs,SetReactivityParams,ReactivityParam, &
-        EffHenrysLawCoeff
+        EffHenrysLawCoeff,SoilResist,SoilRbg
 
 contains
 
@@ -65,7 +65,7 @@ contains
         !!  and wildland fire behavior. Canadian Journal of Forest Research.
         !!  47(5): 594-603. https://doi.org/10.1139/cjfr-2016-0354
 
-        !! Assume Canopy Cover Fraction, C,  = CANFRAC
+        ! Assume Canopy Cover Fraction, C,  = CANFRAC
         !! Assume Canopy Crown Ratio, F, = CC/3.0 = CANFRAC/3.0 (Eq. 9 in  Andrews, 2012).
         !! Andrews, P.L. 2012. Modeling wind adjustment factor and midflame wind speed
         !!  for Rothermel’s surface fire spread model. USDA For. Serv. Gen. Tech. Rep. RMRS-GTR-266.
@@ -1386,6 +1386,142 @@ contains
 
         return
     end function rml
+
+
+!===============================================================================================================
+!function SoilResist - calculate the resistance to diffusion of a species from the free warer surface in the soil
+!                      to the soil-atmosphere interface. Rsoil
+!Source - Sakagichi & Zeng (2009)
+!================================================================================================================
+    function SoilResist(mdiffl,socat,sotyp,dsoil,stheta)
+        real(rk), intent(in)  :: mdiffl         !molecular diffusivity of species in air (cm^2/s)
+        integer,  intent(in)  :: socat          !input soil category datset
+        integer,  intent(in)  :: sotyp          !input soil type integer associated with soilcat
+        real(rk), intent(in)  :: dsoil          !depth of topsoil (cm)
+        real(rk), intent(in)  :: stheta         !volumetric soil water content in topsoil(m^3/m^3)
+        real(rk)              :: sattheta       !saturation volumetric soil water content (m^3/m^3)
+        real(rk)              :: rtheta         !residual volumetic soil water content (m^3/m^3), typical range of 0.001–0.1rk
+        real(rk)              :: SoilResist     !Soil resistance (s/cm)
+        real(rk)              :: xe             !temporary variable
+        real(rk)              :: ldry           !diffusion distance through the soil (cm)
+        real(rk)              :: mdiffp         !effective diffusivity of species through the soil (cm^2/s)
+        real(rk), parameter   :: sbcoef = 0.2   !clapp and hornberger exponent
+
+
+        if (socat .eq. 0) then !input based on NCA-LDAS 16-Category Type
+
+            ! Soil Characteristics by Type from NCA-LDAS 16-category type based on STATSGO/FAO soil texture
+            ! https://ldas.gsfc.nasa.gov/nca-ldas/soils
+            !Based on WRF4+ Taken from CMAQv5.4+: https://github.com/GMU-SESS-AQ/CMAQ/blob/main/CCTM/src/depv/m3dry/LSM_MOD.F#L134
+            !
+            !   #  SOIL TYPE  WSAT  WFC  WWLT  BSLP  CGSAT   JP   AS   C2R  C1SAT  WRES
+            !   _  _________  ____  ___  ____  ____  _____   ___  ___  ___  _____  ____
+            !  1  SAND       .395 .135  .068  4.05  3.222    4  .387  3.9  .082   .020
+            !   2  LOAMY SAND .410 .150  .075  4.38  3.057    4  .404  3.7  .098   .035
+            !   3  SANDY LOAM .435 .195  .114  4.90  3.560    4  .219  1.8  .132   .041
+            !   4  SILT LOAM  .485 .255  .179  5.30  4.418    6  .105  0.8  .153   .015
+            !   5  SILT       .480 .260  .150  5.30  4.418    6  .105  0.8  .153   .020
+            !   6  LOAM       .451 .240  .155  5.39  4.111    6  .148  0.8  .191   .027
+            !   7  SND CLY LM .420 .255  .175  7.12  3.670    6  .135  0.8  .213   .068
+            !   8  SLT CLY LM .477 .322  .218  7.75  3.593    8  .127  0.4  .385   .040
+            !   9  CLAY LOAM  .476 .325  .250  8.52  3.995   10  .084  0.6  .227   .075
+            !  10  SANDY CLAY .426 .310  .219 10.40  3.058    8  .139  0.3  .421   .109
+            !  11  SILTY CLAY .482 .370  .283 10.40  3.729   10  .075  0.3  .375   .056
+            !  12  CLAY       .482 .367  .286 11.40  3.600   12  .083  0.3  .342   .090
+            !  13  ORGANICMAT .451 .240  .155  5.39  4.111    6  .148  0.8  .191   .027
+            !  14  WATER      .482 .367  .286 11.40  3.600   12  .083  0.3  .342   .090
+            !  15  BEDROCK    .482 .367  .286 11.40  3.600   12  .083  0.3  .342   .090
+            !  16  OTHER      .420 .255  .175  7.12  3.670    6  .135  0.8  .213   .068
+            !-------------------------------------------------------------------------------
+            !Note:  sattheta = WSAT and rtheta = WRES
+
+            if (sotyp .eq. 1) then
+                sattheta = 0.395_rk
+                rtheta   = 0.020_rk
+            else if (sotyp .eq. 2 ) then
+                sattheta = 0.410_rk
+                rtheta   = 0.035_rk
+            else if (sotyp .eq. 3 ) then
+                sattheta = 0.435_rk
+                rtheta   = 0.041_rk
+            else if (sotyp .eq. 4 ) then
+                sattheta = 0.485_rk
+                rtheta   = 0.015_rk
+            else if (sotyp .eq. 5 ) then
+                sattheta = 0.480_rk
+                rtheta   = 0.020_rk
+            else if (sotyp .eq. 6 ) then
+                sattheta = 0.451_rk
+                rtheta   = 0.027_rk
+            else if (sotyp .eq. 7 ) then
+                sattheta = 0.420_rk
+                rtheta   = 0.068_rk
+            else if (sotyp .eq. 8 ) then
+                sattheta = 0.477_rk
+                rtheta   = 0.040_rk
+            else if (sotyp .eq. 9 ) then
+                sattheta = 0.476_rk
+                rtheta   = 0.075_rk
+            else if (sotyp .eq. 10 ) then
+                sattheta = 0.426_rk
+                rtheta   = 0.109_rk
+            else if (sotyp .eq. 11 ) then
+                sattheta = 0.482_rk
+                rtheta   = 0.056_rk
+            else if (sotyp .eq. 12 ) then
+                sattheta = 0.482_rk
+                rtheta   = 0.090_rk
+            else if (sotyp .eq. 13 ) then
+                sattheta = 0.451_rk
+                rtheta   = 0.027_rk
+            else if (sotyp .eq. 14 ) then
+                sattheta = 0.482_rk
+                rtheta   = 0.090_rk
+            else if (sotyp .eq. 15 ) then
+                sattheta = 0.482_rk
+                rtheta   = 0.090_rk
+            else if (sotyp .eq. 16 ) then
+                sattheta = 0.420_rk
+                rtheta   = 0.068_rk
+            else !set to OTHER type
+                sattheta = 0.420_rk
+                rtheta   = 0.068_rk
+            end if
+        else
+            write(*,*)  'Wrong socat option of ', socat, ' in namelist...exiting'
+            write(*,*)  'Set socat to only 0 (NCA-LDAS Soils based on STATSGO/FAO) for now'
+            call exit(2)
+        end if
+
+        xe = (1.0_rk-(stheta/sattheta))**5.0_rk
+        ldry = dsoil*(exp(xe)-1.0_rk)/1.7183_rk
+        ldry = max(0.0_rk,ldry)
+
+        mdiffp = mdiffl*sattheta*sattheta*(1.0_rk-(rtheta/sattheta))**(2.0_rk+3.0_rk/sbcoef)
+        SoilResist = ldry/mdiffp
+
+        return
+
+    end function SoilResist
+
+!=====================================================================================
+!function SoilRbg - calculate the boundary layer resistance at the ground surface. Rbg
+!
+!Source - Schuepp (1977)
+!=====================================================================================
+    function SoilRbg(ubar)
+        real(rk), intent(in)  :: ubar            !mean wind speed in the 1st model layer above ground (cm/s)
+        !do not use ground wind because of physical zero-slip condition,
+        !i.e., ubar=0 at z=0
+        real(rk)              :: SoilRbg         !Boundary layer resistance at ground surface (s/cm)
+        real(rk), parameter   :: rbgmax = 1.67   !maximum ground surface boundary layer resistance (s/cm)
+        real(rk)              :: rbg             !temporary variable for boundary layer resistance (s/cm)
+
+        rbg = 11.534_rk/(0.14_rk*ubar)           !assume Sc=0.7,del0/zl = 0.02 and ustar = 0.14*ubar (Weber,1999)
+        SoilRbg = min(rbgmax,rbg)
+
+        return
+    end function SoilRbg
 
 !========================================================================
 !function EffHenrysLawCoeff - calculate Henry's Law coefficient (M/atm)
