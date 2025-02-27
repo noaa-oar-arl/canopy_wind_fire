@@ -256,8 +256,29 @@ for inputtime in timelist:
     if os.path.isfile(f_can) is True:
         print("---- Canopy file found!")
     else:
-        print("---- No available canopy data. Terminated!")
-        exit()
+        subprocess.run(
+            [
+                "wget",
+                "--no-check-certificate",
+                "--no-proxy",
+                "-O",
+                path + "/gfs.canopy.t12z." + "2022" + MM + DD + ".sfcf" + FH + ".global.nc",
+                "https://noaa-oar-arl-nacc-pds.s3.amazonaws.com/inputs/geo-files/"
+                + "gfs.canopy.t12z."
+                + "2022"
+                + MM
+                + DD
+                + ".sfcf"
+                + FH
+                + ".global.nc",
+            ]
+        )
+        if os.path.isfile(f_can) is True:
+            os.chmod(f_can, 0o0755)
+            print("---- Canopy file downloaded!")
+        else:
+            print("---- No available canopy data. Terminated!")
+            exit()
 
     # frp file
     if frp_src == 0:  # local source
