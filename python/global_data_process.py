@@ -262,7 +262,14 @@ for inputtime in timelist:
                 "--no-check-certificate",
                 "--no-proxy",
                 "-O",
-                path + "/gfs.canopy.t12z." + "2022" + MM + DD + ".sfcf" + FH + ".global.nc",
+                path
+                + "/gfs.canopy.t12z."
+                + "2022"
+                + MM
+                + DD
+                + ".sfcf"
+                + FH
+                + ".global.nc",
                 "https://noaa-oar-arl-nacc-pds.s3.amazonaws.com/inputs/geo-files/"
                 + "gfs.canopy.t12z."
                 + "2022"
