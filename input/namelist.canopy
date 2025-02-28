@@ -79,7 +79,7 @@
   lai_tstep   =  86400
   leafage_opt =  1
   soim_opt    =  1
-  soild1      =  5.0
+  soild1      =  5.0  !also needed for gas drydep below
   soild2      =  25.0
   soild3      =  70.0
   soild4      =  150.0
@@ -95,4 +95,5 @@
   chemmechgas_opt = 0
   chemmechgas_tot = 31
   soilcat_opt     = 0
+! soild1          = 5.0 needed here too, but defined above
 /
