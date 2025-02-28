@@ -1,23 +1,23 @@
 &FILENAMES
 !Gridded Text and NCF Examples
 ! Recommend set file_out prefix to initial 'YYYY-MM-DD-HH-MMSS_region_identifier'
-!  file_vars    = 'input/gfs.t12z.20220630.sfcf023.canopy.nc' 'input/gfs.t12z.20220701.sfcf000.canopy.nc' 'input/gfs.t12z.20220701.sfcf001.canopy.nc'
+  file_vars    = 'input/gfs.t12z.20220630.sfcf023.canopy.nc' 'input/gfs.t12z.20220701.sfcf000.canopy.nc' 'input/gfs.t12z.20220701.sfcf001.canopy.nc'
 !  file_vars    = 'input/gfs.t12z.20220630.sfcf023.canopy.txt' 'input/gfs.t12z.20220701.sfcf000.canopy.txt' 'input/gfs.t12z.20220701.sfcf001.canopy.txt'
-!  file_out     = 'output/southeast_us'
+  file_out     = 'output/southeast_us'
 
 !Single Point Example (set infmt_opt=1, nlat=1, and nlon=1 below)
 ! Recommend set file_out prefix to initial 'YYYY-MM-DD-HH-MMSS_point_identifier'
-   file_vars    = 'input/point_file_20220630.sfcf023.txt' 'input/point_file_20220701.sfcf000.txt' 'input/point_file_20220701.sfcf001.txt'
+!   file_vars    = 'input/point_file_20220630.sfcf023.txt' 'input/point_file_20220701.sfcf000.txt' 'input/point_file_20220701.sfcf001.txt'
 !   file_canvars  = 'input/point_file_canvars_20220630.sfcf023.txt' 'input/point_file_canvars_20220701.sfcf000.txt' 'input/point_file_canvars_20220701.sfcf001.txt'
-   file_out     = 'output/point'
+!   file_out     = 'output/point'
 /
 
 &USERDEFS
 !Input model format options
-  infmt_opt   =  1
+  infmt_opt   =  0
 !Input model grid sizes
-  nlat        =  1
-  nlon        =  1
+  nlat        =  43
+  nlon        =  86
 !Input model run times and interval
   time_start  = '2022-07-01-11:00:00.0000'
   time_end    = '2022-07-01-13:00:00.0000'
