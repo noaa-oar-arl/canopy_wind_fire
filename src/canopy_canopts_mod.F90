@@ -67,4 +67,5 @@ MODULE canopy_canopts_mod
     integer             ::    ddepspecgas_opt  !Set default integer for species output option (default = 0, all)
     integer             ::    chemmechgas_opt  !Set default integer value to select chemical mechanism (0, RACM2)
     integer             ::    chemmechgas_tot  !Set default integer value to select chemical mechanism gas species list including transported (31, RACM2)
+    integer             ::    soilcat_opt  !Set default integer value to select soil category option (0, STATSGO/FAO)!
 END MODULE canopy_canopts_mod

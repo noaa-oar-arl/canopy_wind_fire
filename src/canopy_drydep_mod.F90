@@ -93,4 +93,42 @@ contains
 
     END SUBROUTINE CANOPY_GAS_DRYDEP_ZHANG
 
+
+    SUBROUTINE CANOPY_GAS_DRYDEP_SOIL( CHEMMECHGAS_OPT,CHEMMECHGAS_TOT, &
+        TEMPA, PRESSA, UBAR, SOCAT, SOTYP, DSOIL, STHETA, DEP_IND, DEP_OUT)
+
+        use canopy_const_mod,  ONLY: rk                       !constants for canopy models
+        use canopy_utils_mod,  ONLY: MolecDiff,SoilResist,SoilRbg
+
+        INTEGER,     INTENT( IN )       :: CHEMMECHGAS_OPT    ! Select chemical mechanism
+        INTEGER,     INTENT( IN )       :: CHEMMECHGAS_TOT    ! Select chemical mechanism gas species list
+        REAL(RK),    INTENT( IN )       :: TEMPA(:)           ! Ambient Temperature profile in canopy [K]
+        REAL(RK),    INTENT( IN )       :: PRESSA(:)          ! Ambient Pressure profile in canopy [mb]
+        REAL(RK),    INTENT( IN )       :: UBAR(:)            ! Mean above/in-canopy wind speed [m/s]
+        INTEGER,     INTENT( IN )       :: SOCAT              ! input soil category datset used
+        INTEGER,     INTENT( IN )       :: SOTYP              ! input soil type integer associated with soilcat
+        REAL(RK),    INTENT( IN )       :: DSOIL              ! depth of topsoil (cm)
+        REAL(RK),    INTENT( IN )       :: STHETA             ! volumetric soil water content in topsoil(m^3/m^3)
+
+        INTEGER,     INTENT( IN )       :: DEP_IND            ! Gas deposition species index (depends on gas mech)
+        REAL(RK),    INTENT( OUT )      :: DEP_OUT            ! Output soil layer gas dry deposition rate for each DEP_IND
+
+        real(rk)                        :: mdiffl             ! molecular diffusivity (cm^2/s)
+        real(rk)                        :: rsoill             ! resistance to diffusion thru soil pore space for chemical species (s/cm)
+        real(rk)                        :: rbg                ! ground boundary layer resistance (s/cm)
+
+        mdiffl = MolecDiff(CHEMMECHGAS_OPT,CHEMMECHGAS_TOT,DEP_IND,TEMPA(1),PRESSA(1))  !Use surface temperature and pressure
+
+        rsoill = SoilResist(mdiffl,SOCAT,SOTYP,DSOIL,STHETA)
+
+        rbg = SoilRbg(UBAR(2)*100.0_rk) !convert wind to cm/s   !Rbg(ground boundary layer resistance, s/cm)
+        !Rbg is invariant to species not layers
+        !Must use second model layer as no-slip boundary condition for wind
+        !speed at z = 0
+
+        DEP_OUT = 1.0/(rbg+rsoill)                               !deposition velocity to ground surface under canopy (cm/s)
+
+        return
+    END SUBROUTINE CANOPY_GAS_DRYDEP_SOIL
+
 end module canopy_drydep_mod

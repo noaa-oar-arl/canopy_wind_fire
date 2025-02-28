@@ -1401,6 +1401,7 @@ contains
         real(rk), intent(in)  :: stheta         !volumetric soil water content in topsoil(m^3/m^3)
         real(rk)              :: sattheta       !saturation volumetric soil water content (m^3/m^3)
         real(rk)              :: rtheta         !residual volumetic soil water content (m^3/m^3), typical range of 0.001–0.1rk
+        real(rk)              :: wfctheta       !soil field capacity
         real(rk)              :: SoilResist     !Soil resistance (s/cm)
         real(rk)              :: xe             !temporary variable
         real(rk)              :: ldry           !diffusion distance through the soil (cm)
@@ -1409,14 +1410,13 @@ contains
 
 
         if (socat .eq. 0) then !input based on NCA-LDAS 16-Category Type
-
             ! Soil Characteristics by Type from NCA-LDAS 16-category type based on STATSGO/FAO soil texture
             ! https://ldas.gsfc.nasa.gov/nca-ldas/soils
             !Based on WRF4+ Taken from CMAQv5.4+: https://github.com/GMU-SESS-AQ/CMAQ/blob/main/CCTM/src/depv/m3dry/LSM_MOD.F#L134
             !
             !   #  SOIL TYPE  WSAT  WFC  WWLT  BSLP  CGSAT   JP   AS   C2R  C1SAT  WRES
             !   _  _________  ____  ___  ____  ____  _____   ___  ___  ___  _____  ____
-            !  1  SAND       .395 .135  .068  4.05  3.222    4  .387  3.9  .082   .020
+            !   1  SAND       .395 .135  .068  4.05  3.222    4  .387  3.9  .082   .020
             !   2  LOAMY SAND .410 .150  .075  4.38  3.057    4  .404  3.7  .098   .035
             !   3  SANDY LOAM .435 .195  .114  4.90  3.560    4  .219  1.8  .132   .041
             !   4  SILT LOAM  .485 .255  .179  5.30  4.418    6  .105  0.8  .153   .015
@@ -1433,59 +1433,81 @@ contains
             !  15  BEDROCK    .482 .367  .286 11.40  3.600   12  .083  0.3  .342   .090
             !  16  OTHER      .420 .255  .175  7.12  3.670    6  .135  0.8  .213   .068
             !-------------------------------------------------------------------------------
-            !Note:  sattheta = WSAT and rtheta = WRES
+            !Note:  sattheta = WSAT, rtheta = WRES, and wtheta = WWLT
+            !OTHER = land-ice
 
-            if (sotyp .eq. 1) then
+            if (sotyp .eq. 0) then !if soil type water = 0 (e.g., FV3) --really shouldn't be water cell here
+                sattheta = 0.482_rk
+                rtheta   = 0.090_rk
+                wfctheta = 0.367_rk
+            else if (sotyp .eq. 1) then
                 sattheta = 0.395_rk
                 rtheta   = 0.020_rk
+                wfctheta = 0.135_rk
             else if (sotyp .eq. 2 ) then
                 sattheta = 0.410_rk
                 rtheta   = 0.035_rk
+                wfctheta = 0.150_rk
             else if (sotyp .eq. 3 ) then
                 sattheta = 0.435_rk
                 rtheta   = 0.041_rk
+                wfctheta = 0.195_rk
             else if (sotyp .eq. 4 ) then
                 sattheta = 0.485_rk
                 rtheta   = 0.015_rk
+                wfctheta = 0.255_rk
             else if (sotyp .eq. 5 ) then
                 sattheta = 0.480_rk
                 rtheta   = 0.020_rk
+                wfctheta = 0.260_rk
             else if (sotyp .eq. 6 ) then
                 sattheta = 0.451_rk
                 rtheta   = 0.027_rk
+                wfctheta = 0.240_rk
             else if (sotyp .eq. 7 ) then
                 sattheta = 0.420_rk
                 rtheta   = 0.068_rk
+                wfctheta = 0.255_rk
             else if (sotyp .eq. 8 ) then
                 sattheta = 0.477_rk
                 rtheta   = 0.040_rk
+                wfctheta = 0.322_rk
             else if (sotyp .eq. 9 ) then
                 sattheta = 0.476_rk
                 rtheta   = 0.075_rk
+                wfctheta = 0.325_rk
             else if (sotyp .eq. 10 ) then
                 sattheta = 0.426_rk
                 rtheta   = 0.109_rk
+                wfctheta = 0.310_rk
             else if (sotyp .eq. 11 ) then
                 sattheta = 0.482_rk
                 rtheta   = 0.056_rk
+                wfctheta = 0.370_rk
             else if (sotyp .eq. 12 ) then
                 sattheta = 0.482_rk
                 rtheta   = 0.090_rk
+                wfctheta = 0.367_rk
             else if (sotyp .eq. 13 ) then
                 sattheta = 0.451_rk
                 rtheta   = 0.027_rk
+                wfctheta = 0.240_rk
             else if (sotyp .eq. 14 ) then
                 sattheta = 0.482_rk
                 rtheta   = 0.090_rk
+                wfctheta = 0.367_rk
             else if (sotyp .eq. 15 ) then
                 sattheta = 0.482_rk
                 rtheta   = 0.090_rk
+                wfctheta = 0.367_rk
             else if (sotyp .eq. 16 ) then
                 sattheta = 0.420_rk
                 rtheta   = 0.068_rk
+                wfctheta = 0.255_rk
             else !set to OTHER type
                 sattheta = 0.420_rk
                 rtheta   = 0.068_rk
+                wfctheta = 0.255_rk
             end if
         else
             write(*,*)  'Wrong socat option of ', socat, ' in namelist...exiting'

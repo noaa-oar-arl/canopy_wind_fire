@@ -815,6 +815,12 @@ SUBROUTINE canopy_calcs(nn)
                                                     relhuma_3d(i,j,:), fsun, ppfd_sun, ppfd_shade, canWIND_3d(i,j,:),  &
                                                     dswrfref, 3, ddep_o3_3d(i,j,:))   ! [cm/s]
                                             endif
+                                            !soil gas dry depostion at level 1, i.e., z=0
+                                            if (ddepspecgas_opt == 0 .or. ddepspecgas_opt == 3) then
+                                                call canopy_gas_drydep_soil(chemmechgas_opt,chemmechgas_tot, &
+                                                    tka_3d(i,j,:), pressa_3d(i,j,:), canWIND_3d(i,j,:),  &
+                                                    soilcat_opt,sotypref,soild1, soilw1ref, 3, ddep_o3_3d(i,j,1))   ! [cm/s]
+                                            endif
                                             if (ddepspecgas_opt == 0 .or. ddepspecgas_opt == 4) then
                                                 call canopy_gas_drydep_zhang(chemmechgas_opt,chemmechgas_tot, &
                                                     zk, hcmref, tka_3d(i,j,:), pressa_3d(i,j,:), &
