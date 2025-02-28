@@ -4,11 +4,13 @@ Updated on Mon Oct 16 2023: Use daily gfs.canopy files
 Updated on Tue Nov 7  2023: Enable multiple times as user argument
 Updated on Tue Apr 2  2024: Remove wget functions, all data must be from local files
 Updated on Fri May 31 2024: Replace scipy griddata with monet (pyresample)
+Updated on Mon Feb 24 2025: Enable GFSv16 downloading from AWS; Add "ozone_w126"
 
 Author: Wei-Ting Hung
 """
 
 import os
+import subprocess
 import sys
 from datetime import datetime, timedelta, timezone
 
@@ -75,7 +77,18 @@ metlist = [
     "hpbl",
     "prate_ave",
 ]
-canlist = ["lai", "clu", "canfrac", "ch", "pavd", "mol", "csz", "frp", "href"]
+canlist = [
+    "lai",
+    "clu",
+    "canfrac",
+    "ch",
+    "pavd",
+    "ozone_w126",
+    "mol",
+    "csz",
+    "frp",
+    "href",
+]
 
 
 # constants
@@ -216,15 +229,63 @@ for inputtime in timelist:
     if os.path.isfile(f_met) is True:
         print("---- Met file found!")
     else:
-        print("---- No available met data. Terminated!")
-        exit()
+        subprocess.run(
+            [
+                "wget",
+                "--no-check-certificate",
+                "--no-proxy",
+                "-O",
+                path + "/gfs.t12z." + YY + MM + DD + ".sfcf" + FH + ".nc",
+                "https://noaa-oar-arl-nacc-pds.s3.amazonaws.com/inputs/"
+                + YY
+                + MM
+                + DD
+                + "/gfs.t12z.sfcf"
+                + FH
+                + ".nc",
+            ]
+        )
+        if os.path.isfile(f_met) is True:
+            os.chmod(f_met, 0o0755)
+            print("---- Met file downloaded!")
+        else:
+            print("---- No available met data. Terminated!")
+            exit()
 
     # can file
     if os.path.isfile(f_can) is True:
         print("---- Canopy file found!")
     else:
-        print("---- No available canopy data. Terminated!")
-        exit()
+        subprocess.run(
+            [
+                "wget",
+                "--no-check-certificate",
+                "--no-proxy",
+                "-O",
+                path
+                + "/gfs.canopy.t12z."
+                + "2022"
+                + MM
+                + DD
+                + ".sfcf"
+                + FH
+                + ".global.nc",
+                "https://noaa-oar-arl-nacc-pds.s3.amazonaws.com/inputs/geo-files/"
+                + "gfs.canopy.t12z."
+                + "2022"
+                + MM
+                + DD
+                + ".sfcf"
+                + FH
+                + ".global.nc",
+            ]
+        )
+        if os.path.isfile(f_can) is True:
+            os.chmod(f_can, 0o0755)
+            print("---- Canopy file downloaded!")
+        else:
+            print("---- No available canopy data. Terminated!")
+            exit()
 
     # frp file
     if frp_src == 0:  # local source
@@ -307,6 +368,11 @@ for inputtime in timelist:
             ATTNAME = ["long_name", "units", "missing_value"]
             ATT = ["Plant area volume density profile", "m2/m3", fill_value]
             DATA = read_gfs_climatology(f_can, basefile, "pavd")
+
+        elif varname == "ozone_w126":
+            ATTNAME = ["long_name", "units", "missing_value"]
+            ATT = ["Ozone W126 index", "ppm-hours", fill_value]
+            DATA = read_gfs_climatology(f_can, basefile, "ozone_w126")
 
         elif varname == "mol":
             # Reference:
