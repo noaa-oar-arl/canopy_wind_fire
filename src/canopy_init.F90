@@ -171,4 +171,13 @@ SUBROUTINE canopy_init
         if(allocated(emi_ovoc_3d))         emi_ovoc_3d(:,:,:) = fillreal
     end if
 
+!-------------------------------------------------------------------------------
+! Initialize arrays for Canopy Gas Dry Deposition
+!-------------------------------------------------------------------------------
+
+    if (ifcanddepgas) then
+        if(allocated(ddep_o3))             ddep_o3(:,:)      = fillreal
+        if(allocated(ddep_o3_3d))          ddep_o3_3d(:,:,:) = fillreal
+    end if
+
 END SUBROUTINE canopy_init

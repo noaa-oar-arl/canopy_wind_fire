@@ -194,6 +194,14 @@ SUBROUTINE canopy_dealloc
     end if
 
 !-------------------------------------------------------------------------------
+! Deallocate arrays for Canopy Gas Dry Dep
+!-------------------------------------------------------------------------------
+
+    if (ifcanddepgas) then
+        if(allocated(ddep_o3))      deallocate(ddep_o3)
+        if(allocated(ddep_o3_3d))   deallocate(ddep_o3_3d)
+    end if
+!-------------------------------------------------------------------------------
 !  Deallocate NetCDF data structures if used
 !-------------------------------------------------------------------------------
 

@@ -1,6 +1,7 @@
 module canopy_utils_mod
 
-    use canopy_const_mod, ONLY: pi, rk, rearth    !constants for canopy models
+!    use canopy_const_mod, ONLY: ntotal, pi, rk, rearth    !constants for canopy models
+    use canopy_const_mod, ONLY: pi, rk, rearth
 
     implicit none
 
@@ -9,7 +10,10 @@ module canopy_utils_mod
         CalcDX,CalcFlameH,GET_GAMMA_CO2,GET_GAMMA_LEAFAGE, &
         GET_GAMMA_SOIM,GET_GAMMA_AQ,GET_GAMMA_HT,GET_GAMMA_LT, &
         GET_GAMMA_HW,GET_CANLOSS_BIO,CalcTemp,CalcPressure,esat, &
-        CalcRelHum,CalcSpecHum,CalcCair,Convert_qh_to_h2o
+        CalcRelHum,CalcSpecHum,CalcCair,Convert_qh_to_h2o, &
+        SetMolecDiffSTP,MolecDiff,rs_zhang_gas,rbl,rcl,rml, &
+        SetEffHenrysLawCoeffs,SetReactivityParams,ReactivityParam, &
+        EffHenrysLawCoeff,SoilResist,SoilRbg
 
 contains
 
@@ -61,7 +65,7 @@ contains
         !!  and wildland fire behavior. Canadian Journal of Forest Research.
         !!  47(5): 594-603. https://doi.org/10.1139/cjfr-2016-0354
 
-        !! Assume Canopy Cover Fraction, C,  = CANFRAC
+        ! Assume Canopy Cover Fraction, C,  = CANFRAC
         !! Assume Canopy Crown Ratio, F, = CC/3.0 = CANFRAC/3.0 (Eq. 9 in  Andrews, 2012).
         !! Andrews, P.L. 2012. Modeling wind adjustment factor and midflame wind speed
         !!  for Rothermel’s surface fire spread model. USDA For. Serv. Gen. Tech. Rep. RMRS-GTR-266.
@@ -1084,7 +1088,7 @@ contains
         ! zref and zn must be same units!!!
 
         dtmp = (taref-tsref)/zref
-        CalcTemp = (tsref + dtmp*zk) + 273.15
+        CalcTemp = (tsref + dtmp*zk) + 273.15_rk
 
         return
     end function CalcTemp
@@ -1102,7 +1106,7 @@ contains
         real(rk), parameter   :: a0=3.42D-04   ! Mg/R (K/cm)
         real(rk)              :: CalcPressure  ! air pressure at current z (mb)
 
-        CalcPressure = pmbzref*exp(-a0*(zk-zref)/(0.5*(tref+t0)))
+        CalcPressure = pmbzref*exp(-a0*(zk-zref)/(0.5_rk*(tref+t0)))
 
         return
     end function CalcPressure
@@ -1121,8 +1125,8 @@ contains
         real(rk)             :: esat    ! saturation vapor pressure (kPa)
         real(rk)             :: tc      ! temperature (C)
 
-        tc = tki - 273.15
-        esat = 0.6112*exp(17.67*tc/(tc+243.5))
+        tc = tki - 273.15_rk
+        esat = 0.6112_rk*exp(17.67_rk*tc/(tc+243.5_rk))
         return
     end function esat
 
@@ -1140,12 +1144,12 @@ contains
         real(rk)             :: tc, e, es, qhd, pkpa, rhi
         real(rk), parameter  :: rhmin=0.1
         real(rk), parameter  :: rhmax=99.0
-        qhd=0.001*qhi
-        pkpa=0.1*pmbi
-        tc = tki - 273.15
-        e = pkpa*qhd/(0.622+qhd)
-        es = 0.6112*exp(17.67*tc/(tc+243.5)) !Rogers et al. (1989)
-        rhi = max(rhmin, min(rhmax, 100.0*e/es))   ! bound RH to (rhmin, rhmax)
+        qhd=0.001_rk*qhi
+        pkpa=0.1_rk*pmbi
+        tc = tki - 273.15_rk
+        e = pkpa*qhd/(0.622_rk+qhd)
+        es = 0.6112_rk*exp(17.67_rk*tc/(tc+243.5_rk)) !Rogers et al. (1989)
+        rhi = max(rhmin, min(rhmax, 100.0_rk*e/es))   ! bound RH to (rhmin, rhmax)
         CalcRelHum = rhi
         return
     end function CalcRelHum
@@ -1162,10 +1166,10 @@ contains
         real(rk)             :: es                  ! saturation vapor pressure at tki (mb)
         real(rk)             :: e                   ! ambient vapor pressure (mb)
 
-        es = esat(tki)*10.0            ! kPa -> mb
-        e  = es*rhi*0.01               ! mb
+        es = esat(tki)*10.0_rk            ! kPa -> mb
+        e  = es*rhi*0.01_rk               ! mb
 
-        CalcSpecHum = 622.0*e/(pmbi-0.378*e)
+        CalcSpecHum = 622.0_rk*e/(pmbi-0.378_rk*e)
 
         return
 
@@ -1193,9 +1197,453 @@ contains
         real(rk), intent(in) :: cairi                 ! air concentration at i (molecs/cm3)
         real(rk)             :: Convert_qh_to_h2o     ! h2o concentration (molecs/cm3)
 
-        Convert_qh_to_h2o = 0.001611*qhi*cairi
+        Convert_qh_to_h2o = 0.001611_rk*qhi*cairi
 
         return
     end function Convert_qh_to_h2o
+
+
+!=====================================================================================
+!function mdiffstp - set molecular diffusivity data (cm^2/s) for all species at
+!                           0 deg C and 1 atm
+!=====================================================================================
+    subroutine SetMolecDiffSTP(chemmechgas_opt,chemmechgas_tot,mdiffstp)
+        integer, intent(in)  :: chemmechgas_opt, chemmechgas_tot      !chemical mechanism and total gas species including transported
+        real(rk),dimension(chemmechgas_tot),intent(out)  :: mdiffstp       !molecular diffusivities of species in air at 0degC and 1 atm [cm^2/s]
+!    real(kind = dp), parameter         :: mdiffstp_default = 0.100   !default value of mdiffstp (cm^2/s) with no reliable data
+!    integer(kind=i4)                   :: l                          !l is species
+
+        if (chemmechgas_opt .eq. 0) then !RACM2
+            !Insert MolecDiffSTP Coefficients for RACM2_plus mechanism
+            !species in array are:
+            != (/NO,   NO2,    O3,  HONO,  HNO4,   HNO3,   N2O5,     CO,  H2O2,  CH4,
+            !MO2,   OP1,   MOH,   NO3,   O3P,    O1D,     HO,    HO2,  ORA1,  HAC,
+            !PAA, DHMOB, HPALD,  ISHP, IEPOX, PROPNN, ISOPNB, ISOPND, MACRN, MVKN,
+            !ISNP /)
+            if (chemmechgas_tot .gt. 31) then ! too many species defined
+                write(*,*)  'Too many species of ', chemmechgas_tot, ' in namelist for this chemmechgas_opt....exiting'
+                write(*,*)  'Set chemmechgas_tot < 31'
+                call exit(2)
+            else
+                mdiffstp =(/0.1802, 0.1361, 0.1444, 0.1349, 0.1041, 0.1041, 0.0808, 0.1807, 0.1300, 0.1952,  &
+                    0.1297, 0.1200, 0.1297, 0.1153, 0.2773, 0.2773, 0.2543, 0.2000, 0.1340, 0.1060,  &
+                    0.1040, 0.0892, 0.0845, 0.0837, 0.0837, 0.0834, 0.0750, 0.0750, 0.0745, 0.0745,  &
+                    0.0712 /)
+            end if
+        else
+            write(*,*)  'Wrong chemical mechanism option of ', chemmechgas_opt, ' in namelist...exiting'
+            write(*,*)  'Set chemmechgas_opt to only 0 (RACM2) for now'
+            call exit(2)
+        end if
+!species (NO2, O3)
+!    mdiffstp =(/0.1361, 0.1444/)
+
+        return
+    end subroutine SetMolecDiffSTP
+
+!==========================================================================
+!function MolecDiff - calculate molecular diffusivities (cm^2/s) at a given
+!                     temperature and pressure
+!==========================================================================
+    function MolecDiff(chemmechgas_opt, chemmechgas_tot,ispec, tkx, pmbx)
+        integer, intent(in)  :: chemmechgas_opt, chemmechgas_tot      !chemical mechanism and total gas species including transported
+        integer, intent(in)         :: ispec     !dummy id for species
+        real(rk), intent(in)        :: tkx       !ambient temp [K]
+        real(rk), intent(in)        :: pmbx      !ambient press pmb]
+        real(rk)                    :: MolecDiff !cm2/s
+        real(rk),dimension(chemmechgas_tot)  ::mdiffstp
+
+        call SetMolecDiffSTP(chemmechgas_opt,chemmechgas_tot,mdiffstp)
+        MolecDiff = mdiffstp(ispec)*(1013.25_rk/pmbx)*((tkx/298.15_rk)**1.81)
+
+        return
+    end function MolecDiff
+
+!=========================================================================
+!function mdiffh2o - calculate molecular diffusivity of water vapor in air
+!
+!source: Tracy (1980)
+!=========================================================================
+    function mdiffh2o(tki,pmbi)
+        real(rk), intent(in) :: tki
+        real(rk), intent(in) :: pmbi
+        real(rk)             :: mdiffh2o
+
+        mdiffh2o = 0.226_rk*((tki/273.15_rk)**1.81_rk)*(1000.0_rk/pmbi)
+
+        return
+    end function mdiffh2o
+
+!======================================================================
+!function rs_zhang_gas - calcualte stomatal resistance for trace species
+!
+!Source - Zhang et al., (2002 & 2003)
+!       - 'rsmin' by Wesely et al (1989)
+!       - 'bvpd' by Wolfe and Thornton (2011)
+!======================================================================
+    function rs_zhang_gas(mdiffl, tki, pmbi, ppfdi, srad, relhumi)
+        real(rk), intent(in) :: mdiffl            !molecular diffusivity of trace species in air (cm^2/s)
+        real(rk), intent(in) :: tki               !air temperature (K)
+        real(rk), intent(in) :: pmbi              !air pressure (mb)
+        real(rk), intent(in) :: ppfdi             !photosynthetic photon flux (umol/m^2-s)
+        real(rk), intent(in) :: srad              !solar irradiation (W/m^2)
+        real(rk), intent(in) :: relhumi           !relative humidity (%)
+        real(rk)             :: rs_zhang_gas      !stomatal resistance (s/cm)
+        !TODO --- Make rs parameters vegtyp dependent -----
+        real(rk), parameter  :: rsmin =1.0        !minimum leaf stomatal resistance (s/cm) for deciduous forest
+        real(rk), parameter  :: rsmax =10000.0    !maximum leaf stomatal resistance (s/cm) (stoma are closed)
+        real(rk), parameter  :: brsp = 196.5      !empirical constant (umol/m^2-s) for deciduous forest
+        real(rk), parameter  :: tmin = 0.0        !temperature correction parameter-deciduous forest
+        real(rk), parameter  :: tmax = 45.0       !temperature correction parameter-deciduous forest
+        real(rk), parameter  :: topt = 27.0       !temperature correction parameter-deciduous forest
+        real(rk), parameter  :: bvpd = 0.10       !empirical constant for VPD correction-deciduous forest
+        real(rk), parameter  :: phic1 = -1.9      !empirical constant for water stress correction-deciduous forest
+        real(rk), parameter  :: phic2 = -2.5      !empirical constant for water stress correction-deciduous forest
+        !TODO --- Make rs parameters vegtyp dependent -----
+        real(rk)             :: cft
+        real(rk)             :: cfvpd
+        real(rk)             :: cfphi
+        real(rk)             :: tcel
+        real(rk)             :: ft1
+        real(rk)             :: ft2
+        real(rk)             :: et
+        real(rk)             :: vpd
+        real(rk)             :: phi
+
+        !temperature correction
+        tcel = tki - 273.15_rk !convert to degrees C
+        if (tcel .ge. tmax) then  !restrict tcell < tmax
+            tcel = tmax-0.1_rk
+        else if (tcel .le. tmin) then !restrict tcell > tmin
+            tcel = tmin+0.1_rk
+        else
+            tcel = tcel
+        end if
+        et   = (tmax-topt)/(topt-tmin)
+        ft1  =(tcel-tmin)/(topt-tmin)
+        ft2  = (tmax-tcel)/(tmax-topt)
+        cft  = ft1*(ft2**et)
+        !water vapor pressure defit correction
+        vpd  = esat(tki)*(1.0_rk - (relhumi/100.0_rk))
+        cfvpd= 1.0_rk - bvpd*vpd
+        !water stress correction
+        phi  = -0.72_rk - 0.0013_rk*srad
+        cfphi= (phi-phic2)/(phic1-phic2)
+
+        if (ppfdi >0.0) then
+            rs_zhang_gas = rsmin*(1.0_rk+brsp/ppfdi)*mdiffh2o(tki,pmbi)/(mdiffl*cft*cfvpd*cfphi)
+        else
+            rs_zhang_gas = rsmax                         !nighttime, stoma are closed
+        endif
+
+        return
+    end function rs_zhang_gas
+
+!===================================================================
+!function rbl - calculate leaf boundary resistance for trace species
+!
+!Source - rb formulation from Wu et al., (2003)
+!       - ustar = 0.14*ubar from Weber (1999)
+!===================================================================
+    function rbl(mdiffl, ubari)
+        real(rk)               :: rbl            !leaf boundary layer resistance (s/cm)
+        real(rk), intent(in)   :: mdiffl         !molecular diffusivity of species in air (cm^2/s)
+        real(rk), intent(in)   :: ubari          !mean wind speed at layer i (cm/s)
+
+!    rbl = 10.53_rk/((mdiffl**0.666667_rk)*max(1.0D-10,ubari))
+        rbl = 10.53_rk/((mdiffl**0.666667_rk)*ubari)
+        return
+    end function rbl
+
+!===============================================================
+!function rcl - calculate cuticular resistance for trace species
+!
+!Source - Wesely (1989)
+!===============================================================
+    function rcl(hstarl,f01)
+        real(rk), intent(in)   :: hstarl         ! effective Henry's law coefficient (M/atm)
+        real(rk), intent(in)   :: f01            ! reactivity parameter (0-1)
+        real(rk)               :: rcl            ! cuticular resistance (s/cm)
+        real(rk), parameter    :: rcref=20.0     ! rc for ozone (s/cm) for deciduous forest
+
+        rcl = rcref/((hstarl*1.0D-05)+f01)
+
+        return
+    end function rcl
+
+
+!===============================================================
+!function rml - calculate mesophyll resistance for trace species
+!
+!Source - Wesely (1989)
+!===============================================================
+    function rml(hstarl,f01)
+        real(rk), intent(in)   :: hstarl          ! effective Henry's law coefficient (M/atm)
+        real(rk), intent(in)   :: f01             ! reactivity parameter (0-1)
+        real(rk)               :: rml             ! mesophyll resistance (s/cm)
+
+        rml = 1.0_rk/((hstarl/3000.0_rk)+100.0_rk*f01)
+
+        return
+    end function rml
+
+
+!===============================================================================================================
+!function SoilResist - calculate the resistance to diffusion of a species from the free warer surface in the soil
+!                      to the soil-atmosphere interface. Rsoil
+!Source - Sakagichi & Zeng (2009)
+!================================================================================================================
+    function SoilResist(mdiffl,socat,sotyp,dsoil,stheta)
+        real(rk), intent(in)  :: mdiffl         !molecular diffusivity of species in air (cm^2/s)
+        integer,  intent(in)  :: socat          !input soil category datset
+        integer,  intent(in)  :: sotyp          !input soil type integer associated with soilcat
+        real(rk), intent(in)  :: dsoil          !depth of topsoil (cm)
+        real(rk), intent(in)  :: stheta         !volumetric soil water content in topsoil(m^3/m^3)
+        real(rk)              :: sattheta       !saturation volumetric soil water content (m^3/m^3)
+        real(rk)              :: rtheta         !residual volumetic soil water content (m^3/m^3), typical range of 0.001–0.1rk
+        real(rk)              :: wfctheta       !soil field capacity
+        real(rk)              :: SoilResist     !Soil resistance (s/cm)
+        real(rk)              :: xe             !temporary variable
+        real(rk)              :: ldry           !diffusion distance through the soil (cm)
+        real(rk)              :: mdiffp         !effective diffusivity of species through the soil (cm^2/s)
+        real(rk), parameter   :: sbcoef = 0.2   !clapp and hornberger exponent
+
+
+        if (socat .eq. 0) then !input based on NCA-LDAS 16-Category Type
+            ! Soil Characteristics by Type from NCA-LDAS 16-category type based on STATSGO/FAO soil texture
+            ! https://ldas.gsfc.nasa.gov/nca-ldas/soils
+            !Based on WRF4+ Taken from CMAQv5.4+: https://github.com/GMU-SESS-AQ/CMAQ/blob/main/CCTM/src/depv/m3dry/LSM_MOD.F#L134
+            !
+            !   #  SOIL TYPE  WSAT  WFC  WWLT  BSLP  CGSAT   JP   AS   C2R  C1SAT  WRES
+            !   _  _________  ____  ___  ____  ____  _____   ___  ___  ___  _____  ____
+            !   1  SAND       .395 .135  .068  4.05  3.222    4  .387  3.9  .082   .020
+            !   2  LOAMY SAND .410 .150  .075  4.38  3.057    4  .404  3.7  .098   .035
+            !   3  SANDY LOAM .435 .195  .114  4.90  3.560    4  .219  1.8  .132   .041
+            !   4  SILT LOAM  .485 .255  .179  5.30  4.418    6  .105  0.8  .153   .015
+            !   5  SILT       .480 .260  .150  5.30  4.418    6  .105  0.8  .153   .020
+            !   6  LOAM       .451 .240  .155  5.39  4.111    6  .148  0.8  .191   .027
+            !   7  SND CLY LM .420 .255  .175  7.12  3.670    6  .135  0.8  .213   .068
+            !   8  SLT CLY LM .477 .322  .218  7.75  3.593    8  .127  0.4  .385   .040
+            !   9  CLAY LOAM  .476 .325  .250  8.52  3.995   10  .084  0.6  .227   .075
+            !  10  SANDY CLAY .426 .310  .219 10.40  3.058    8  .139  0.3  .421   .109
+            !  11  SILTY CLAY .482 .370  .283 10.40  3.729   10  .075  0.3  .375   .056
+            !  12  CLAY       .482 .367  .286 11.40  3.600   12  .083  0.3  .342   .090
+            !  13  ORGANICMAT .451 .240  .155  5.39  4.111    6  .148  0.8  .191   .027
+            !  14  WATER      .482 .367  .286 11.40  3.600   12  .083  0.3  .342   .090
+            !  15  BEDROCK    .482 .367  .286 11.40  3.600   12  .083  0.3  .342   .090
+            !  16  OTHER      .420 .255  .175  7.12  3.670    6  .135  0.8  .213   .068
+            !-------------------------------------------------------------------------------
+            !Note:  sattheta = WSAT, rtheta = WRES, and wtheta = WWLT
+            !OTHER = land-ice
+
+            if (sotyp .eq. 0) then !if soil type water = 0 (e.g., FV3) --really shouldn't be water cell here
+                sattheta = 0.482_rk
+                rtheta   = 0.090_rk
+                wfctheta = 0.367_rk
+            else if (sotyp .eq. 1) then
+                sattheta = 0.395_rk
+                rtheta   = 0.020_rk
+                wfctheta = 0.135_rk
+            else if (sotyp .eq. 2 ) then
+                sattheta = 0.410_rk
+                rtheta   = 0.035_rk
+                wfctheta = 0.150_rk
+            else if (sotyp .eq. 3 ) then
+                sattheta = 0.435_rk
+                rtheta   = 0.041_rk
+                wfctheta = 0.195_rk
+            else if (sotyp .eq. 4 ) then
+                sattheta = 0.485_rk
+                rtheta   = 0.015_rk
+                wfctheta = 0.255_rk
+            else if (sotyp .eq. 5 ) then
+                sattheta = 0.480_rk
+                rtheta   = 0.020_rk
+                wfctheta = 0.260_rk
+            else if (sotyp .eq. 6 ) then
+                sattheta = 0.451_rk
+                rtheta   = 0.027_rk
+                wfctheta = 0.240_rk
+            else if (sotyp .eq. 7 ) then
+                sattheta = 0.420_rk
+                rtheta   = 0.068_rk
+                wfctheta = 0.255_rk
+            else if (sotyp .eq. 8 ) then
+                sattheta = 0.477_rk
+                rtheta   = 0.040_rk
+                wfctheta = 0.322_rk
+            else if (sotyp .eq. 9 ) then
+                sattheta = 0.476_rk
+                rtheta   = 0.075_rk
+                wfctheta = 0.325_rk
+            else if (sotyp .eq. 10 ) then
+                sattheta = 0.426_rk
+                rtheta   = 0.109_rk
+                wfctheta = 0.310_rk
+            else if (sotyp .eq. 11 ) then
+                sattheta = 0.482_rk
+                rtheta   = 0.056_rk
+                wfctheta = 0.370_rk
+            else if (sotyp .eq. 12 ) then
+                sattheta = 0.482_rk
+                rtheta   = 0.090_rk
+                wfctheta = 0.367_rk
+            else if (sotyp .eq. 13 ) then
+                sattheta = 0.451_rk
+                rtheta   = 0.027_rk
+                wfctheta = 0.240_rk
+            else if (sotyp .eq. 14 ) then
+                sattheta = 0.482_rk
+                rtheta   = 0.090_rk
+                wfctheta = 0.367_rk
+            else if (sotyp .eq. 15 ) then
+                sattheta = 0.482_rk
+                rtheta   = 0.090_rk
+                wfctheta = 0.367_rk
+            else if (sotyp .eq. 16 ) then
+                sattheta = 0.420_rk
+                rtheta   = 0.068_rk
+                wfctheta = 0.255_rk
+            else !set to OTHER type
+                sattheta = 0.420_rk
+                rtheta   = 0.068_rk
+                wfctheta = 0.255_rk
+            end if
+        else
+            write(*,*)  'Wrong socat option of ', socat, ' in namelist...exiting'
+            write(*,*)  'Set socat to only 0 (NCA-LDAS Soils based on STATSGO/FAO) for now'
+            call exit(2)
+        end if
+
+        xe = (1.0_rk-(stheta/sattheta))**5.0_rk
+        ldry = dsoil*(exp(xe)-1.0_rk)/1.7183_rk
+        ldry = max(0.0_rk,ldry)
+
+        mdiffp = mdiffl*sattheta*sattheta*(1.0_rk-(rtheta/sattheta))**(2.0_rk+3.0_rk/sbcoef)
+        SoilResist = ldry/mdiffp
+
+        return
+
+    end function SoilResist
+
+!=====================================================================================
+!function SoilRbg - calculate the boundary layer resistance at the ground surface. Rbg
+!
+!Source - Schuepp (1977)
+!=====================================================================================
+    function SoilRbg(ubar)
+        real(rk), intent(in)  :: ubar            !mean wind speed in the 1st model layer above ground (cm/s)
+        !do not use ground wind because of physical zero-slip condition,
+        !i.e., ubar=0 at z=0
+        real(rk)              :: SoilRbg         !Boundary layer resistance at ground surface (s/cm)
+        real(rk), parameter   :: rbgmax = 1.67   !maximum ground surface boundary layer resistance (s/cm)
+        real(rk)              :: rbg             !temporary variable for boundary layer resistance (s/cm)
+
+        rbg = 11.534_rk/(0.14_rk*ubar)           !assume Sc=0.7,del0/zl = 0.02 and ustar = 0.14*ubar (Weber,1999)
+        SoilRbg = min(rbgmax,rbg)
+
+        return
+    end function SoilRbg
+
+!========================================================================
+!function EffHenrysLawCoeff - calculate Henry's Law coefficient (M/atm)
+!                             have not include temperature dependence yet
+!========================================================================
+    function EffHenrysLawCoeff(chemmechgas_opt,chemmechgas_tot,ispec)
+        integer, intent(in)         :: chemmechgas_opt,chemmechgas_tot ! chemical mechanism and total gas species including transported
+        integer, intent(in)         :: ispec  !dummy id for species
+        real(rk)                    :: EffHenrysLawCoeff
+        real(rk),dimension(chemmechgas_tot) :: hstar
+
+        call SetEffHenrysLawCoeffs(chemmechgas_opt,chemmechgas_tot,hstar)
+        EffHenrysLawCoeff = hstar(ispec)
+
+        return
+    end function EffHenrysLawCoeff
+
+!====================================================================
+!function hstar - set henry's law coefficient for all species (M/atm)
+!
+!source - Nguyen et al., (2015)
+!====================================================================
+    subroutine SetEffHenrysLawCoeffs(chemmechgas_opt,chemmechgas_tot,hstar)
+        integer, intent(in)                             :: chemmechgas_opt,chemmechgas_tot ! chemical mechanism and total gas species including transported
+        real(rk),dimension(chemmechgas_tot),intent(out) :: hstar
+
+        if (chemmechgas_opt .eq. 0) then !RACM2
+            !Insert MolecDiffSTP Coefficients for RACM2_plus mechanism
+            !species in array are:
+            != (/NO,   NO2,    O3,  HONO,  HNO4,   HNO3,   N2O5,     CO,  H2O2,  CH4,
+            !MO2,   OP1,   MOH,   NO3,   O3P,    O1D,     HO,    HO2,  ORA1,  HAC,
+            !PAA, DHMOB, HPALD,  ISHP, IEPOX, PROPNN, ISOPNB, ISOPND, MACRN, MVKN,
+            !ISNP /)
+            if (chemmechgas_tot .gt. 31) then ! too many species defined
+                write(*,*)  'Too many species of ', chemmechgas_tot, ' in namelist for this chemmechgas_opt...exiting'
+                write(*,*)  'Set chemmechgas_tot < 31'
+                call exit(2)
+            else
+                hstar = (/1.9D-03, 1.2D-02,1.03D-02, 2.6D+05, 1.0D+07, 3.2D+13, 1.0D+14, 9.8D-04, 8.4D+04, 1.4D-03,  &
+                    6.9D+02, 3.0D+02, 2.2D+02, 3.8D-02, 3.8D-02, 3.8D-02, 3.9D+01, 6.9D+02, 5.6D+03, 2.0D+03,  &
+                    5.2D+02, 2.0D+03, 4.0D+04, 7.0D+07, 7.0D+07, 1.0D+04, 5.0D+03, 5.0D+03, 6.0D+03, 6.0D+03,  &
+                    5.0D+03 /)
+            end if
+        else
+            write(*,*)  'Wrong chemical mechanism option of ', chemmechgas_opt, ' in namelist...exiting'
+            write(*,*)  'Set chemmechgas_opt to only 0 (RACM2) for now'
+            call exit(2)
+        end if
+
+        return
+    end subroutine SetEffHenrysLawCoeffs
+
+!==========================================================================
+!function ReactivityParam - calculate reactivity parameters (dimensionless)
+!==========================================================================
+    function ReactivityParam(chemmechgas_opt,chemmechgas_tot,ispec)
+        integer, intent(in)                             :: chemmechgas_opt,chemmechgas_tot ! chemical mechanism and total gas species including transported
+        integer, intent(in)        :: ispec   !dummy id for species
+        real(rk)                   :: ReactivityParam
+        real(rk),dimension(chemmechgas_tot) :: f0
+
+        call SetReactivityParams(chemmechgas_opt,chemmechgas_tot,f0)
+        ReactivityParam = f0(ispec)
+
+        return
+    end function ReactivityParam
+
+!========================================================
+!function f0 - set reactivity parameters for all species
+!
+!source - Wesely et al., (1989) and Nguyen et al., (2015)
+!========================================================
+    subroutine SetReactivityParams(chemmechgas_opt,chemmechgas_tot,f0)
+!    integer(kind=i4)                              :: l               !l is species
+        integer, intent(in)                             :: chemmechgas_opt,chemmechgas_tot ! chemical mechanism and total gas species including transported
+        real(rk),dimension(chemmechgas_tot),intent(out) :: f0
+
+        if (chemmechgas_opt .eq. 0) then !RACM2
+            !Insert MolecDiffSTP Coefficients for RACM2_plus mechanism
+            !species in array are:
+            != (/NO,   NO2,    O3,  HONO,  HNO4,   HNO3,   N2O5,     CO,  H2O2,  CH4,
+            !MO2,   OP1,   MOH,   NO3,   O3P,    O1D,     HO,    HO2,  ORA1,  HAC,
+            !PAA, DHMOB, HPALD,  ISHP, IEPOX, PROPNN, ISOPNB, ISOPND, MACRN, MVKN,
+            !ISNP /)
+            if (chemmechgas_tot .gt. 31) then ! too many species defined
+                write(*,*)  'Too many species of ', chemmechgas_tot, ' in namelist for this chemmechgas_opt....exiting'
+                write(*,*)  'Set chemmechgas_tot < 31'
+                call exit(2)
+            else
+                f0 = (/0.0, 0.1, 1.0, 0.1, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0,  &
+                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.1, 0.1, 0.0, 0.0,  &
+                    0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,  &
+                    0.0 /)
+            end if
+        else
+            write(*,*)  'Wrong chemical mechanism option of ', chemmechgas_opt, ' in namelist...exiting'
+            write(*,*)  'Set chemmechgas_opt to only 0 (RACM2) for now'
+            call exit(2)
+        end if
+        return
+    end subroutine SetReactivityParams
 
 end module canopy_utils_mod

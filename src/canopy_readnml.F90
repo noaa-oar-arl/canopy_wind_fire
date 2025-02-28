@@ -24,11 +24,12 @@ SUBROUTINE canopy_readnml
         nlat, nlon, modlays, modres, href_opt, href_set, z0ghc, lambdars, &
         var3d_opt, var3d_set, pavd_opt, pavd_set, &
         flameh_opt, flameh_cal, flameh_set, frp_fac, ifcanwind, &
-        ifcanwaf, ifcaneddy, ifcanphot, ifcanbio, pai_opt, pai_set, lu_opt, z0_opt, &
-        dx_opt, dx_set, lai_thresh, cf_thresh, ch_thresh, rsl_opt, bio_cce, &
+        ifcanwaf, ifcaneddy, ifcanphot, ifcanbio, ifcanddepgas, pai_opt, pai_set, lu_opt, &
+        z0_opt, dx_opt, dx_set, lai_thresh, cf_thresh, ch_thresh, rsl_opt, bio_cce, &
         biospec_opt, biovert_opt, ssg_opt, ssg_set, crop_opt, crop_set, co2_opt, co2_set, &
         leafage_opt, lai_tstep, soim_opt, soild1, soild2, soild3, soild4, aq_opt, w126_set, &
-        ht_opt, lt_opt, hw_opt, hist_opt, loss_opt, loss_set, loss_ind, lifetime
+        ht_opt, lt_opt, hw_opt, hist_opt, loss_opt, loss_set, loss_ind, lifetime, &
+        ddepspecgas_opt, chemmechgas_opt, chemmechgas_tot, soilcat_opt
 
 
 !-------------------------------------------------------------------------------
@@ -184,6 +185,11 @@ SUBROUTINE canopy_readnml
 !-------------------------------------------------------------------------------
 ! Set default logical for canopy biogenic emissions (default = .FALSE.)
     ifcanbio = .FALSE.
+!-------------------------------------------------------------------------------
+
+!-------------------------------------------------------------------------------
+! Set default logical for canopy gas dry deposition (default = .FALSE.)
+    ifcanddepgas = .FALSE.
 !-------------------------------------------------------------------------------
 
 !-------------------------------------------------------------------------------
@@ -366,6 +372,25 @@ SUBROUTINE canopy_readnml
 !------------------------------------------------------------------------------
 ! Set default integer for using high wind stress gamma for biogenic emissions (default=1; Off)
     hw_opt = 1
+!-------------------------------------------------------------------------------
+
+!-------------------------------------------------------------------------------
+! Set default integer value to select species for drydep gas output (0, all)
+    ddepspecgas_opt = 0
+!-------------------------------------------------------------------------------
+
+!-------------------------------------------------------------------------------
+! Set default integer value to select chemical mechanism (0, RACM2)
+    chemmechgas_opt = 0
+!-------------------------------------------------------------------------------
+
+! Set default integer value to select chemical mechanism gas species list including transported (31, RACM2)
+    chemmechgas_tot = 31
+!-------------------------------------------------------------------------------
+
+!-------------------------------------------------------------------------------
+! Set default integer value to select soil category option (0, STATSGO/FAO)
+    soilcat_opt = 0
 !-------------------------------------------------------------------------------
 
 !-------------------------------------------------------------------------------
