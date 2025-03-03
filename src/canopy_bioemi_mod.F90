@@ -9,7 +9,7 @@ contains
         PPFD_SUN, PPFD_SHADE, TLEAF_SUN, TLEAF_SHADE, PPFD24_SUN, &
         PPFD24_SHADE, TLEAF24_AVE,  &
         PPFD240_SUN, PPFD240_SHADE, &
-        TLEAF240_AVE, TEMP2, LU_OPT, &
+        TLEAF240_AVE, TKA, TEMP2, LU_OPT, &
         VTYPE, MODRES, CCE, VERT, CO2OPT, CO2SET, &
         LEAFAGEOPT, PASTLAI, CURRENTLAI, TSTEPLAI, &
         LOSSOPT, LOSSSET, LOSSIND, LIFETIME, USTAR, &
@@ -72,6 +72,7 @@ contains
         REAL(RK),    INTENT( IN )       :: PPFD240_SUN(:)     ! PPFD for sunlit leaves (umol phot/m2 s) -- 240 hr ave
         REAL(RK),    INTENT( IN )       :: PPFD240_SHADE(:)   ! PPFD for shaded leaves (umol phot/m2 s)
         REAL(RK),    INTENT( IN )       :: TLEAF240_AVE(:)    ! Average Leaf temp (K)
+        REAL(RK),    INTENT( IN )       :: TKA(:)          ! Interpolated air temp (K)
 
         REAL(RK),    INTENT( IN )       :: TEMP2           ! Model input 2-m Temperature (K)
         INTEGER,     INTENT( IN )       :: LU_OPT          ! integer for LU type from model mapped to Massman et al. (default = 0/VIIRS)
@@ -117,25 +118,30 @@ contains
         REAL(RK),    INTENT( OUT )      :: EMI_OUT(:)      ! Output canopy layer volume emissions (kg m-3 s-1)
 
 ! Local Variables
-        REAL(RK) :: GammaTLEAF_SUN_NUM(SIZE(ZK))   ! Numerator in Tleaf sun activity factor
-        REAL(RK) :: GammaTLEAF_SHADE_NUM(SIZE(ZK)) ! Numerator in Tleaf shade activity factor
-        REAL(RK) :: GammaTLEAF_SUN_DEN(SIZE(ZK))   ! Denominator in Tleaf sun activity factor
-        REAL(RK) :: GammaTLEAF_SHADE_DEN(SIZE(ZK)) ! Denominator in Tleaf sun activity factor
-        REAL(RK) :: GammaTLEAF_SUN(SIZE(ZK))       ! Tleaf sun activity factor
-        REAL(RK) :: GammaTLEAF_SHADE(SIZE(ZK))     ! Tleaf shade activity factor
-        REAL(RK) :: GammaTLEAF_AVE(SIZE(ZK))       ! Average Tleaf activity factor
+        REAL(RK) :: GammaTLEAF_SUN_LDF_NUM(SIZE(ZK))   ! Numerator in Tleaf sun activity factor for light-dependent fraction
+        REAL(RK) :: GammaTLEAF_SHADE_LDF_NUM(SIZE(ZK)) ! Numerator in Tleaf shade activity factor for light-dependent fraction
+        REAL(RK) :: GammaTLEAF_SUN_LDF_DEN(SIZE(ZK))   ! Denominator in Tleaf sun activity factor for light-dependent fraction
+        REAL(RK) :: GammaTLEAF_SHADE_LDF_DEN(SIZE(ZK)) ! Denominator in Tleaf shade activity factor for light-dependent fraction
+        REAL(RK) :: GammaTLEAF_SUN_LDF(SIZE(ZK))   ! Tleaf sun activity factor for light-dependent fraction
+        REAL(RK) :: GammaTLEAF_SHADE_LDF(SIZE(ZK)) ! Tleaf shade activity factor for light-dependent fraction
+        REAL(RK) :: GammaTLEAF_SUN_LIF(SIZE(ZK))   ! Tleaf sun activity factor for light-independent fraction
+        REAL(RK) :: GammaTLEAF_SHADE_LIF(SIZE(ZK)) ! Tleaf shade activity factor for light-independent fraction
         REAL(RK) :: CP_SUN(SIZE(ZK))               ! Normalized emission capacity sun at PPFD = 1000 umol phot/m2 s
         REAL(RK) :: CP_SHADE(SIZE(ZK))             ! Normalized emission capacity shade at PPFD = 1000 umol phot/m2 s
         REAL(RK) :: ALPHA_P_SUN(SIZE(ZK))          ! Quantum yield of isoprene sunlit (mol/mol)
         REAL(RK) :: ALPHA_P_SHADE(SIZE(ZK))        ! Quantum yield of isoprene shade (mol/mol)
-        REAL(RK) :: GammaPPFD_SUN(SIZE(ZK))        ! PPFD activity factor sun (unitless)
-        REAL(RK) :: GammaPPFD_SHADE(SIZE(ZK))      ! PPFD activity factor shade (unitless)
-        REAL(RK) :: GammaPPFD_AVE(SIZE(ZK))        ! PPFD activity factor ave sun and shade
+        REAL(RK) :: GammaPPFD_SUN_LDF(SIZE(ZK))    ! PPFD activity factor sun of light-dependent fraction (unitless)
+        REAL(RK) :: GammaPPFD_SHADE_LDF(SIZE(ZK))  ! PPFD activity factor shade of light-dependent fraction (unitless)
+        REAL(RK) :: GammaTLEAF_PPFD_LDF(SIZE(ZK))      ! Combined TLEAF and PPFD activity factor ave sun and shade
+        REAL(RK) :: GammaTLEAF_PPFD_LIF(SIZE(ZK))      ! Combined TLEAF and PPFD activity factor ave sun and shade
+        REAL(RK) :: GammaTLEAF_PPFD_AVE(SIZE(ZK))      ! Combined TLEAF and PPFD activity factor ave sun and shade
         REAL(RK) :: E_OPT(SIZE(ZK))                ! maximum normalized emission capacity
         REAL(RK) :: TLEAF_OPT(SIZE(ZK))            ! Tleaf at which E_OPT occurs (K)
         REAL(RK) :: FLAI(SIZE(ZK))                 ! Fractional LAI in layer
         REAL(RK) :: VPGWT(SIZE(ZK))                ! MEGANv3-like in-canopy weighting factor
         REAL(RK) :: GAUSS(SIZE(ZK))                ! MEGANv3-like in-canopy gaussian
+        REAL(RK) :: LDF                            ! Light-dependent fraction
+        REAL(RK) :: BETA                           ! Empirical coefficient for temperature dependence of light-independent fraction
         REAL(RK) :: CT1                            ! Activation energy (kJ/mol)
         REAL(RK) :: CEO                            ! Empirical coefficient
         REAL(RK) :: EF                             ! Final Mapped Emission factor (EF) (ug/m2 hr)
@@ -197,8 +203,8 @@ contains
         TLEAF_OPT = 313.0_rk + (0.6_rk * (TLEAF240_AVE-297.0_rk)) !Guenther et al. (2012)
 
 ! Calculate emission species/plant-dependent mapped emission factors and other important coefficients for gamma terms
-        call canopy_biop(EMI_IND, LU_OPT, VTYPE, EF, CT1, CEO, ANEW, AGRO, AMAT, AOLD, ROOTA, ROOTB, CAQ, TAQ, DTAQ, &
-            CHT, THT, DTHT, CLT, TLT, DTLT, CHW, THW, DTHW)
+        call canopy_biop(EMI_IND, LU_OPT, VTYPE, EF, LDF, BETA, CT1, CEO, ANEW, AGRO, AMAT, AOLD, ROOTA, ROOTB, &
+            CAQ, TAQ, DTAQ, CHT, THT, DTHT, CLT, TLT, DTLT, CHW, THW, DTHW)
 
 !        print*,'CHT=',CHT,'THT=',THT,'DTHT=',DTHT
 !        print*,'CLT=',CLT,'TLT=',TLT,'DTLT=',DTLT
@@ -206,29 +212,31 @@ contains
         E_OPT = CEO * EXP(0.05_rk * (TLEAF24_AVE-297.0_rk)) * EXP(0.05_rk * (TLEAF240_AVE-297.0_rk))
 
 ! Calculate gamma (activity) values for average Tleaf (Clifton et al., 2022; based on Guenther et al. 2012)
-        GammaTLEAF_SUN_NUM = CT2*exp((CT1/(rgasuniv/1000.0))*((1.0/TLEAF_OPT)-(1.0/TLEAF_SUN)))
-        GammaTLEAF_SUN_DEN = (CT2-CT1)*(1.0-exp((CT2/(rgasuniv/1000.0))*((1.0/TLEAF_OPT)-(1.0/TLEAF_SUN))))
-        GammaTLEAF_SUN     = E_OPT*(GammaTLEAF_SUN_NUM/GammaTLEAF_SUN_DEN)
+        GammaTLEAF_SUN_LDF_NUM = CT2*exp((CT1/(rgasuniv/1000.0))*((1.0/TLEAF_OPT)-(1.0/TLEAF_SUN)))
+        GammaTLEAF_SUN_LDF_DEN = (CT2-CT1)*(1.0-exp((CT2/(rgasuniv/1000.0))*((1.0/TLEAF_OPT)-(1.0/TLEAF_SUN))))
+        GammaTLEAF_SUN_LDF = E_OPT*(GammaTLEAF_SUN_LDF_NUM/GammaTLEAF_SUN_LDF_DEN)
+        GammaTLEAF_SUN_LIF = exp(BETA*(TKA-303.0_rk))
 
-        GammaTLEAF_SHADE_NUM = CT2*exp((CT1/(rgasuniv/1000.0))*((1.0/TLEAF_OPT)-(1.0/TLEAF_SHADE)))
-        GammaTLEAF_SHADE_DEN = (CT2-CT1)*(1.0-exp((CT2/(rgasuniv/1000.0))*((1.0/TLEAF_OPT)-(1.0/TLEAF_SHADE))))
-        GammaTLEAF_SHADE     = E_OPT*(GammaTLEAF_SHADE_NUM/GammaTLEAF_SHADE_DEN)
-
-        GammaTLEAF_AVE = (GammaTLEAF_SUN*FSUN) + (GammaTLEAF_SHADE*(1.0-FSUN)) ! average = sum sun and shade weighted by sunlit fraction
-
-        GammaTLEAF_AVE = MAX( GammaTLEAF_AVE, 0.0_rk )
+        GammaTLEAF_SHADE_LDF_NUM = CT2*exp((CT1/(rgasuniv/1000.0))*((1.0/TLEAF_OPT)-(1.0/TLEAF_SHADE)))
+        GammaTLEAF_SHADE_LDF_DEN = (CT2-CT1)*(1.0-exp((CT2/(rgasuniv/1000.0))*((1.0/TLEAF_OPT)-(1.0/TLEAF_SHADE))))
+        GammaTLEAF_SHADE_LDF = E_OPT*(GammaTLEAF_SHADE_LDF_NUM/GammaTLEAF_SHADE_LDF_DEN)
+        GammaTLEAF_SHADE_LIF = exp(BETA*(TKA-303.0_rk))
 
 ! Calculate gamma (activity) values for average PPFD (Clifton et al., 2022; based on Guenther et al. 2012)
         ALPHA_P_SUN = 0.004 - 0.0005*log(PPFD240_SUN)
         ALPHA_P_SHADE = 0.004 - 0.0005*log(PPFD240_SHADE)
         CP_SUN = 0.0468*(PPFD240_SUN**(0.6))*exp(0.005*(PPFD24_SUN-PPFD0_SUN))
         CP_SHADE = 0.0468*(PPFD240_SHADE**(0.6))*exp(0.005*(PPFD24_SHADE-PPFD0_SHADE))
-        GammaPPFD_SUN   = CP_SUN*((ALPHA_P_SUN*PPFD_SUN)/SQRT(1.0 + (ALPHA_P_SUN**2.0) * (PPFD_SUN**2.0)))
-        GammaPPFD_SHADE = CP_SHADE*((ALPHA_P_SHADE*PPFD_SHADE)/SQRT(1.0 + (ALPHA_P_SHADE**2.0) * (PPFD_SHADE**2.0)))
+        GammaPPFD_SUN_LDF   = CP_SUN*((ALPHA_P_SUN*PPFD_SUN)/SQRT(1.0 + (ALPHA_P_SUN**2.0) * (PPFD_SUN**2.0)))
+        GammaPPFD_SHADE_LDF = CP_SHADE*((ALPHA_P_SHADE*PPFD_SHADE)/SQRT(1.0 + (ALPHA_P_SHADE**2.0) * (PPFD_SHADE**2.0)))
 
-        GammaPPFD_AVE = (GammaPPFD_SUN*FSUN) + (GammaPPFD_SHADE*(1.0-FSUN)) ! average = sum sun and shade weighted by sunlit fraction
+        GammaPPFD_SUN_LDF = MAX( GammaPPFD_SUN_LDF, 0.0_rk )
+        GammaPPFD_SHADE_LDF = MAX( GammaPPFD_SHADE_LDF, 0.0_rk )
 
-        GammaPPFD_AVE = MAX( GammaPPFD_AVE, 0.0_rk )
+        GammaTLEAF_PPFD_LDF = (GammaPPFD_SUN_LDF*GammaTLEAF_SUN_LDF*FSUN) + (GammaPPFD_SHADE_LDF*GammaTLEAF_SHADE_LDF*(1.0 - FSUN))
+        GammaTLEAF_PPFD_LIF = (GammaTLEAF_SUN_LIF*FSUN) + (GammaTLEAF_SHADE_LIF*(1.0-FSUN))
+        GammaTLEAF_PPFD_AVE = (GammaTLEAF_PPFD_LDF*LDF) + (GammaTLEAF_PPFD_LIF*(1.0 - LDF))
+        GammaTLEAF_PPFD_AVE = MAX( GammaTLEAF_PPFD_AVE, 0.0_rk )
 
 ! Get CO2 inhibition factor for isoprene only
 
@@ -295,7 +303,7 @@ contains
                     else
                         FLAI(i) = FLAI(MODLAYS-1)
                     end if
-                    EMI_OUT(i) = FLAI(i) * EF * GammaTLEAF_AVE(i) * GammaPPFD_AVE(i) * GAMMACO2 * CCE * &
+                    EMI_OUT(i) = FLAI(i) * EF * GammaTLEAF_PPFD_AVE(i) * GAMMACO2 * CCE * &
                         GAMMALEAFAGE * GAMMASOIM * GAMMAAQ * GAMMAHT * GAMMALT * GAMMAHW ! (ug m-3 hr-1)
                     EMI_OUT(i) = EMI_OUT(i) * 2.7777777777778E-13_rk    !convert emissions output to (kg m-3 s-1)
                 end if
@@ -319,7 +327,7 @@ contains
                     VPGWT(i) = 0.0_rk !above canopy
                 end if
             end do
-            EMI_OUT(SIZE(ZK)) = LAI * EF * SUM(GammaTLEAF_AVE(1:LAYERS) * GammaPPFD_AVE(1:LAYERS) * &
+            EMI_OUT(SIZE(ZK)) = LAI * EF * SUM(GammaTLEAF_PPFD_AVE(1:LAYERS) * &
                 VPGWT(1:LAYERS)) * GAMMACO2 * CCE * GAMMALEAFAGE * GAMMASOIM * &
                 GAMMAAQ * GAMMAHT * GAMMALT * GAMMAHW * CANLOSS_FAC !put into top model layer (ug m-2 hr-1)
             EMI_OUT = EMI_OUT * 2.7777777777778E-13_rk    !convert emissions output to    (kg m-2 s-1)
@@ -352,7 +360,7 @@ contains
             do i=1, SIZE(ZK)
                 VPGWT(i) = GAUSS(i)/sum(GAUSS(1:LAYERS))
             end do
-            EMI_OUT(SIZE(ZK)) = LAI * EF * SUM(GammaTLEAF_AVE(1:LAYERS) * GammaPPFD_AVE(1:LAYERS) * &
+            EMI_OUT(SIZE(ZK)) = LAI * EF * SUM(GammaTLEAF_PPFD_AVE(1:LAYERS) * &
                 VPGWT(1:LAYERS)) * GAMMACO2 * CCE * GAMMALEAFAGE * GAMMASOIM * &
                 GAMMAAQ * GAMMAHT * GAMMALT * GAMMAHW * CANLOSS_FAC    !put into top model layer (ug m-2 hr-1)
             EMI_OUT = EMI_OUT * 2.7777777777778E-13_rk    !convert emissions output to    (kg m-2 s-1)
@@ -364,7 +372,7 @@ contains
             do i=1,  SIZE(ZK)
                 VPGWT(i) = 1.0_rk/LAYERS
             end do
-            EMI_OUT(SIZE(ZK)) = LAI * EF * SUM(GammaTLEAF_AVE(1:LAYERS) * GammaPPFD_AVE(1:LAYERS) * &
+            EMI_OUT(SIZE(ZK)) = LAI * EF * SUM(GammaTLEAF_PPFD_AVE(1:LAYERS) * &
                 VPGWT(1:LAYERS)) * GAMMACO2 * CCE * GAMMALEAFAGE * GAMMASOIM * &
                 GAMMAAQ * GAMMAHT * GAMMALT * GAMMAHW  * CANLOSS_FAC    !put into top model layer (ug m-2 hr-1)
             EMI_OUT = EMI_OUT * 2.7777777777778E-13_rk    !convert emissions output to    (kg m-2 s-1)
